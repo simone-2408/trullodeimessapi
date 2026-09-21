@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#22252A"/>
+  <!-- Trullo silhouette in warm gold -->
+  <path d="M32 10L14 36H50L32 10Z" fill="#B99470" />
+  <circle cx="32" cy="8" r="3" fill="#DFD0B8" />
+  <rect x="18" y="36" width="28" height="18" fill="#F4EFEA" />
+  <path d="M28 42H36V54H28Z" fill="#22252A" rx="4" />
+</svg>
