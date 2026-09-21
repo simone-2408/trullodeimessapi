@@ -30,15 +30,15 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
 
   return (
     <div className="relative min-h-[92vh] flex items-center justify-center pt-28 pb-20 overflow-hidden">
-      {/* Background Photography with warm natural light */}
+      {/* Background Photography: Gazebo & Piscina */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/images/trulli/106730545.jpg"
-          alt="Trullo dei Messapi - Dimora Storica Pugliese"
-          className="w-full h-full object-cover object-center scale-100 filter brightness-95"
+          src="/images/piscina/106724803.jpg"
+          alt="Trullo dei Messapi - Piscina con Gazebo e Ulivi"
+          className="w-full h-full object-cover object-center scale-100 filter brightness-[0.92]"
         />
-        {/* Soft, warm vignette for natural contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-black/35" />
+        {/* Warm, transparent vignette for optimal text legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/30 to-black/40" />
       </div>
 
       {/* Hero Content */}

@@ -41,7 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Clean, Bright, Pure White Luxury Navbar */}
       <nav
         className={`w-full transition-all duration-300 bg-white/95 backdrop-blur-md border-b border-[#E8DEC8]/60 ${
-          isScrolled ? 'py-2.5 shadow-sm' : 'py-3.5'
+          isScrolled ? 'py-2 shadow-sm' : 'py-2.5 sm:py-3'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -52,12 +52,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               e.preventDefault();
               handleNavClick('home');
             }}
-            className="flex items-center gap-3 group py-1"
+            className="flex items-center gap-3 group py-0.5"
           >
             <img
               src="/images/logo.png"
               alt="Trullo dei Messapi - Relais di Puglia"
-              className="h-11 sm:h-12 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+              className="h-14 sm:h-16 lg:h-20 w-auto object-contain transition-transform group-hover:scale-[1.02]"
             />
           </a>
 

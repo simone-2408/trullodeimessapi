@@ -3,7 +3,7 @@ import { Language, Accommodation } from './types';
 import { useAppRouter } from './utils/router';
 import { TRANSLATIONS } from './data/translations';
 import { ACCOMMODATIONS } from './data/accommodations';
-import { ThreeCanvas } from './components/ThreeCanvas';
+import { PinnacleShowcase } from './components/PinnacleShowcase';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AccommodationCard } from './components/AccommodationCard';
@@ -15,7 +15,7 @@ import { LocationSection } from './components/LocationSection';
 import { ReviewsSection } from './components/ReviewsSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
-import { MessageCircle, Sparkles } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('it');
@@ -39,26 +39,9 @@ export const App: React.FC = () => {
     navigate('preventivo');
   };
 
-  const handleOpenSuiteDetailsById = (
-    id: 'quercia' | 'corbezzolo' | 'melograno'
-  ) => {
-    const acc = ACCOMMODATIONS.find((a) => a.id === id);
-    if (acc) {
-      setActiveModalAccommodation(acc);
-    }
-  };
-
   return (
     <div className="relative min-h-screen bg-[#FAF8F5] text-[#22252A] flex flex-col selection:bg-[#B99470] selection:text-white">
-      {/* 1. PERSISTENT THREE.JS WEBGL CANVAS (Background depth) */}
-      <ThreeCanvas
-        currentRoute={currentRoute}
-        lang={lang}
-        onSelectAccommodation={(id) => handleOpenSuiteDetailsById(id)}
-        onOpenPoolGallery={() => navigate('piscina')}
-      />
-
-      {/* 2. REFINED WHITE LUXURY NAVIGATION BAR */}
+      {/* 1. REFINED WHITE LUXURY NAVIGATION BAR */}
       <Navbar
         currentRoute={currentRoute}
         onNavigate={navigate}
@@ -70,21 +53,31 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* 3. MULTI-PAGE ROUTE VIEWS */}
+      {/* 2. MULTI-PAGE ROUTE VIEWS */}
       <main className="relative z-10 flex-grow pt-16">
-        {/* === ROUTE: / or /home === */}
+        {/* === ROUTE: / or /home HERO (Pool & Gazebo Background) === */}
+        {currentRoute === 'home' && (
+          <Hero
+            lang={lang}
+            onQuickSearch={({ accommodationId, checkIn, checkOut }) => {
+              if (accommodationId) setCalculatorSuite(accommodationId);
+              if (checkIn) setCalculatorCheckIn(checkIn);
+              if (checkOut) setCalculatorCheckOut(checkOut);
+              navigate('preventivo');
+            }}
+          />
+        )}
+
+        {/* === DEDICATED 3D PINNACLE SHOWCASE (Confinato a colonna 40% a destra, sfondo trasparente, persistente con transizioni GSAP) === */}
+        <PinnacleShowcase
+          currentRoute={currentRoute}
+          lang={lang}
+          onNavigate={navigate}
+        />
+
+        {/* === ROUTE CONTENT: / or /home === */}
         {currentRoute === 'home' && (
           <div className="animate-in fade-in duration-500 space-y-12">
-            <Hero
-              lang={lang}
-              onQuickSearch={({ accommodationId, checkIn, checkOut }) => {
-                if (accommodationId) setCalculatorSuite(accommodationId);
-                if (checkIn) setCalculatorCheckIn(checkIn);
-                if (checkOut) setCalculatorCheckOut(checkOut);
-                navigate('preventivo');
-              }}
-            />
-
             {/* Overview of the 3 Suites */}
             <section className="py-16 bg-[#FAF8F5]/90 backdrop-blur-md">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -133,24 +126,10 @@ export const App: React.FC = () => {
 
         {/* === ROUTE: /suites === */}
         {currentRoute === 'suites' && (
-          <div className="animate-in fade-in duration-500 py-12 bg-[#FAF8F5]/90 backdrop-blur-md">
+          <div className="animate-in fade-in duration-500 py-12 bg-[#FAF8F5]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              {/* Header */}
-              <div className="text-center max-w-3xl mx-auto mb-16">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B99470]/15 text-[#8A6743] text-xs font-bold uppercase tracking-widest mb-3">
-                  <Sparkles size={13} />
-                  <span>{t.accommodations.sectionTag}</span>
-                </div>
-                <h1 className="font-serif text-3xl sm:text-5xl font-bold text-gray-900 leading-tight">
-                  {t.accommodations.title}
-                </h1>
-                <p className="mt-4 text-base sm:text-lg text-gray-600 font-light leading-relaxed">
-                  {t.accommodations.subtitle}
-                </p>
-              </div>
-
               {/* 3 Accommodation Cards */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {ACCOMMODATIONS.map((acc) => (
                   <AccommodationCard
                     key={acc.id}
