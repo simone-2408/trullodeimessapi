@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Language } from '../types';
+import { AppRoute } from '../three/types';
 import { TRANSLATIONS } from '../data/translations';
 import { Phone, Menu, X, Calendar, MapPin } from 'lucide-react';
 
 interface NavbarProps {
+  currentRoute: AppRoute;
+  onNavigate: (route: AppRoute) => void;
   lang: Language;
   onLanguageChange: (lang: Language) => void;
   onOpenCalculator: (accommodationId?: 'quercia' | 'corbezzolo' | 'melograno') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
+  currentRoute,
+  onNavigate,
   lang,
   onLanguageChange,
   onOpenCalculator,
@@ -20,37 +25,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 40) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 30);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollTo = (id: string) => {
+  const handleNavClick = (route: AppRoute) => {
     setIsMobileMenuOpen(false);
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 80;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
-    }
+    onNavigate(route);
   };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
       {/* Top micro bar with contact & legal */}
-      <div className="bg-[#1E2226] text-[#DFD0B8] text-xs py-1.5 px-4 hidden md:block border-b border-white/5">
+      <div className="bg-[#1E2226]/90 backdrop-blur-md text-[#DFD0B8] text-xs py-1.5 px-4 hidden md:block border-b border-white/5">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-6">
             <span className="flex items-center gap-1.5 opacity-90">
@@ -84,10 +73,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Brand Logo */}
           <a
-            href="#"
+            href="/"
             onClick={(e) => {
               e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleNavClick('home');
             }}
             className="flex items-center gap-3 group"
           >
@@ -115,57 +104,73 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center space-x-7">
             <button
-              onClick={() => scrollTo('dimore')}
-              className={`text-sm font-medium tracking-wide transition-colors hover:text-[#B99470] ${
-                isScrolled ? 'text-[#2B3037]' : 'text-white/90'
+              onClick={() => handleNavClick('home')}
+              className={`text-sm font-medium tracking-wide transition-colors cursor-pointer ${
+                currentRoute === 'home'
+                  ? 'text-[#B99470] font-bold border-b-2 border-[#B99470]'
+                  : isScrolled
+                  ? 'text-[#2B3037] hover:text-[#B99470]'
+                  : 'text-white/90 hover:text-[#B99470]'
+              }`}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => handleNavClick('suites')}
+              className={`text-sm font-medium tracking-wide transition-colors cursor-pointer ${
+                currentRoute === 'suites'
+                  ? 'text-[#B99470] font-bold border-b-2 border-[#B99470]'
+                  : isScrolled
+                  ? 'text-[#2B3037] hover:text-[#B99470]'
+                  : 'text-white/90 hover:text-[#B99470]'
               }`}
             >
               {t.nav.accommodations}
             </button>
             <button
-              onClick={() => scrollTo('piscina')}
-              className={`text-sm font-medium tracking-wide transition-colors hover:text-[#B99470] ${
-                isScrolled ? 'text-[#2B3037]' : 'text-white/90'
+              onClick={() => handleNavClick('piscina')}
+              className={`text-sm font-medium tracking-wide transition-colors cursor-pointer ${
+                currentRoute === 'piscina'
+                  ? 'text-[#B99470] font-bold border-b-2 border-[#B99470]'
+                  : isScrolled
+                  ? 'text-[#2B3037] hover:text-[#B99470]'
+                  : 'text-white/90 hover:text-[#B99470]'
               }`}
             >
               {t.nav.pool}
             </button>
             <button
-              onClick={() => scrollTo('esperienza')}
-              className={`text-sm font-medium tracking-wide transition-colors hover:text-[#B99470] ${
-                isScrolled ? 'text-[#2B3037]' : 'text-white/90'
+              onClick={() => handleNavClick('esperienza')}
+              className={`text-sm font-medium tracking-wide transition-colors cursor-pointer ${
+                currentRoute === 'esperienza'
+                  ? 'text-[#B99470] font-bold border-b-2 border-[#B99470]'
+                  : isScrolled
+                  ? 'text-[#2B3037] hover:text-[#B99470]'
+                  : 'text-white/90 hover:text-[#B99470]'
               }`}
             >
               {t.nav.experience}
             </button>
             <button
-              onClick={() => scrollTo('listino-2026')}
-              className={`text-sm font-medium tracking-wide transition-colors hover:text-[#B99470] ${
-                isScrolled ? 'text-[#2B3037]' : 'text-white/90'
+              onClick={() => handleNavClick('preventivo')}
+              className={`text-sm font-medium tracking-wide transition-colors cursor-pointer ${
+                currentRoute === 'preventivo'
+                  ? 'text-[#B99470] font-bold border-b-2 border-[#B99470]'
+                  : isScrolled
+                  ? 'text-[#2B3037] hover:text-[#B99470]'
+                  : 'text-white/90 hover:text-[#B99470]'
               }`}
             >
-              {t.nav.rates}
+              {t.nav.calculator}
             </button>
             <button
-              onClick={() => scrollTo('posizione')}
-              className={`text-sm font-medium tracking-wide transition-colors hover:text-[#B99470] ${
-                isScrolled ? 'text-[#2B3037]' : 'text-white/90'
-              }`}
-            >
-              {t.nav.location}
-            </button>
-            <button
-              onClick={() => scrollTo('recensioni')}
-              className={`text-sm font-medium tracking-wide transition-colors hover:text-[#B99470] ${
-                isScrolled ? 'text-[#2B3037]' : 'text-white/90'
-              }`}
-            >
-              {t.nav.reviews}
-            </button>
-            <button
-              onClick={() => scrollTo('contatti')}
-              className={`text-sm font-medium tracking-wide transition-colors hover:text-[#B99470] ${
-                isScrolled ? 'text-[#2B3037]' : 'text-white/90'
+              onClick={() => handleNavClick('contatti')}
+              className={`text-sm font-medium tracking-wide transition-colors cursor-pointer ${
+                currentRoute === 'contatti'
+                  ? 'text-[#B99470] font-bold border-b-2 border-[#B99470]'
+                  : isScrolled
+                  ? 'text-[#2B3037] hover:text-[#B99470]'
+                  : 'text-white/90 hover:text-[#B99470]'
               }`}
             >
               {t.nav.contact}
@@ -184,7 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <button
                 onClick={() => onLanguageChange('it')}
-                className={`px-2.5 py-1 rounded-full transition-all ${
+                className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
                   lang === 'it'
                     ? 'bg-[#B99470] text-white shadow-sm'
                     : isScrolled
@@ -196,7 +201,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
               <button
                 onClick={() => onLanguageChange('en')}
-                className={`px-2.5 py-1 rounded-full transition-all ${
+                className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
                   lang === 'en'
                     ? 'bg-[#B99470] text-white shadow-sm'
                     : isScrolled
@@ -210,7 +215,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* CTA Button */}
             <button
-              onClick={() => onOpenCalculator()}
+              onClick={() => {
+                handleNavClick('preventivo');
+                onOpenCalculator();
+              }}
               className="bg-[#B99470] hover:bg-[#A37E5A] text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2 group cursor-pointer"
             >
               <Calendar size={16} className="group-hover:scale-110 transition-transform" />
@@ -270,49 +278,37 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="lg:hidden bg-[#1E2226] text-white border-t border-white/10 px-4 py-6 shadow-2xl animate-in slide-in-from-top duration-300">
             <div className="flex flex-col space-y-4">
               <button
-                onClick={() => scrollTo('dimore')}
+                onClick={() => handleNavClick('home')}
+                className="text-left text-base font-medium py-2 border-b border-white/5 hover:text-[#B99470] transition-colors"
+              >
+                Home
+              </button>
+              <button
+                onClick={() => handleNavClick('suites')}
                 className="text-left text-base font-medium py-2 border-b border-white/5 hover:text-[#B99470] transition-colors"
               >
                 {t.nav.accommodations}
               </button>
               <button
-                onClick={() => scrollTo('piscina')}
+                onClick={() => handleNavClick('piscina')}
                 className="text-left text-base font-medium py-2 border-b border-white/5 hover:text-[#B99470] transition-colors"
               >
                 {t.nav.pool}
               </button>
               <button
-                onClick={() => scrollTo('esperienza')}
+                onClick={() => handleNavClick('esperienza')}
                 className="text-left text-base font-medium py-2 border-b border-white/5 hover:text-[#B99470] transition-colors"
               >
                 {t.nav.experience}
               </button>
               <button
-                onClick={() => scrollTo('listino-2026')}
-                className="text-left text-base font-medium py-2 border-b border-white/5 hover:text-[#B99470] transition-colors"
-              >
-                {t.nav.rates}
-              </button>
-              <button
-                onClick={() => scrollTo('preventivo')}
+                onClick={() => handleNavClick('preventivo')}
                 className="text-left text-base font-medium py-2 border-b border-white/5 hover:text-[#B99470] transition-colors"
               >
                 {t.nav.calculator}
               </button>
               <button
-                onClick={() => scrollTo('posizione')}
-                className="text-left text-base font-medium py-2 border-b border-white/5 hover:text-[#B99470] transition-colors"
-              >
-                {t.nav.location}
-              </button>
-              <button
-                onClick={() => scrollTo('recensioni')}
-                className="text-left text-base font-medium py-2 border-b border-white/5 hover:text-[#B99470] transition-colors"
-              >
-                {t.nav.reviews}
-              </button>
-              <button
-                onClick={() => scrollTo('contatti')}
+                onClick={() => handleNavClick('contatti')}
                 className="text-left text-base font-medium py-2 border-b border-white/5 hover:text-[#B99470] transition-colors"
               >
                 {t.nav.contact}
@@ -320,7 +316,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <button
                 onClick={() => {
-                  setIsMobileMenuOpen(false);
+                  handleNavClick('preventivo');
                   onOpenCalculator();
                 }}
                 className="w-full mt-4 bg-[#B99470] hover:bg-[#A37E5A] text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 shadow-lg"

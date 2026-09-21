@@ -12,4 +12,15 @@ export default defineConfig({
     port: 3000,
     open: false,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          three: ['three'],
+          gsap: ['gsap'],
+          vendor: ['react', 'react-dom', 'lucide-react'],
+        },
+      },
+    },
+  },
 });
