@@ -7,9 +7,9 @@ export function useAppRouter(): [AppRoute, (route: AppRoute) => void] {
     const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
     if (hash === 'suites' || hash === 'dimore') return 'suites';
     if (hash === 'piscina' || hash === 'pool') return 'piscina';
-    if (hash === 'esperienza' || hash === 'experience' || hash === 'tenuta') return 'esperienza';
+    if (hash === 'esperienza' || hash === 'experience' || hash === 'tenuta') return 'home';
     if (hash === 'preventivo' || hash === 'prenota' || hash === 'tariffe' || hash === 'rates') return 'preventivo';
-    if (hash === 'contatti' || hash === 'contact' || hash === 'posizione') return 'contatti';
+    if (hash === 'contatti' || hash === 'contact' || hash === 'posizione' || hash === 'dove-siamo') return 'contatti';
     if (hash === 'home') return 'home';
 
     // 2. Check path segment (e.g. /suites or /trullodeimessapi/suites)
@@ -17,9 +17,9 @@ export function useAppRouter(): [AppRoute, (route: AppRoute) => void] {
     const lastSegment = segments[segments.length - 1] || '';
     if (lastSegment === 'suites' || lastSegment === 'dimore') return 'suites';
     if (lastSegment === 'piscina' || lastSegment === 'pool') return 'piscina';
-    if (lastSegment === 'esperienza' || lastSegment === 'experience' || lastSegment === 'tenuta') return 'esperienza';
+    if (lastSegment === 'esperienza' || lastSegment === 'experience' || lastSegment === 'tenuta') return 'home';
     if (lastSegment === 'preventivo' || lastSegment === 'prenota' || lastSegment === 'tariffe' || lastSegment === 'rates') return 'preventivo';
-    if (lastSegment === 'contatti' || lastSegment === 'contact' || lastSegment === 'posizione') return 'contatti';
+    if (lastSegment === 'contatti' || lastSegment === 'contact' || lastSegment === 'posizione' || lastSegment === 'dove-siamo') return 'contatti';
 
     return 'home';
   };

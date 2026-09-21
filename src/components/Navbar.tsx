@@ -142,16 +142,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               {t.nav.pool}
             </button>
             <button
-              onClick={() => handleNavClick('esperienza')}
-              className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
-                currentRoute === 'esperienza'
-                  ? 'text-[#B99470] border-b-2 border-[#B99470]'
-                  : 'text-[#2C2926] hover:text-[#B99470]'
-              }`}
-            >
-              {t.nav.experience}
-            </button>
-            <button
               onClick={() => handleNavClick('preventivo')}
               className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'preventivo'
@@ -236,12 +226,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="text-left text-sm uppercase tracking-wider font-semibold py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 {t.nav.pool}
-              </button>
-              <button
-                onClick={() => handleNavClick('esperienza')}
-                className="text-left text-sm uppercase tracking-wider font-semibold py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
-              >
-                {t.nav.experience}
               </button>
               <button
                 onClick={() => handleNavClick('preventivo')}

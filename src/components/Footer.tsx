@@ -14,15 +14,13 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const scrollTo = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 80;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+  const navigateTo = (route: string) => {
+    if (route === 'home') {
+      window.location.hash = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.location.hash = `#${route}`;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -45,8 +43,8 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
                 <span className="font-serif text-2xl font-bold tracking-wide text-white block leading-tight">
                   Trullo dei Messapi
                 </span>
-                <span className="text-[10px] uppercase tracking-[0.25em] text-[#DFD0B8] block mt-0.5">
-                  Valle d'Itria • Puglia
+                <span className="text-[11px] text-white/50 tracking-[0.2em] uppercase block">
+                  Boutique Relais • Puglia
                 </span>
               </div>
             </div>
@@ -70,50 +68,42 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
             <ul className="space-y-2 text-sm text-white/70">
               <li>
                 <button
-                  onClick={() => scrollTo('dimore')}
-                  className="hover:text-[#B99470] transition-colors"
+                  onClick={() => navigateTo('home')}
+                  className="hover:text-[#B99470] transition-colors cursor-pointer"
+                >
+                  Home
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigateTo('suites')}
+                  className="hover:text-[#B99470] transition-colors cursor-pointer"
                 >
                   {t.nav.accommodations}
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('piscina')}
-                  className="hover:text-[#B99470] transition-colors"
+                  onClick={() => navigateTo('piscina')}
+                  className="hover:text-[#B99470] transition-colors cursor-pointer"
                 >
                   {t.nav.pool}
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('esperienza')}
-                  className="hover:text-[#B99470] transition-colors"
-                >
-                  {t.nav.experience}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollTo('preventivo')}
-                  className="hover:text-[#B99470] transition-colors font-medium text-[#DFD0B8]"
+                  onClick={() => navigateTo('preventivo')}
+                  className="hover:text-[#B99470] transition-colors font-medium text-[#DFD0B8] cursor-pointer"
                 >
                   {t.nav.calculator}
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('posizione')}
-                  className="hover:text-[#B99470] transition-colors"
+                  onClick={() => navigateTo('contatti')}
+                  className="hover:text-[#B99470] transition-colors cursor-pointer"
                 >
-                  {t.nav.location}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollTo('recensioni')}
-                  className="hover:text-[#B99470] transition-colors"
-                >
-                  {t.nav.reviews}
+                  {t.nav.contact}
                 </button>
               </li>
             </ul>

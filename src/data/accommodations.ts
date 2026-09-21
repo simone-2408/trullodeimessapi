@@ -27,8 +27,9 @@ export const ACCOMMODATIONS: Accommodation[] = [
       it: '3 camere da letto matrimoniali (possibilità di aggiungere fino a 2 letti singoli)',
       en: '3 Double master bedrooms (possibility of up to 2 extra single beds)',
     },
-    coverImage: './images/quercia/106724849.jpg',
+    coverImage: './images/quercia/IMG_3145.JPG',
     gallery: [
+      './images/quercia/IMG_3145.JPG',
       './images/quercia/106724849.jpg',
       './images/quercia/106724860.jpg',
       './images/quercia/106724872.jpg',
@@ -179,11 +180,11 @@ export const ACCOMMODATIONS: Accommodation[] = [
       it: '1 letto matrimoniale queen size + divano letto / possibilità letto aggiunto o culla',
       en: '1 Queen Size double bed + sofa bed / optional extra bed or crib',
     },
-    coverImage: './images/melograno/106725328.jpg',
+    coverImage: './images/melograno/106725299.jpg',
     gallery: [
+      './images/melograno/106725299.jpg',
       './images/melograno/106725328.jpg',
       './images/melograno/106725317.jpg',
-      './images/melograno/106725299.jpg',
       './images/melograno/106725309.jpg',
       './images/melograno/106725335.jpg',
       './images/melograno/106725296.jpg',
@@ -229,8 +230,8 @@ export const ACCOMMODATIONS: Accommodation[] = [
 
 export const POOL_DATA = {
   title: {
-    it: 'La piscina panoramica e angolo jacuzzi',
-    en: 'Panoramic Swimming Pool & Outdoor Jacuzzi',
+    it: 'La piscina e angolo jacuzzi',
+    en: 'Swimming Pool & Outdoor Jacuzzi',
   },
   subtitle: {
     it: 'Condivisa ad uso esclusivo degli ospiti delle 3 dimore',
@@ -247,7 +248,6 @@ export const POOL_DATA = {
     './images/piscina/106724784.jpg',
     './images/piscina/106724810.jpg',
     './images/piscina/106724768.jpg',
-    './images/piscina/106724822.jpg',
     './images/piscina/106724798.jpg',
     './images/piscina/106724775.jpg',
   ],

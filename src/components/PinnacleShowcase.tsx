@@ -1,14 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AppRoute } from '../three/types';
 import { PinnacleScene } from '../three/PinnacleScene';
 import { Language } from '../types';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ZoomIn, ZoomOut, RotateCcw, Play, Pause } from 'lucide-react';
 
 interface PinnacleShowcaseProps {
   currentRoute: AppRoute;
   lang: Language;
   onNavigate?: (route: AppRoute) => void;
 }
+
+type DetailType = 'overview' | 'sphere' | 'chalice' | 'stones';
 
 export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
   currentRoute,
@@ -17,6 +19,9 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<PinnacleScene | null>(null);
+  const [activeDetail, setActiveDetail] = useState<DetailType>('overview');
+  const [isTourPlaying, setIsTourPlaying] = useState(false);
+  const tourTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -28,6 +33,7 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
     sceneRef.current = scene;
 
     return () => {
+      if (tourTimerRef.current) clearInterval(tourTimerRef.current);
       scene.dispose();
       sceneRef.current = null;
     };
@@ -40,206 +46,331 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
     }
   }, [currentRoute]);
 
-  // Route-specific editorial narratives for the 60% Left column
+  const detailSequence: DetailType[] = ['overview', 'sphere', 'chalice', 'stones'];
+
+  const handleSelectDetail = (detail: DetailType) => {
+    if (isTourPlaying) {
+      setIsTourPlaying(false);
+      if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    }
+    setActiveDetail(detail);
+    sceneRef.current?.focusDetail(detail);
+  };
+
+  const toggleTour = () => {
+    if (isTourPlaying) {
+      setIsTourPlaying(false);
+      if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    } else {
+      setIsTourPlaying(true);
+      const currentIndex = detailSequence.indexOf(activeDetail);
+      const nextIndex = (currentIndex + 1) % detailSequence.length;
+      const nextDetail = detailSequence[nextIndex];
+      setActiveDetail(nextDetail);
+      sceneRef.current?.focusDetail(nextDetail);
+
+      tourTimerRef.current = window.setInterval(() => {
+        setActiveDetail((prev) => {
+          const idx = detailSequence.indexOf(prev);
+          const next = detailSequence[(idx + 1) % detailSequence.length];
+          sceneRef.current?.focusDetail(next);
+          return next;
+        });
+      }, 3800);
+    }
+  };
+
+  // Route-specific editorial narratives
   const narrative = {
     home: {
-      tag: lang === 'it' ? 'Architettura tradizionale' : 'Traditional architecture',
+      tag: lang === 'it' ? 'Scultura & Memoria' : 'Sculpture & Memory',
       title:
         lang === 'it'
-          ? 'Il pinnacolo in pietra: simbolo e maestria dei trulli'
-          : 'The stone pinnacle: symbol and craftsmanship of trulli',
+          ? 'Il pinnacolo: il dialogo tra pietra e cielo'
+          : 'The pinnacle: dialogue between stone and sky',
       desc1:
         lang === 'it'
-          ? 'Sulla sommità del cono in chiancarelle a secco svetta il pinnacolo, scolpito a mano nella pietra calcarea pugliese secondo l’antica tradizione dei maestri trullari.'
-          : 'At the top of the dry-stone cone stands the pinnacle, hand-carved in local Apulian limestone following the ancient craft of master trullo builders.',
+          ? 'Sulla sommità di ogni cono in pietra a secco svetta il pinnacolo in pietra calcarea, scolpito a mano da generazioni: antico simbolo di equilibrio tra la terra e il cielo.'
+          : 'At the top of each dry-stone cone stands the hand-chiseled limestone pinnacle: a timeless symbol of harmony between earth and sky.',
       desc2:
         lang === 'it'
-          ? 'Al Trullo dei Messapi ogni cono è stato restaurato nel pieno rispetto dell’architettura rurale della Valle d’Itria, preservando la pietra originale e l’autenticità degli ambienti.'
-          : 'At Trullo dei Messapi, every cone has been preserved with respect for traditional rural architecture, keeping the authentic stone and atmosphere intact.',
-      specs: [
-        { label: lang === 'it' ? 'Materiale' : 'Material', val: lang === 'it' ? 'Pietra calcarea a scalpello' : 'Hand-chiseled limestone' },
-        { label: lang === 'it' ? 'Tecnica' : 'Technique', val: lang === 'it' ? 'Posa a secco tradizionale' : 'Traditional dry-stone craft' },
-        { label: lang === 'it' ? 'Origine' : 'Heritage', val: lang === 'it' ? 'Valle d’Itria' : 'Itria Valley' },
-      ],
+          ? 'Un’architettura essenziale e silenziosa, plasmata dall’antica sapienza rurale pugliese per fondersi con il paesaggio della Valle d’Itria.'
+          : 'An essential, quiet architecture shaped by ancient rural wisdom to blend seamlessly with the landscape of the Itria Valley.',
     },
     suites: {
-      tag: lang === 'it' ? 'Architettura delle dimore' : 'Suite Architecture',
+      tag: lang === 'it' ? 'Dimore di Pietra' : 'Stone Dwellings',
       title:
         lang === 'it'
-          ? 'Il cono maestro della suite Trullo Quercia'
-          : 'The Master Cone of Suite Trullo Quercia',
+          ? 'Il cono maestro del Trullo Quercia'
+          : 'The Master Cone of Trullo Quercia',
       desc1:
         lang === 'it'
-          ? 'La nostra Suite Quercia conserva il cono centrale originario del XVII secolo con il suo maestoso pinnacolo a sfera lapidea, perfettamente restaurato secondo i canoni della bioedilizia pugliese.'
-          : 'Our Quercia Suite preserves the original 17th-century central cone with its majestic limestone sphere pinnacle, meticulously restored following traditional Apulian conservation principles.',
+          ? 'Il cono centrale originario del XVII secolo conserva il fascino intatto delle antiche corti rurali, restaurato nel rispetto rigoroso della materia d’origine.'
+          : 'The original 17th-century stone cone preserves the untouched charm of rural courtyards, restored in harmony with traditional materials.',
       desc2:
         lang === 'it'
-          ? 'All’interno, gli archi a tutto sesto e le spesse mura in pietra naturale mantengono un microclima fresco e silenzioso per un riposo rigenerante.'
-          : 'Inside, rounded stone arches and thick natural stone walls create a naturally cool, quiet microclimate for serene, restoring sleep.',
-      specs: [
-        { label: lang === 'it' ? 'Epoca' : 'Era', val: lang === 'it' ? 'Seicento rurale' : '17th Century rural' },
-        { label: lang === 'it' ? 'Mura' : 'Walls', val: lang === 'it' ? 'Spessore fino a 1,80 m' : 'Up to 1.80m thickness' },
-        { label: lang === 'it' ? 'Ambiente' : 'Climate', val: lang === 'it' ? 'Termoisolamento naturale' : 'Natural thermal insulation' },
-      ],
+          ? 'Le spesse mura in pietra naturale donano un silenzio profondo e una naturale freschezza, ideale per ritrovare il riposo più autentico.'
+          : 'Thick natural stone walls offer deep silence and natural coolness, ideal for profound and restful sleep.',
     },
     piscina: {
-      tag: lang === 'it' ? 'La pietra e l’acqua' : 'Stone & Water',
+      tag: lang === 'it' ? 'Acqua & Natura' : 'Water & Nature',
       title:
         lang === 'it'
-          ? 'L’armonia tra chianche bianche e acque cristalline'
-          : 'The Harmony Between White Stone & Turquoise Waters',
+          ? 'La trasparenza dell’acqua tra gli ulivi'
+          : 'Clear waters amidst the olive trees',
       desc1:
         lang === 'it'
-          ? 'La nostra piscina e la vasca idromassaggio sono state incastonate nel paesaggio tra muretti a secco, gazebi in legno sbiancato e pavimentazioni in pietra naturale levigata dal sole.'
-          : 'Our swimming pool and hydromassage Jacuzzi are seamlessly nestled among dry-stone walls, whitewashed pergolas, and sun-warmed natural stone paving.',
+          ? 'Uno specchio d’acqua e idromassaggio adagiati tra muretti a secco, prato e ulivi secolari, per vivere il contatto con la natura sotto il cielo aperto.'
+          : 'A serene pool and hydromassage nestled among dry-stone walls, lawns, and olive trees, embracing open-air nature under clear skies.',
       desc2:
         lang === 'it'
-          ? 'Uno spazio di benessere intimo riservato esclusivamente agli ospiti delle 3 dimore della tenuta, per garantire silenzio e totale privacy.'
-          : 'An intimate sanctuary exclusively reserved for guests of our 3 private suites, ensuring absolute silence and peaceful privacy.',
-      specs: [
-        { label: lang === 'it' ? 'Piscina' : 'Pool', val: lang === 'it' ? 'Acqua dolce panoramica' : 'Panoramic freshwater' },
-        { label: lang === 'it' ? 'Benessere' : 'Wellness', val: lang === 'it' ? 'Jacuzzi idromassaggio' : 'Hydromassage Jacuzzi' },
-        { label: lang === 'it' ? 'Privacy' : 'Privacy', val: lang === 'it' ? 'Solo per i residenti' : 'Resident guests only' },
-      ],
+          ? 'Uno spazio intimo riservato solo agli ospiti delle tre dimore, dove la quiete della campagna accompagna il riposo.'
+          : 'An intimate space reserved only for guests of our three dwellings, where countryside quiet accompanies true rest.',
     },
     esperienza: {
-      tag: lang === 'it' ? 'Vivere la Puglia' : 'The Apulian Lifestyle',
+      tag: lang === 'it' ? 'I Ritmi della Terra' : 'Rhythms of the Earth',
       title:
         lang === 'it'
-          ? 'L’autentica accoglienza pugliese di Antonella'
-          : 'Antonella’s Authentic Warm Apulian Welcome',
+          ? 'L’accoglienza semplice di Antonella'
+          : 'Antonella’s gentle welcome',
       desc1:
         lang === 'it'
-          ? 'Al Trullo dei Messapi l’ospitalità è un’arte antica. Antonella vi accoglie personalmente, guidandovi alla scoperta dei segreti più autentici di Ceglie Messapica e della Valle d’Itria.'
-          : 'At Trullo dei Messapi, hospitality is a timeless art. Antonella welcomes you personally, sharing insider recommendations for authentic trattorias and hidden gems across Valle d’Itria.',
+          ? 'Al Trullo dei Messapi l’ospitalità è discreta e autentica. Antonella vi accoglie personalmente, condividendo con cura i luoghi più genuini della Valle d’Itria.'
+          : 'At Trullo dei Messapi, hospitality is discreet and authentic. Antonella welcomes you personally, sharing the most genuine treasures of the Itria Valley.',
       desc2:
         lang === 'it'
-          ? 'Assaporate l’olio extravergine d’oliva biologico prodotto direttamente dai nostri ulivi secolari e godetevi la totale libertà della vostra cucina privata.'
-          : 'Taste the organic extra virgin olive oil pressed directly from our ancient estate olive trees and enjoy total culinary freedom in your fully equipped private kitchen.',
-      specs: [
-        { label: lang === 'it' ? 'Olio EVO' : 'EVO Oil', val: lang === 'it' ? 'Dagli ulivi della tenuta' : 'From estate olive grove' },
-        { label: lang === 'it' ? 'Cucina' : 'Kitchen', val: lang === 'it' ? 'Attrezzata in ogni suite' : 'Equipped in every suite' },
-        { label: lang === 'it' ? 'Host' : 'Host', val: lang === 'it' ? 'Antonella sempre presente' : 'Antonella directly on site' },
-      ],
+          ? 'Dall’olio extravergine dei nostri ulivi alla tranquillità della corte in pietra, un invito a riscoprire la bellezza dei ritmi lenti.'
+          : 'From the extra virgin olive oil of our trees to the calm of stone courtyards, an invitation to rediscover the beauty of slow living.',
     },
     preventivo: {
-      tag: lang === 'it' ? 'Prenotazione diretta' : 'Direct Booking',
+      tag: lang === 'it' ? 'Contatto Diretto' : 'Direct Contact',
       title:
         lang === 'it'
-          ? 'Prenota il tuo soggiorno direttamente con Antonella'
-          : 'Book Your Stay Directly with Antonella',
+          ? 'Prenota il tuo soggiorno al Trullo dei Messapi'
+          : 'Book your stay at Trullo dei Messapi',
       desc1:
         lang === 'it'
-          ? 'Nessun costo di agenzia o commissione di portali terzi. Inserisci le date nel modulo sottostante, verifica il calcolo esatto del soggiorno e invia la richiesta con un click su WhatsApp o via Email.'
-          : 'Zero intermediary booking fees or third-party commissions. Enter your dates in the form below, check the exact total, and send your request directly via WhatsApp or Email.',
+          ? 'Nessun intermediario o commissione. Seleziona le date desiderate per verificare la stima e inviare la richiesta direttamente ad Antonella su WhatsApp o via Email.'
+          : 'No intermediaries or booking fees. Select your dates to estimate your stay and send your request directly to Antonella via WhatsApp or Email.',
       desc2:
         lang === 'it'
-          ? 'Concorda direttamente la caparra e ogni dettaglio personalizzato con Antonella.'
-          : 'Agree directly on deposit arrangements and personalized stay requests with Antonella.',
-      specs: [
-        { label: lang === 'it' ? 'Commissioni' : 'Fees', val: lang === 'it' ? '0% diretta con l’host' : '0% Direct with owner' },
-        { label: lang === 'it' ? 'Contatto' : 'Contact', val: 'WhatsApp / email' },
-        { label: lang === 'it' ? 'Flessibilità' : 'Flexibility', val: lang === 'it' ? 'Accordi personalizzati' : 'Tailored arrangements' },
-      ],
+          ? 'Accordi personalizzati e disponibilità concordati direttamente con la proprietaria.'
+          : 'Personalized arrangements and availability agreed directly with the owner.',
     },
     contatti: {
-      tag: lang === 'it' ? 'Informazioni e posizione' : 'Inquiries & Location',
+      tag: lang === 'it' ? 'La Posizione' : 'The Location',
       title:
         lang === 'it'
-          ? 'Siamo a Ceglie Messapica, nel cuore della Puglia'
-          : 'Located in Ceglie Messapica, the Heart of Puglia',
+          ? 'Nel cuore quieto della Valle d’Itria'
+          : 'In the quiet heart of Itria Valley',
       desc1:
         lang === 'it'
-          ? 'La tenuta si trova in Contrada Pisciacalze a Ceglie Messapica (BR), a pochi minuti dalla capitale gastronomica della Valle d’Itria e a breve distanza dalle spiagge dell’Adriatico.'
-          : 'The estate is situated in Contrada Pisciacalze in Ceglie Messapica (BR), minutes away from the culinary capital of Valle d’Itria and close to crystal Adriatic beaches.',
+          ? 'Siamo a Ceglie Messapica, circondati dalla campagna e a pochi chilometri dai borghi bianchi e dalle coste pugliesi.'
+          : 'Located in Ceglie Messapica, surrounded by peaceful countryside and minutes from whitewashed villages and coastal shores.',
       desc2:
         lang === 'it'
-          ? 'Contattaci telefonicamente o su WhatsApp per qualunque domanda su disponibilità, itinerari o transfer aeroportuali.'
-          : 'Reach out to us via telephone or WhatsApp for any questions regarding availability, local itineraries, or airport transfers.',
-      specs: [
-        { label: lang === 'it' ? 'Comune' : 'Town', val: 'Ceglie Messapica (BR)' },
-        { label: 'Valle d’Itria', val: 'Ostuni 15km • Mare 25km' },
-        { label: lang === 'it' ? 'Aeroporti' : 'Airports', val: 'BDS 35 min • BRI 70 min' },
-      ],
+          ? 'Contatta direttamente Antonella per qualsiasi informazione o per concordare al meglio il tuo arrivo.'
+          : 'Contact Antonella directly for any inquiries or to prepare your arrival.',
     },
   }[currentRoute];
 
+  const detailItems: { id: DetailType; labelIt: string; labelEn: string; descIt: string; descEn: string }[] = [
+    {
+      id: 'overview',
+      labelIt: 'Vista d’insieme',
+      labelEn: 'Overview',
+      descIt: 'Il cono e il pinnacolo maestri',
+      descEn: 'Master cone & pinnacle',
+    },
+    {
+      id: 'sphere',
+      labelIt: 'La Sfera',
+      labelEn: 'The Sphere',
+      descIt: 'Simbolo del cosmo e del cielo',
+      descEn: 'Symbol of cosmos and sky',
+    },
+    {
+      id: 'chalice',
+      labelIt: 'Il Calice',
+      labelEn: 'The Chalice',
+      descIt: 'Pietra scolpita a scalpello',
+      descEn: 'Hand-chiseled limestone',
+    },
+    {
+      id: 'stones',
+      labelIt: 'Le Chiancarelle',
+      labelEn: 'The Chiancarelle',
+      descIt: 'Pietra a secco a gradoni',
+      descEn: 'Layered dry-stone conical roof',
+    },
+  ];
+
   return (
-    <section id="trullo-3d" className="relative py-14 sm:py-20 bg-gradient-to-b from-white via-[#FAF8F5] to-white border-y border-[#E8DEC8]/50 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* LEFT COLUMN (60%): Editorial, Crystal-Clear Legible Content */}
-          <div className="lg:col-span-7 space-y-6 text-left">
+    <section id="trullo-3d" className="w-full bg-[#161514] text-white border-b border-[#2A2826] overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-12 w-full min-h-[640px] lg:min-h-[760px]">
+        {/* LEFT COLUMN: Haute Editorial & Architectural Narrative */}
+        <div className="lg:col-span-6 p-8 sm:p-14 lg:p-16 xl:p-24 flex flex-col justify-center">
+          <div className="max-w-xl">
             {/* Tag Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#B99470]/10 border border-[#B99470]/20 text-[#8A6743] text-xs font-semibold tracking-wider uppercase">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#B99470]/15 border border-[#B99470]/30 text-[#EAD8C0] text-xs font-semibold tracking-[0.2em] uppercase mb-4 shadow-sm">
               <Sparkles size={13} className="text-[#B99470]" />
               <span>{narrative.tag}</span>
             </div>
 
             {/* Editorial Headline */}
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-bold text-gray-900 leading-[1.2] text-balance">
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-normal tracking-wide text-white leading-tight">
               {narrative.title}
             </h2>
 
-            {/* Paragraphs */}
-            <p className="text-base sm:text-lg text-gray-700 font-light leading-relaxed">
-              {narrative.desc1}
-            </p>
-            <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed">
-              {narrative.desc2}
-            </p>
+            {/* Warm Gold Accent Divider */}
+            <div className="w-16 h-[2px] bg-[#B99470] my-6" />
 
-            {/* Architectural / Stay Specifications Bar */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
-              {narrative.specs.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white/90 border border-[#E8DEC8]/70 rounded-2xl p-3.5 shadow-xs"
+            {/* Paragraphs */}
+            <div className="space-y-4 text-white/80 font-light text-sm sm:text-base leading-relaxed mb-8">
+              <p>{narrative.desc1}</p>
+              <p>{narrative.desc2}</p>
+            </div>
+
+            {/* Interactive Detail Inspection Bar with Cinematic Tour Option */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3.5">
+                <span className="text-[11px] uppercase tracking-[0.25em] text-[#B99470] font-semibold">
+                  {lang === 'it' ? 'Dettagli architettonici' : 'Architectural details'}
+                </span>
+                <button
+                  onClick={toggleTour}
+                  className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs transition-all cursor-pointer border ${
+                    isTourPlaying
+                      ? 'bg-[#B99470] border-[#B99470] text-white shadow-[0_0_20px_rgba(185,148,112,0.45)]'
+                      : 'bg-white/10 hover:bg-white/15 border-white/20 text-[#EAD8C0]'
+                  }`}
                 >
-                  <span className="block text-[11px] font-bold tracking-wider uppercase text-gray-400 mb-1">
-                    {item.label}
+                  {isTourPlaying ? (
+                    <Pause size={12} className="text-white" />
+                  ) : (
+                    <Play size={12} className="fill-current text-[#EAD8C0]" />
+                  )}
+                  <span className="font-serif text-xs tracking-wider font-medium">
+                    {isTourPlaying
+                      ? (lang === 'it' ? 'Pausa Tour' : 'Pause Tour')
+                      : (lang === 'it' ? 'Tour 3D Cinematico' : 'Cinematic 3D Tour')}
                   </span>
-                  <span className="font-serif font-semibold text-sm sm:text-base text-gray-900">
-                    {item.val}
-                  </span>
-                </div>
-              ))}
+                </button>
+              </div>
+
+              {/* 4 Detail Buttons */}
+              <div className="grid grid-cols-2 gap-2.5">
+                {detailItems.map((item) => {
+                  const isActive = activeDetail === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSelectDetail(item.id)}
+                      className={`group/btn text-left p-3.5 rounded-xl border transition-all duration-500 cursor-pointer relative overflow-hidden ${
+                        isActive
+                          ? 'bg-[#B99470]/25 border-[#B99470] text-white shadow-[0_0_25px_rgba(185,148,112,0.25)] scale-[1.02]'
+                          : 'bg-white/5 border-white/10 hover:border-white/25 text-white/75 hover:text-white hover:bg-white/8'
+                      }`}
+                    >
+                      {/* Active indicator bar */}
+                      {isActive && (
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#B99470] shadow-[0_0_10px_#B99470]" />
+                      )}
+                      <div className="flex items-center gap-2.5 mb-1.5 pl-1">
+                        <div className="relative flex items-center justify-center">
+                          <span
+                            className={`w-2.5 h-2.5 rounded-full transition-all ${
+                              isActive ? 'bg-[#B99470] shadow-[0_0_8px_#B99470]' : 'bg-white/30'
+                            }`}
+                          />
+                          {isActive && (
+                            <span className="absolute w-4 h-4 rounded-full bg-[#B99470]/40 animate-ping" />
+                          )}
+                        </div>
+                        <span className="font-serif text-sm font-medium tracking-wide">
+                          {lang === 'it' ? item.labelIt : item.labelEn}
+                        </span>
+                      </div>
+                      <span className="block text-xs text-white/60 font-light pl-6">
+                        {lang === 'it' ? item.descIt : item.descEn}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Direct Action Link */}
             {currentRoute !== 'preventivo' && onNavigate && (
-              <div className="pt-2">
+              <div>
                 <button
                   onClick={() => onNavigate('preventivo')}
-                  className="inline-flex items-center gap-2 text-xs uppercase font-bold tracking-widest text-[#B99470] hover:text-[#8A6743] transition-colors cursor-pointer group"
+                  className="inline-flex items-center gap-2 text-xs uppercase font-bold tracking-[0.2em] text-[#B99470] hover:text-[#EAD8C0] transition-colors cursor-pointer group"
                 >
-                  <span>{lang === 'it' ? 'Verifica disponibilità per il tuo soggiorno' : 'Check availability for your dates'}</span>
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  <span>
+                    {lang === 'it'
+                      ? 'Verifica disponibilità per il tuo soggiorno'
+                      : 'Check availability for your dates'}
+                  </span>
+                  <span className="group-hover:translate-x-1.5 transition-transform">→</span>
                 </button>
               </div>
             )}
           </div>
+        </div>
 
-          {/* RIGHT COLUMN (40%): Dedicated Three.js 3D Sculptural Canvas */}
-          <div className="lg:col-span-5 relative flex flex-col items-center justify-center">
-            {/* Interactive 3D Canvas Box with Transparent Background */}
-            <div className="relative w-full h-[380px] sm:h-[450px] lg:h-[500px] flex items-center justify-center">
-              {/* Soft Radial Ambient Aura Behind the Sculpture */}
-              <div className="absolute inset-0 bg-radial from-[#F5EFE6]/60 via-transparent to-transparent rounded-full filter blur-2xl pointer-events-none" />
+        {/* RIGHT COLUMN: Cinematic Three.js 3D Sculptural Canvas */}
+        <div className="lg:col-span-6 relative w-full h-[520px] sm:h-[620px] lg:h-full min-h-[580px] flex items-center justify-center bg-gradient-to-b from-[#181715] via-[#151413] to-[#121110]">
+          {/* Warm Radial Ambient Glow behind the Sculpture */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(185,148,112,0.18)_0%,_rgba(22,21,20,0)_70%)] pointer-events-none filter blur-3xl" />
 
-              {/* THREE.JS CONTAINER ELEMENT */}
-              <div
-                ref={containerRef}
-                className="w-full h-full cursor-grab active:cursor-grabbing relative z-10"
-                style={{ touchAction: 'none' }}
-              />
+          {/* THREE.JS CONTAINER ELEMENT */}
+          <div
+            ref={containerRef}
+            className="w-full h-full cursor-grab active:cursor-grabbing relative z-10"
+            style={{ touchAction: 'none' }}
+          />
 
-              {/* Floating Architectural Badge */}
-              <div className="absolute bottom-3 right-3 z-20 pointer-events-none bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-[#E8DEC8]/70 shadow-xs flex items-center gap-2 text-[11px] text-gray-600 font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>{lang === 'it' ? 'Scultura 3D • Trascina per ruotare a 360°' : '3D Sculpture • Drag to rotate 360°'}</span>
-              </div>
-            </div>
+          {/* Interactive Camera Quick Tools (Top Right) */}
+          <div className="absolute top-6 right-6 z-20 flex items-center gap-2">
+            <button
+              onClick={() => sceneRef.current?.zoomIn()}
+              title={lang === 'it' ? 'Ingrandisci' : 'Zoom in'}
+              className="w-9 h-9 rounded-full bg-black/60 hover:bg-[#B99470] backdrop-blur-md border border-white/15 text-white flex items-center justify-center transition-colors cursor-pointer shadow-md"
+            >
+              <ZoomIn size={15} />
+            </button>
+            <button
+              onClick={() => sceneRef.current?.zoomOut()}
+              title={lang === 'it' ? 'Rimpicciolisci' : 'Zoom out'}
+              className="w-9 h-9 rounded-full bg-black/60 hover:bg-[#B99470] backdrop-blur-md border border-white/15 text-white flex items-center justify-center transition-colors cursor-pointer shadow-md"
+            >
+              <ZoomOut size={15} />
+            </button>
+            <button
+              onClick={() => {
+                if (isTourPlaying) {
+                  setIsTourPlaying(false);
+                  if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+                }
+                setActiveDetail('overview');
+                sceneRef.current?.resetView();
+              }}
+              title={lang === 'it' ? 'Reimposta visuale' : 'Reset view'}
+              className="w-9 h-9 rounded-full bg-black/60 hover:bg-[#B99470] backdrop-blur-md border border-white/15 text-white flex items-center justify-center transition-colors cursor-pointer shadow-md"
+            >
+              <RotateCcw size={14} />
+            </button>
+          </div>
+
+          {/* Floating Luxury 3D Interaction Pill (Bottom Right) */}
+          <div className="absolute bottom-6 right-6 z-20 pointer-events-none bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/15 shadow-xl flex items-center gap-2.5 text-xs text-[#EAD8C0]">
+            <span className="w-2 h-2 rounded-full bg-[#B99470] animate-pulse" />
+            <span className="font-light">
+              {lang === 'it'
+                ? 'Scultura 3D • Trascina per ruotare a 360°'
+                : '3D Sculpture • Drag to rotate 360°'}
+            </span>
           </div>
         </div>
       </div>

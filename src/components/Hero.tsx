@@ -55,23 +55,17 @@ export const Hero: React.FC<HeroProps> = ({ lang }) => {
 
       {/* 2. HERO EDITORIAL CONTENT (Minimal & Clean) */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white mt-4">
-        {/* Understated Location Tag */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-[#EAD8C0] text-xs font-semibold tracking-[0.25em] uppercase mb-6 shadow-sm">
-          <span>
-            {lang === 'it'
-              ? 'Relais di Puglia • Ceglie Messapica'
-              : 'Boutique Relais • Puglia'}
-          </span>
-        </div>
 
         {/* Editorial Headline */}
-        <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal leading-[1.12] mb-6 max-w-4xl mx-auto text-balance drop-shadow-lg tracking-tight">
+        <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal leading-[1.12] max-w-4xl mx-auto text-balance drop-shadow-lg tracking-tight">
           {t.hero.title}
         </h1>
 
-        <p className="text-base sm:text-xl md:text-2xl text-white/95 font-light max-w-2xl mx-auto leading-relaxed font-sans drop-shadow-md">
-          {t.hero.subtitle}
-        </p>
+        {t.hero.subtitle && (
+          <p className="mt-6 text-base sm:text-xl md:text-2xl text-white/95 font-light max-w-2xl mx-auto leading-relaxed font-sans drop-shadow-md">
+            {t.hero.subtitle}
+          </p>
+        )}
       </div>
     </div>
   );
