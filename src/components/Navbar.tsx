@@ -55,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-3 group py-0.5"
           >
             <img
-              src="/images/logo.png"
+              src="./images/logo.png"
               alt="Trullo dei Messapi - Relais di Puglia"
               className="h-14 sm:h-16 lg:h-20 w-auto object-contain transition-transform group-hover:scale-[1.02]"
             />

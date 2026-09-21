@@ -110,7 +110,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ lang }) =>
         <div className="relative rounded-3xl overflow-hidden shadow-2xl bg-[#1E2226] text-white p-8 sm:p-12 md:p-16 text-center">
           <div className="absolute inset-0 opacity-25">
             <img
-              src="/images/giardino/106725339.jpg"
+              src="./images/giardino/106725339.jpg"
               alt="Giardino e Chianche Trullo dei Messapi"
               className="w-full h-full object-cover"
             />

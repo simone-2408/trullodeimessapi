@@ -33,7 +33,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
       {/* Background Photography: Gazebo & Piscina */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/images/piscina/106724803.jpg"
+          src="./images/piscina/106724803.jpg"
           alt="Trullo dei Messapi - Piscina con Gazebo e Ulivi"
           className="w-full h-full object-cover object-center scale-100 filter brightness-[0.92]"
         />

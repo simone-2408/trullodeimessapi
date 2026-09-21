@@ -3,31 +3,50 @@ import { AppRoute } from '../three/types';
 
 export function useAppRouter(): [AppRoute, (route: AppRoute) => void] {
   const parseRouteFromLocation = (): AppRoute => {
-    const path = window.location.pathname.toLowerCase().replace(/^\/|\/$/g, '');
-    if (path === 'suites' || path === 'dimore') return 'suites';
-    if (path === 'piscina' || path === 'pool') return 'piscina';
-    if (path === 'esperienza' || path === 'experience' || path === 'tenuta') return 'esperienza';
-    if (path === 'preventivo' || path === 'tariffe' || path === 'rates') return 'preventivo';
-    if (path === 'contatti' || path === 'contact' || path === 'posizione') return 'contatti';
+    // 1. Check hash first (ideal for GitHub Pages and static hosting)
+    const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
+    if (hash === 'suites' || hash === 'dimore') return 'suites';
+    if (hash === 'piscina' || hash === 'pool') return 'piscina';
+    if (hash === 'esperienza' || hash === 'experience' || hash === 'tenuta') return 'esperienza';
+    if (hash === 'preventivo' || hash === 'prenota' || hash === 'tariffe' || hash === 'rates') return 'preventivo';
+    if (hash === 'contatti' || hash === 'contact' || hash === 'posizione') return 'contatti';
+    if (hash === 'home') return 'home';
+
+    // 2. Check path segment (e.g. /suites or /trullodeimessapi/suites)
+    const segments = window.location.pathname.toLowerCase().split('/').filter(Boolean);
+    const lastSegment = segments[segments.length - 1] || '';
+    if (lastSegment === 'suites' || lastSegment === 'dimore') return 'suites';
+    if (lastSegment === 'piscina' || lastSegment === 'pool') return 'piscina';
+    if (lastSegment === 'esperienza' || lastSegment === 'experience' || lastSegment === 'tenuta') return 'esperienza';
+    if (lastSegment === 'preventivo' || lastSegment === 'prenota' || lastSegment === 'tariffe' || lastSegment === 'rates') return 'preventivo';
+    if (lastSegment === 'contatti' || lastSegment === 'contact' || lastSegment === 'posizione') return 'contatti';
+
     return 'home';
   };
 
   const [currentRoute, setCurrentRoute] = useState<AppRoute>(parseRouteFromLocation);
 
   useEffect(() => {
-    const handlePopState = () => {
+    const handleLocationChange = () => {
       setCurrentRoute(parseRouteFromLocation());
     };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
   }, []);
 
   const navigate = (route: AppRoute) => {
     if (route === currentRoute) return;
 
-    const path = route === 'home' ? '/' : `/${route}`;
-    window.history.pushState(null, '', path);
+    if (route === 'home') {
+      window.history.pushState(null, '', window.location.pathname + window.location.search);
+    } else {
+      window.location.hash = `#${route}`;
+    }
     setCurrentRoute(route);
 
     // Scroll to top of the page smoothly when changing routes
