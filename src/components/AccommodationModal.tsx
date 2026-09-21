@@ -20,6 +20,7 @@ import {
   Shield,
   Coffee,
 } from 'lucide-react';
+import { FullscreenLightbox } from './FullscreenLightbox';
 
 interface AccommodationModalProps {
   accommodation: Accommodation | null;
@@ -38,6 +39,7 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
 
   const t = TRANSLATIONS[lang];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const prevImage = () => {
     setCurrentImageIndex((prev) =>
@@ -79,24 +81,55 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
         {/* Modal Content */}
         <div className="p-6 sm:p-8 space-y-8">
           {/* Main Photo Gallery Slider */}
-          <div className="relative rounded-2xl overflow-hidden bg-gray-900 aspect-[16/10] sm:aspect-[16/9] shadow-inner group">
+          <div
+            className="relative rounded-2xl overflow-hidden bg-gray-900 aspect-[16/10] sm:aspect-[16/9] shadow-inner group cursor-pointer"
+            onClick={() => setIsLightboxOpen(true)}
+          >
             <img
               src={accommodation.gallery[currentImageIndex]}
               alt={`${accommodation.name} photo ${currentImageIndex + 1}`}
-              className="w-full h-full object-cover transition-all duration-300"
+              className="w-full h-full object-cover transition-all duration-300 group-hover:scale-[1.02]"
             />
+
+            {/* Center Hover Fullscreen Cue */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <div className="bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border border-white/20 shadow-xl scale-95 group-hover:scale-100 transition-transform">
+                <Maximize2 size={14} className="text-[#B99470]" />
+                <span>{lang === 'it' ? 'Clicca per schermo intero' : 'Click for fullscreen'}</span>
+              </div>
+            </div>
+
+            {/* Top-Right Fullscreen Button */}
+            <div className="absolute top-3 right-3 z-10 pointer-events-auto">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsLightboxOpen(true);
+                }}
+                className="bg-black/60 hover:bg-black/85 backdrop-blur-md text-white text-xs px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer border border-white/15 hover:border-[#B99470] shadow-md hover:scale-105"
+              >
+                <Maximize2 size={13} className="text-[#B99470]" />
+                <span>{lang === 'it' ? 'Schermo intero' : 'Fullscreen'}</span>
+              </button>
+            </div>
 
             {/* Prev / Next controls */}
             <button
-              onClick={prevImage}
-              className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-all shadow-md"
+              onClick={(e) => {
+                e.stopPropagation();
+                prevImage();
+              }}
+              className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-all shadow-md z-10 cursor-pointer"
               aria-label="Previous image"
             >
               <ChevronLeft size={22} />
             </button>
             <button
-              onClick={nextImage}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-all shadow-md"
+              onClick={(e) => {
+                e.stopPropagation();
+                nextImage();
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-all shadow-md z-10 cursor-pointer"
               aria-label="Next image"
             >
               <ChevronRight size={22} />
@@ -267,6 +300,17 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* True Fullscreen Lightbox */}
+      <FullscreenLightbox
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        images={accommodation.gallery}
+        initialIndex={currentImageIndex}
+        title={accommodation.name}
+        subtitle={accommodation.badge[lang]}
+        lang={lang}
+      />
     </div>
   );
 };

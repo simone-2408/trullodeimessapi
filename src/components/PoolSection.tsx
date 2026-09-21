@@ -10,11 +10,12 @@ import {
   Sparkles,
   Check,
   Images,
-  X,
   ChevronLeft,
   ChevronRight,
   ArrowRight,
+  Maximize2,
 } from 'lucide-react';
+import { FullscreenLightbox } from './FullscreenLightbox';
 
 interface PoolSectionProps {
   lang: Language;
@@ -86,9 +87,19 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
 
-        {/* Floating Hint */}
-        <div className="absolute bottom-6 right-6 pointer-events-none">
-          <span className="bg-black/50 backdrop-blur-md text-white/90 text-xs px-4 py-2 rounded-full font-light border border-white/15">
+        {/* Floating Hint with Fullscreen Action */}
+        <div className="absolute bottom-6 right-6 pointer-events-auto flex items-center gap-2.5">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              openLightbox(2);
+            }}
+            className="bg-black/60 hover:bg-black/85 backdrop-blur-md text-white text-xs px-4 py-2.5 rounded-full font-medium border border-white/20 hover:border-[#B99470] transition-all flex items-center gap-2 cursor-pointer shadow-xl hover:scale-105"
+          >
+            <Maximize2 size={14} className="text-[#B99470]" />
+            <span>{lang === 'it' ? 'Schermo intero' : 'Fullscreen'}</span>
+          </button>
+          <span className="hidden sm:inline-block bg-black/50 backdrop-blur-md text-white/90 text-xs px-4 py-2 rounded-full font-light border border-white/15">
             {lang === 'it' ? 'Tenuta Trullo dei Messapi • Oasi al tramonto' : 'Trullo dei Messapi Estate • Twilight Oasis'}
           </span>
         </div>
@@ -115,7 +126,15 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
             {/* Subtle Vignette Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
 
-            {/* Top Gallery Button (Clean, No Pill Badges) */}
+            {/* Center Hover Fullscreen Cue */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <div className="bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border border-white/20 shadow-xl scale-95 group-hover:scale-100 transition-transform">
+                <Maximize2 size={14} className="text-[#B99470]" />
+                <span>{lang === 'it' ? 'Clicca per schermo intero' : 'Click for fullscreen'}</span>
+              </div>
+            </div>
+
+            {/* Top Gallery Button with Fullscreen Cue */}
             <div className="absolute top-4 sm:top-6 left-4 sm:left-6 right-4 sm:right-6 flex items-center justify-end pointer-events-auto">
               <button
                 onClick={(e) => {
@@ -123,11 +142,11 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
                   openLightbox(activePhotoIdx);
                 }}
                 className="bg-white/90 hover:bg-white text-stone-800 text-xs font-medium px-3.5 py-1.5 rounded-full shadow-md backdrop-blur-md transition-all flex items-center gap-1.5 hover:scale-105 cursor-pointer"
-                title={lang === 'it' ? 'Apri galleria' : 'Open gallery'}
+                title={lang === 'it' ? 'Apri a schermo intero' : 'Open fullscreen'}
               >
-                <Images size={14} className="text-[#B99470]" />
+                <Maximize2 size={13} className="text-[#B99470]" />
                 <span>
-                  {pool.gallery.length} {lang === 'it' ? 'foto' : 'photos'} • {lang === 'it' ? 'Apri Galleria' : 'Open Gallery'} ↗
+                  {pool.gallery.length} {lang === 'it' ? 'foto' : 'photos'} • {lang === 'it' ? 'Schermo Intero' : 'Fullscreen'} ↗
                 </span>
               </button>
             </div>
@@ -317,82 +336,17 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
       <div className="w-full h-16 sm:h-24 bg-white" />
 
       {/* ==================================================== */}
-      {/* 4. FULL PHOTO LIGHTBOX MODAL */}
+      {/* 4. FULL PHOTO LIGHTBOX MODAL (TRUE FULLSCREEN) */}
       {/* ==================================================== */}
-      {isGalleryOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-200"
-          onClick={() => setIsGalleryOpen(false)}
-        >
-          <button
-            onClick={() => setIsGalleryOpen(false)}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 p-3 rounded-full bg-white/10 hover:bg-white/25 text-white transition-colors z-50 cursor-pointer"
-            aria-label="Chiudi galleria"
-          >
-            <X size={24} />
-          </button>
-
-          <div
-            className="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative w-full aspect-[16/10] max-h-[75vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl bg-black flex items-center justify-center">
-              <img
-                src={pool.gallery[modalPhotoIdx]}
-                alt={`Piscina Trullo dei Messapi ${modalPhotoIdx + 1}`}
-                className="w-full h-full object-contain"
-              />
-
-              <button
-                onClick={() =>
-                  setModalPhotoIdx((prev) =>
-                    prev === 0 ? pool.gallery.length - 1 : prev - 1
-                  )
-                }
-                className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer"
-              >
-                <ChevronLeft size={24} />
-              </button>
-
-              <button
-                onClick={() =>
-                  setModalPhotoIdx((prev) =>
-                    prev === pool.gallery.length - 1 ? 0 : prev + 1
-                  )
-                }
-                className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer"
-              >
-                <ChevronRight size={24} />
-              </button>
-
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/75 backdrop-blur-md px-4 py-1.5 rounded-full text-white text-xs font-mono">
-                {modalPhotoIdx + 1} / {pool.gallery.length}
-              </div>
-            </div>
-
-            {/* Thumbnails below */}
-            <div className="flex gap-2 mt-4 overflow-x-auto max-w-full pb-2 scrollbar-none">
-              {pool.gallery.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setModalPhotoIdx(idx)}
-                  className={`w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
-                    modalPhotoIdx === idx
-                      ? 'border-[#B99470] scale-105 shadow-md'
-                      : 'border-transparent opacity-50 hover:opacity-100'
-                  }`}
-                >
-                  <img
-                    src={img}
-                    alt="Thumbnail"
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      <FullscreenLightbox
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+        images={pool.gallery}
+        initialIndex={modalPhotoIdx}
+        title={pool.title[lang]}
+        subtitle={pool.subtitle[lang]}
+        lang={lang}
+      />
     </div>
   );
 };
