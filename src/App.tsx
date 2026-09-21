@@ -3,16 +3,19 @@ import { Language, Accommodation } from './types';
 import { useAppRouter } from './utils/router';
 import { TRANSLATIONS } from './data/translations';
 import { ACCOMMODATIONS } from './data/accommodations';
-import { PinnacleShowcase } from './components/PinnacleShowcase';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
+import { HomeDualPhotoSection } from './components/HomeDualPhotoSection';
+import { HomeLocationSection } from './components/HomeLocationSection';
+import { PinnacleShowcase } from './components/PinnacleShowcase';
+import { ReviewsSection } from './components/ReviewsSection';
+import { CtaBanner } from './components/CtaBanner';
 import { AccommodationCard } from './components/AccommodationCard';
 import { AccommodationModal } from './components/AccommodationModal';
 import { PoolSection } from './components/PoolSection';
 import { ExperienceSection } from './components/ExperienceSection';
 import { QuoteCalculator } from './components/QuoteCalculator';
 import { LocationSection } from './components/LocationSection';
-import { ReviewsSection } from './components/ReviewsSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { MessageCircle } from 'lucide-react';
@@ -39,9 +42,16 @@ export const App: React.FC = () => {
     navigate('preventivo');
   };
 
+  const handleScrollTo3D = () => {
+    const el = document.getElementById('trullo-3d');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-[#FAF8F5] text-[#22252A] flex flex-col selection:bg-[#B99470] selection:text-white">
-      {/* 1. REFINED WHITE LUXURY NAVIGATION BAR */}
+      {/* 1. REFINED LUXURY NAVIGATION BAR */}
       <Navbar
         currentRoute={currentRoute}
         onNavigate={navigate}
@@ -53,81 +63,73 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* 2. MULTI-PAGE ROUTE VIEWS */}
+      {/* 2. MAIN CONTENT (ROUTED) */}
       <main className="relative z-10 flex-grow pt-16">
-        {/* === ROUTE: / or /home HERO (Pool & Gazebo Background) === */}
+        {/* ==================================================== */}
+        {/* === ROUTE: HOME (MINIMAL, ELEGANT, BOUTIQUE STYLE) === */}
+        {/* ==================================================== */}
         {currentRoute === 'home' && (
-          <Hero
-            lang={lang}
-            onQuickSearch={({ accommodationId, checkIn, checkOut }) => {
-              if (accommodationId) setCalculatorSuite(accommodationId);
-              if (checkIn) setCalculatorCheckIn(checkIn);
-              if (checkOut) setCalculatorCheckOut(checkOut);
-              navigate('preventivo');
-            }}
-          />
-        )}
+          <div className="animate-in fade-in duration-500">
+            {/* 1. Cinematic Hero with video (videopiscina.mp4) & photos */}
+            <Hero
+              lang={lang}
+              onQuickSearch={({ accommodationId, checkIn, checkOut }) => {
+                if (accommodationId) setCalculatorSuite(accommodationId);
+                if (checkIn) setCalculatorCheckIn(checkIn);
+                if (checkOut) setCalculatorCheckOut(checkOut);
+                navigate('preventivo');
+              }}
+            />
 
-        {/* === DEDICATED 3D PINNACLE SHOWCASE (Confinato a colonna 40% a destra, sfondo trasparente, persistente con transizioni GSAP) === */}
-        <PinnacleShowcase
-          currentRoute={currentRoute}
-          lang={lang}
-          onNavigate={navigate}
-        />
+            {/* 2. Subito dopo il video: Le due foto (IMG_3145.JPG & 106724803.jpg) */}
+            <HomeDualPhotoSection
+              lang={lang}
+              onNavigate={navigate}
+            />
 
-        {/* === ROUTE CONTENT: / or /home === */}
-        {currentRoute === 'home' && (
-          <div className="animate-in fade-in duration-500 space-y-12">
-            {/* Overview of the 3 Suites */}
-            <section className="py-16 bg-[#FAF8F5]/90 backdrop-blur-md">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="text-xs uppercase tracking-[0.2em] text-[#B99470] font-bold block mb-2">
-                    {t.accommodations.sectionTag}
-                  </span>
-                  <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-                    {t.accommodations.title}
-                  </h2>
-                  <p className="mt-3 text-sm sm:text-base text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
-                    {t.accommodations.subtitle}
-                  </p>
-                </div>
+            {/* 3. "La nostra Location" 2-Column Section (dallo screenshot) */}
+            <HomeLocationSection
+              lang={lang}
+              onNavigate={navigate}
+              onScrollTo3D={handleScrollTo3D}
+            />
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {ACCOMMODATIONS.map((acc) => (
-                    <AccommodationCard
-                      key={acc.id}
-                      accommodation={acc}
-                      lang={lang}
-                      onOpenDetails={(item) => setActiveModalAccommodation(item)}
-                      onSelectForQuote={(id) => handleSelectAccommodationForQuote(id)}
-                    />
-                  ))}
-                </div>
-              </div>
-            </section>
+            {/* 4. Dedicated 3D Interactive Trullo & Pinnacle Section */}
+            <PinnacleShowcase
+              currentRoute={currentRoute}
+              lang={lang}
+              onNavigate={navigate}
+            />
 
-            {/* Pool Teaser on Home */}
-            <div className="bg-[#FAF8F5]/90 backdrop-blur-md">
-              <PoolSection lang={lang} />
-            </div>
+            {/* 5. Testimonianze (Reviews) */}
+            <ReviewsSection lang={lang} />
 
-            {/* Experience on Home */}
-            <div className="bg-[#FAF8F5]/90 backdrop-blur-md">
-              <ExperienceSection lang={lang} />
-            </div>
-
-            {/* Guest Reviews on Home */}
-            <div className="bg-[#FAF8F5]/90 backdrop-blur-md">
-              <ReviewsSection lang={lang} />
-            </div>
+            {/* 6. Call To Action Banner (like trullodeimessapi.it) */}
+            <CtaBanner
+              lang={lang}
+              onNavigate={navigate}
+            />
           </div>
         )}
 
-        {/* === ROUTE: /suites === */}
+        {/* ==================================================== */}
+        {/* === ROUTE: SUITES (LE DIMORE) === */}
+        {/* ==================================================== */}
         {currentRoute === 'suites' && (
           <div className="animate-in fade-in duration-500 py-12 bg-[#FAF8F5]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-3xl mx-auto mb-14">
+                <span className="text-xs uppercase tracking-[0.2em] text-[#B99470] font-bold block mb-2">
+                  {t.accommodations.sectionTag}
+                </span>
+                <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                  {t.accommodations.title}
+                </h1>
+                <p className="mt-3 text-sm sm:text-base text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
+                  {t.accommodations.subtitle}
+                </p>
+              </div>
+
               {/* 3 Accommodation Cards */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {ACCOMMODATIONS.map((acc) => (
@@ -141,26 +143,55 @@ export const App: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            {/* 3D Model context for suites */}
+            <div className="mt-16">
+              <PinnacleShowcase
+                currentRoute="suites"
+                lang={lang}
+                onNavigate={navigate}
+              />
+            </div>
           </div>
         )}
 
-        {/* === ROUTE: /piscina === */}
+        {/* ==================================================== */}
+        {/* === ROUTE: PISCINA & JACUZZI === */}
+        {/* ==================================================== */}
         {currentRoute === 'piscina' && (
-          <div className="animate-in fade-in duration-500 py-8 bg-[#FAF8F5]/90 backdrop-blur-md">
+          <div className="animate-in fade-in duration-500 py-8 bg-[#FAF8F5]">
             <PoolSection lang={lang} />
+            <div className="mt-12">
+              <PinnacleShowcase
+                currentRoute="piscina"
+                lang={lang}
+                onNavigate={navigate}
+              />
+            </div>
           </div>
         )}
 
-        {/* === ROUTE: /esperienza === */}
+        {/* ==================================================== */}
+        {/* === ROUTE: LA TENUTA / ESPERIENZA === */}
+        {/* ==================================================== */}
         {currentRoute === 'esperienza' && (
-          <div className="animate-in fade-in duration-500 py-8 bg-[#FAF8F5]/90 backdrop-blur-md">
+          <div className="animate-in fade-in duration-500 py-8 bg-[#FAF8F5]">
             <ExperienceSection lang={lang} />
+            <div className="mt-12">
+              <PinnacleShowcase
+                currentRoute="esperienza"
+                lang={lang}
+                onNavigate={navigate}
+              />
+            </div>
           </div>
         )}
 
-        {/* === ROUTE: /preventivo (Prenota) === */}
+        {/* ==================================================== */}
+        {/* === ROUTE: PREVENTIVO RAPIDO / PRENOTA === */}
+        {/* ==================================================== */}
         {currentRoute === 'preventivo' && (
-          <div className="animate-in fade-in duration-500 py-8 bg-[#FAF8F5]/90 backdrop-blur-md">
+          <div className="animate-in fade-in duration-500 py-8 bg-[#FAF8F5]">
             <QuoteCalculator
               lang={lang}
               preselectedSuite={calculatorSuite}
@@ -170,19 +201,21 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* === ROUTE: /contatti === */}
+        {/* ==================================================== */}
+        {/* === ROUTE: CONTATTI & POSIZIONE === */}
+        {/* ==================================================== */}
         {currentRoute === 'contatti' && (
-          <div className="animate-in fade-in duration-500 py-8 bg-[#FAF8F5]/90 backdrop-blur-md space-y-12">
+          <div className="animate-in fade-in duration-500 py-8 bg-[#FAF8F5] space-y-12">
             <ContactSection lang={lang} />
             <LocationSection lang={lang} />
           </div>
         )}
       </main>
 
-      {/* 4. FOOTER */}
+      {/* 3. LUXURY FOOTER */}
       <Footer lang={lang} />
 
-      {/* 5. MODAL FOR SUITE DETAILS & FULL-SCREEN PHOTO GALLERY */}
+      {/* 4. MODAL FOR SUITE DETAILS & FULL-SCREEN PHOTO GALLERY */}
       <AccommodationModal
         accommodation={activeModalAccommodation}
         lang={lang}
@@ -193,7 +226,7 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* 6. PERSISTENT FLOATING WHATSAPP BUTTON */}
+      {/* 5. PERSISTENT FLOATING WHATSAPP BUTTON */}
       <aside aria-label="WhatsApp Quick Contact" className="fixed bottom-6 right-6 z-40">
         <a
           href="https://wa.me/393333339347?text=Salve%20Antonella!%20Vorrei%20informazioni%20su%20Trullo%20dei%20Messapi"

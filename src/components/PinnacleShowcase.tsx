@@ -43,23 +43,23 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
   // Route-specific editorial narratives for the 60% Left column
   const narrative = {
     home: {
-      tag: lang === 'it' ? 'Scultura e tradizione' : 'Sculpture & Heritage',
+      tag: lang === 'it' ? 'Architettura tradizionale' : 'Traditional architecture',
       title:
         lang === 'it'
-          ? 'Il pinnacolo del trullo: custode di pietra e simbolo apotropaico'
-          : 'The Trullo Pinnacle: Stone Guardian & Sacred Apotropaic Symbol',
+          ? 'Il pinnacolo in pietra: simbolo e maestria dei trulli'
+          : 'The stone pinnacle: symbol and craftsmanship of trulli',
       desc1:
         lang === 'it'
-          ? 'Sulla sommità del cono in chiancarelle a secco svetta il pinnacolo, scolpito a mano nella calcarenite pugliese. Non è un semplice ornamento, ma il sigillo che un tempo identificava la maestranza del trullaro e proteggeva la dimora e la famiglia.'
-          : 'At the very peak of the dry-stone chiancarelle cone stands the pinnacle, hand-chiseled from local Apulian limestone. Far more than a decorative finial, it was the historic seal of the master trullaro, safeguarding the dwelling and family.',
+          ? 'Sulla sommità del cono in chiancarelle a secco svetta il pinnacolo, scolpito a mano nella pietra calcarea pugliese secondo l’antica tradizione dei maestri trullari.'
+          : 'At the top of the dry-stone cone stands the pinnacle, hand-carved in local Apulian limestone following the ancient craft of master trullo builders.',
       desc2:
         lang === 'it'
-          ? 'Al Trullo dei Messapi ogni pietra racconta una storia di lavoro artigiano, luce mediterranea e rispetto profondo per l’architettura rurale della Valle d’Itria.'
-          : 'At Trullo dei Messapi, every single stone tells a story of artisan craftsmanship, Mediterranean light, and deep reverence for the rural heritage of Valle d’Itria.',
+          ? 'Al Trullo dei Messapi ogni cono è stato restaurato nel pieno rispetto dell’architettura rurale della Valle d’Itria, preservando la pietra originale e l’autenticità degli ambienti.'
+          : 'At Trullo dei Messapi, every cone has been preserved with respect for traditional rural architecture, keeping the authentic stone and atmosphere intact.',
       specs: [
         { label: lang === 'it' ? 'Materiale' : 'Material', val: lang === 'it' ? 'Pietra calcarea a scalpello' : 'Hand-chiseled limestone' },
-        { label: lang === 'it' ? 'Tecnica' : 'Technique', val: lang === 'it' ? 'Posa a secco (chiancarelle)' : 'Dry-stone stacking' },
-        { label: lang === 'it' ? 'Significato' : 'Meaning', val: lang === 'it' ? 'Simbolo solare e cosmico' : 'Solar & cosmic symbol' },
+        { label: lang === 'it' ? 'Tecnica' : 'Technique', val: lang === 'it' ? 'Posa a secco tradizionale' : 'Traditional dry-stone craft' },
+        { label: lang === 'it' ? 'Origine' : 'Heritage', val: lang === 'it' ? 'Valle d’Itria' : 'Itria Valley' },
       ],
     },
     suites: {
@@ -165,7 +165,7 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
   }[currentRoute];
 
   return (
-    <section className="relative py-14 sm:py-20 bg-gradient-to-b from-white via-[#FAF8F5] to-white border-y border-[#E8DEC8]/50 overflow-hidden">
+    <section id="trullo-3d" className="relative py-14 sm:py-20 bg-gradient-to-b from-white via-[#FAF8F5] to-white border-y border-[#E8DEC8]/50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* LEFT COLUMN (60%): Editorial, Crystal-Clear Legible Content */}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { ACCOMMODATIONS } from '../data/accommodations';
@@ -15,9 +15,31 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
   const t = TRANSLATIONS[lang];
-  const [selectedSuite, setSelectedSuite] = useState<'quercia' | 'corbezzolo' | 'melograno'>('quercia');
+  const [selectedSuite, setSelectedSuite] = useState<
+    'quercia' | 'corbezzolo' | 'melograno'
+  >('quercia');
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Video plays continuously, always muted, in loop (like Masseria Torre Coccaro)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Retry muted playback if browser policy initially intercepted
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          videoRef.current.play().catch(() => {});
+        }
+      });
+    }
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,27 +51,38 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
   };
 
   return (
-    <div className="relative min-h-[92vh] flex items-center justify-center pt-28 pb-20 overflow-hidden">
-      {/* Background Photography: Gazebo & Piscina */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src="./images/piscina/106724803.jpg"
-          alt="Trullo dei Messapi - Piscina con Gazebo e Ulivi"
-          className="w-full h-full object-cover object-center scale-100 filter brightness-[0.92]"
+    <div className="relative min-h-[95vh] flex items-center justify-center pt-32 sm:pt-36 lg:pt-40 pb-20 overflow-hidden">
+      {/* 1. BACKGROUND MEDIA: Always-playing cinematic video in original inquadratura */}
+      <div className="absolute inset-0 z-0 bg-stone-950">
+        <video
+          ref={videoRef}
+          src="./videopiscina.mp4"
+          poster="./images/piscina/106724803.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
-        {/* Warm, transparent vignette for optimal text legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/30 to-black/40" />
+
+        {/* Elegant Vignette Overlay for Contrast & Typography Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/50" />
       </div>
 
-      {/* Hero Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white mt-4">
+      {/* 2. HERO EDITORIAL CONTENT */}
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white mt-2">
         {/* Understated Location Tag */}
-        <span className="inline-block text-xs sm:text-sm font-medium tracking-[0.2em] uppercase text-[#DFD0B8] mb-4 drop-shadow-sm">
-          {t.hero.tag}
-        </span>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-[#EAD8C0] text-xs font-semibold tracking-[0.25em] uppercase mb-5">
+          <span>
+            {lang === 'it'
+              ? 'Relais di Puglia • Ceglie Messapica'
+              : 'Boutique Relais • Puglia'}
+          </span>
+        </div>
 
-        {/* Elegant Editorial Headline */}
-        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.12] mb-6 max-w-4xl mx-auto text-balance drop-shadow-md">
+        {/* Editorial Headline */}
+        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-normal leading-[1.12] mb-5 max-w-4xl mx-auto text-balance drop-shadow-md">
           {t.hero.title}
         </h1>
 
@@ -57,9 +90,12 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
           {t.hero.subtitle}
         </p>
 
-        {/* Bianco Pietra Luxury Booking Bar */}
-        <div className="max-w-4xl mx-auto bg-[#F8F5EE]/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_-15px_rgba(40,30,20,0.35)] border border-[#E2DDD3] text-[#332F2A]">
-          <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-end text-left">
+        {/* Bianco Pietra Luxury Booking Bar (Torre Coccaro style) */}
+        <div className="max-w-4xl mx-auto bg-[#F7F4EE]/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-[0_25px_60px_-15px_rgba(20,15,10,0.6)] border border-[#E2DDD3] text-[#332F2A]">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-end text-left"
+          >
             {/* Suite selector */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5 flex items-center gap-1.5">
@@ -69,7 +105,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
               <select
                 value={selectedSuite}
                 onChange={(e) => setSelectedSuite(e.target.value as any)}
-                className="w-full bg-[#EFECE5]/80 border border-[#DDD7CC] rounded-xl px-3 py-2.5 text-sm font-medium text-[#332F2A] focus:outline-none focus:ring-2 focus:ring-[#B99470]"
+                className="w-full bg-[#EFECE5]/90 border border-[#DDD7CC] rounded-xl px-3 py-2.5 text-sm font-medium text-[#332F2A] focus:outline-none focus:ring-2 focus:ring-[#B99470]"
               >
                 {ACCOMMODATIONS.map((acc) => (
                   <option key={acc.id} value={acc.id}>
@@ -90,7 +126,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
                 value={checkIn}
                 min={new Date().toISOString().split('T')[0]}
                 onChange={(e) => setCheckIn(e.target.value)}
-                className="w-full bg-[#EFECE5]/80 border border-[#DDD7CC] rounded-xl px-3 py-2.5 text-sm font-medium text-[#332F2A] focus:outline-none focus:ring-2 focus:ring-[#B99470]"
+                className="w-full bg-[#EFECE5]/90 border border-[#DDD7CC] rounded-xl px-3 py-2.5 text-sm font-medium text-[#332F2A] focus:outline-none focus:ring-2 focus:ring-[#B99470]"
               />
             </div>
 
@@ -105,7 +141,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
                 value={checkOut}
                 min={checkIn || new Date().toISOString().split('T')[0]}
                 onChange={(e) => setCheckOut(e.target.value)}
-                className="w-full bg-[#EFECE5]/80 border border-[#DDD7CC] rounded-xl px-3 py-2.5 text-sm font-medium text-[#332F2A] focus:outline-none focus:ring-2 focus:ring-[#B99470]"
+                className="w-full bg-[#EFECE5]/90 border border-[#DDD7CC] rounded-xl px-3 py-2.5 text-sm font-medium text-[#332F2A] focus:outline-none focus:ring-2 focus:ring-[#B99470]"
               />
             </div>
 
@@ -116,7 +152,10 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
                 className="w-full bg-[#B99470] hover:bg-[#A37E5A] text-white py-2.5 px-4 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <span>{lang === 'it' ? 'Verifica' : 'Check'}</span>
-                <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight
+                  size={15}
+                  className="group-hover:translate-x-1 transition-transform"
+                />
               </button>
             </div>
           </form>
@@ -124,13 +163,13 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
           <div className="mt-3 pt-2.5 border-t border-[#E8E3D9] flex flex-wrap items-center justify-between text-[11px] text-stone-500 px-1">
             <span>
               {lang === 'it'
-                ? 'Prenotazione diretta senza commissioni intermediari'
-                : 'Direct booking without booking commissions'}
+                ? 'Miglior tariffa garantita • Prenotazione diretta senza commissioni'
+                : 'Best rate guaranteed • Direct booking without commission fees'}
             </span>
             <span className="hidden sm:inline text-gray-400">
               {lang === 'it'
-                ? 'Accordi di caparra e saldo direttamente con Antonella'
-                : 'Personal arrangements directly with Antonella'}
+                ? 'Accordi personalizzati direttamente con Antonella'
+                : 'Direct contact with owner Antonella'}
             </span>
           </div>
         </div>
@@ -138,3 +177,4 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
     </div>
   );
 };
+
