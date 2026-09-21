@@ -82,10 +82,10 @@ export const HomeLocationSection: React.FC<HomeLocationSectionProps> = ({
             {/* Bronze CTA Button */}
             <div>
               <button
-                onClick={() => onNavigate('esperienza')}
+                onClick={() => onNavigate('contatti')}
                 className="bg-[#B99470] hover:bg-[#A37E5A] text-white px-8 py-3.5 font-serif text-sm tracking-wider transition-all inline-flex items-center gap-2 shadow-sm hover:shadow-md cursor-pointer"
               >
-                <span>{lang === 'it' ? 'Scopri la tenuta' : 'Explore the estate'}</span>
+                <span>{lang === 'it' ? 'Dove siamo & Contatti' : 'Location & Contacts'}</span>
                 <ChevronRight size={16} />
               </button>
             </div>
