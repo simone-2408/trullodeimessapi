@@ -16,10 +16,17 @@ export class PinnacleScene {
   private animationFrameId: number | null = null;
   private isDisposed = false;
 
-  // Mouse lerp tracking
+  // Mouse hover tracking
   private mouse = { x: 0, y: 0 };
   private targetMouse = { x: 0, y: 0 };
   private isHovered = false;
+
+  // Interactive Drag & Momentum Orbit System (Fluid multi-angle rotation)
+  private isDragging = false;
+  private previousPointer = { x: 0, y: 0 };
+  private dragVelocity = { x: 0, y: 0 };
+  private userRotationY = 0;
+  private userRotationX = 0;
 
   // Lights for GSAP transitions
   private sunLight!: THREE.DirectionalLight;
@@ -40,7 +47,7 @@ export class PinnacleScene {
     }
   > = {
     home: {
-      camX: 0.55,
+      camX: 0.5,
       camY: 0.35,
       camZ: 4.1,
       lookAtY: 0.25,
@@ -255,8 +262,6 @@ export class PinnacleScene {
 
   /**
    * Procedural Stacked Stone Blocks Texture on Smooth Cone Surface (2048x2048)
-   * Solves the user's requirement:
-   * "ci sta mettere i blocchetti cosi , ma sporgono , la superficie deve essere liscia"
    * The cone geometry is completely smooth and continuous,
    * while the texture renders the stacked rectangular limestone blocks (chiancarelle)
    * with natural color variations and subtle tactile relief.
@@ -392,10 +397,6 @@ export class PinnacleScene {
 
   /**
    * Build Sculptural Pinnacle & Smooth Stacked-Stone Cone
-   * Directly solves:
-   * - Smooth, continuous cone surface (NO protruding blocks, NO circular toruses)
-   * - Realistic stacked stone blocks texture (chiancarelle courses)
-   * - Crowning stone sphere (ONLY the ball on top, NO triangle/cusp)
    */
   private buildSculpturalPinnacle() {
     const pinnacleMaterial = this.createPinnacleLimestoneMaterial();
@@ -470,7 +471,6 @@ export class PinnacleScene {
     this.pinnacleGroup.add(plinthRing);
 
     // B. Flared Chalice / Goblet Pedestal (Il Calice / Tronco di cono svasato)
-    // As seen in photo 3: tapers from a slender base to a wide flared rim
     const chaliceHeight = 0.28;
     const chaliceBottomR = 0.088;
     const chaliceTopR = 0.175;
@@ -510,7 +510,7 @@ export class PinnacleScene {
     const sphereGeo = new THREE.SphereGeometry(sphereRadius, 64, 48);
     const sphereMesh = new THREE.Mesh(sphereGeo, pinnacleMaterial);
     sphereMesh.position.y = sphereY;
-    // Slightly oblate (1.03, 0.96, 1.03) to match hand-sculpted rustic stone sphere in photo 3
+    // Slightly oblate (1.03, 0.96, 1.03) to match hand-sculpted rustic stone sphere
     sphereMesh.scale.set(1.03, 0.96, 1.03);
     sphereMesh.castShadow = true;
     sphereMesh.receiveShadow = true;
@@ -521,16 +521,46 @@ export class PinnacleScene {
   }
 
   /**
-   * Mouse Interaction and Lerp Tracking
+   * Ultra-Fluid Multi-Angle Interaction System
+   * - Drag / Swipe: Full 360-degree rotation horizontally + broad vertical tilt (-38 deg to +26 deg)
+   * - Inertial Momentum Gliding: smooth physical deceleration when released
+   * - Responsive Hover Tilt: wide angular freedom when moving mouse near canvas
    */
   private setupEventListeners() {
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = this.container.getBoundingClientRect();
-      const clientX = e.clientX;
-      const clientY = e.clientY;
+    // --- POINTER / MOUSE DRAG ---
+    const onPointerDown = (clientX: number, clientY: number) => {
+      this.isDragging = true;
+      this.previousPointer.x = clientX;
+      this.previousPointer.y = clientY;
+      this.dragVelocity.x = 0;
+      this.dragVelocity.y = 0;
+    };
 
-      // Detection zone around container
-      const buffer = 150;
+    const onPointerMove = (clientX: number, clientY: number) => {
+      if (this.isDragging) {
+        const deltaX = clientX - this.previousPointer.x;
+        const deltaY = clientY - this.previousPointer.y;
+
+        const rotSpeedX = 0.0075;
+        const rotSpeedY = 0.0055;
+
+        this.userRotationY += deltaX * rotSpeedX;
+        this.userRotationX = THREE.MathUtils.clamp(
+          this.userRotationX + deltaY * rotSpeedY,
+          -0.65, // Look down at cone (~ -38 deg)
+          0.45   // Look up at pinnacle sphere (~ +26 deg)
+        );
+
+        this.dragVelocity.x = deltaX * rotSpeedX;
+        this.dragVelocity.y = deltaY * rotSpeedY;
+
+        this.previousPointer.x = clientX;
+        this.previousPointer.y = clientY;
+      }
+
+      // Track hover coordinates relative to container
+      const rect = this.container.getBoundingClientRect();
+      const buffer = 180;
       const isInsideOrNear =
         clientX >= rect.left - buffer &&
         clientX <= rect.right + buffer &&
@@ -541,8 +571,8 @@ export class PinnacleScene {
         this.isHovered = true;
         const relX = (clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
         const relY = (clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
-        this.targetMouse.x = THREE.MathUtils.clamp(relX, -1.2, 1.2);
-        this.targetMouse.y = THREE.MathUtils.clamp(relY, -1.2, 1.2);
+        this.targetMouse.x = THREE.MathUtils.clamp(relX, -1.5, 1.5);
+        this.targetMouse.y = THREE.MathUtils.clamp(relY, -1.5, 1.5);
       } else {
         this.isHovered = false;
         this.targetMouse.x = 0;
@@ -550,14 +580,48 @@ export class PinnacleScene {
       }
     };
 
-    const handleMouseLeave = () => {
-      this.isHovered = false;
-      this.targetMouse.x = 0;
-      this.targetMouse.y = 0;
+    const onPointerUp = () => {
+      this.isDragging = false;
     };
 
+    // DOM Event Listeners for Mouse
+    const handleMouseDown = (e: MouseEvent) => {
+      e.preventDefault();
+      onPointerDown(e.clientX, e.clientY);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      onPointerMove(e.clientX, e.clientY);
+    };
+
+    const handleMouseUp = () => {
+      onPointerUp();
+    };
+
+    // DOM Event Listeners for Touch (Mobile / Tablet)
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      onPointerUp();
+    };
+
+    this.container.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    this.container.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    this.container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd);
 
     const handleResize = () => {
       if (this.isDisposed || !this.container) return;
@@ -594,9 +658,10 @@ export class PinnacleScene {
       },
     });
 
-    // 2. Pinnacle Rotation Flourish & Offset Adjustment
-    gsap.to(this.pinnacleGroup.rotation, {
-      y: this.pinnacleGroup.rotation.y + Math.PI * 0.45,
+    // 2. Smooth reset / rotation flourish on route change
+    gsap.to(this, {
+      userRotationY: this.userRotationY + Math.PI * 0.45,
+      userRotationX: 0,
       duration: 1.6,
       ease: 'power2.out',
     });
@@ -642,27 +707,47 @@ export class PinnacleScene {
   }
 
   /**
-   * Render Loop: Constant Slow Idle Rotation + Smooth Lerp Mouse Tilt
+   * Render Loop: Silky-Smooth Inertial Drag Orbit + Responsive Hover Lerp
    */
   private animate() {
     if (this.isDisposed) return;
     this.animationFrameId = requestAnimationFrame(this.animate);
 
-    // Continuous slow idle rotation on Y axis (slows down gracefully when hovered)
-    this.pinnacleGroup.rotation.y += this.isHovered ? 0.0012 : 0.0035;
+    // 1. Inertial Glide & Auto-Rotation Physics
+    if (!this.isDragging) {
+      // Apply momentum decay
+      this.userRotationY += this.dragVelocity.x;
+      this.userRotationX = THREE.MathUtils.clamp(
+        this.userRotationX + this.dragVelocity.y,
+        -0.65,
+        0.45
+      );
+      this.dragVelocity.x *= 0.92; // silky smooth friction
+      this.dragVelocity.y *= 0.92;
 
-    // Smooth lerp for interactive mouse response
-    const lerpFactor = 0.055;
+      // When stopped dragging and no hover, resume slow ambient rotation
+      if (!this.isHovered && Math.abs(this.dragVelocity.x) < 0.0003) {
+        this.userRotationY += 0.0028;
+      }
+    }
+
+    // 2. High-Fluidity Mouse Hover Lerp (Faster & Broader range)
+    const lerpFactor = 0.085;
     this.mouse.x += (this.targetMouse.x - this.mouse.x) * lerpFactor;
     this.mouse.y += (this.targetMouse.y - this.mouse.y) * lerpFactor;
 
-    // Gentle tactile tilt without losing sight of the sculpture
-    this.pinnacleGroup.rotation.x = this.mouse.y * 0.22;
-    this.pinnacleGroup.rotation.z = -this.mouse.x * 0.16;
+    // 3. Combined Rotations (Drag + Hover bias)
+    const hoverBiasY = this.isDragging ? 0 : this.mouse.x * 0.45;
+    const hoverBiasX = this.isDragging ? 0 : this.mouse.y * 0.32;
 
-    // Subtle sun position shift to emphasize grazing light along stone faces
-    this.sunLight.position.x = 4.5 + this.mouse.x * 0.8;
-    this.sunLight.position.y = 4.2 - this.mouse.y * 0.6;
+    this.pinnacleGroup.rotation.y = this.userRotationY + hoverBiasY;
+    this.pinnacleGroup.rotation.x = this.userRotationX + hoverBiasX;
+    this.pinnacleGroup.rotation.z = -this.mouse.x * 0.08;
+
+    // 4. Subtle Sun Position Shift to follow the rotation angle
+    this.sunLight.position.x = 4.5 + Math.cos(this.userRotationY) * 1.2;
+    this.sunLight.position.z = 3.2 + Math.sin(this.userRotationY) * 1.2;
+    this.sunLight.position.y = 4.2 - this.mouse.y * 0.5;
 
     this.renderer.render(this.scene, this.camera);
   }

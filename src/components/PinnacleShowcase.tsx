@@ -237,7 +237,7 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
               {/* Floating Architectural Badge */}
               <div className="absolute bottom-3 right-3 z-20 pointer-events-none bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-[#E8DEC8]/70 shadow-xs flex items-center gap-2 text-[11px] text-gray-600 font-medium">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>{lang === 'it' ? 'Scultura 3D • Passa il mouse per interagire' : '3D Sculpture • Move mouse to interact'}</span>
+                <span>{lang === 'it' ? 'Scultura 3D • Trascina per ruotare a 360°' : '3D Sculpture • Drag to rotate 360°'}</span>
               </div>
             </div>
           </div>

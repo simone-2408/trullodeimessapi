@@ -33,10 +33,12 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
           {/* Brand & Mission */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#B99470] flex items-center justify-center text-white font-serif font-bold text-xl">
-                M
-              </div>
-              <span className="font-serif text-2xl font-bold tracking-wide">
+              <img
+                src="/favicon.png"
+                alt="Trullo dei Messapi"
+                className="w-8 h-8 object-contain brightness-110"
+              />
+              <span className="font-serif text-2xl font-bold tracking-wide text-white">
                 Trullo dei Messapi
               </span>
             </div>
@@ -142,6 +144,8 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
           </div>
 
           <div className="flex items-center gap-4">
+            <span className="text-white/80 font-medium tracking-wide">Web by Simone Suma</span>
+            <span className="text-white/20">•</span>
             <span>{t.footer.madeWithLove}</span>
             <button
               onClick={scrollToTop}
