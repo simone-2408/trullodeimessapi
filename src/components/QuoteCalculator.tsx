@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Language, BookingFormState } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { ACCOMMODATIONS } from '../data/accommodations';
-import { calculateStayQuote } from '../data/tariffe';
+import { calculateStayQuote, getTodayDateString, getTomorrowDateString } from '../data/tariffe';
 import {
   Calendar,
   MessageCircle,
@@ -34,18 +34,24 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 }) => {
   const t = TRANSLATIONS[lang];
 
-  const [formState, setFormState] = useState<BookingFormState>({
-    accommodationId: preselectedSuite || 'quercia',
-    checkIn: initialCheckIn || '',
-    checkOut: initialCheckOut || '',
-    adults: preselectedSuite === 'quercia' ? 4 : 2,
-    children: 0,
-    extraBeds: 0,
-    cribs: 0,
-    guestName: '',
-    guestEmail: '',
-    guestPhone: '',
-    notes: '',
+  const todayStr = getTodayDateString();
+
+  const [formState, setFormState] = useState<BookingFormState>(() => {
+    const validCheckIn = initialCheckIn && initialCheckIn >= todayStr ? initialCheckIn : '';
+    const validCheckOut = initialCheckOut && initialCheckOut > (validCheckIn || todayStr) ? initialCheckOut : '';
+    return {
+      accommodationId: preselectedSuite || 'quercia',
+      checkIn: validCheckIn,
+      checkOut: validCheckOut,
+      adults: preselectedSuite === 'quercia' ? 4 : 2,
+      children: 0,
+      extraBeds: 0,
+      cribs: 0,
+      guestName: '',
+      guestEmail: '',
+      guestPhone: '',
+      notes: '',
+    };
   });
 
   const selectedAccommodation =
@@ -53,6 +59,42 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
   const totalGuests = formState.adults + formState.children;
   const isOverCapacity = totalGuests > selectedAccommodation.capacityMax;
+
+  // Strict past date protection
+  const isCheckInPast = Boolean(formState.checkIn && formState.checkIn < todayStr);
+  const minCheckOutDate = getTomorrowDateString(formState.checkIn || todayStr);
+
+  const handleCheckInChange = (newDate: string) => {
+    if (!newDate) {
+      setFormState((prev) => ({ ...prev, checkIn: '' }));
+      return;
+    }
+    const sanitized = newDate < todayStr ? todayStr : newDate;
+    setFormState((prev) => {
+      let nextCheckOut = prev.checkOut;
+      if (nextCheckOut && nextCheckOut <= sanitized) {
+        nextCheckOut = getTomorrowDateString(sanitized);
+      }
+      return {
+        ...prev,
+        checkIn: sanitized,
+        checkOut: nextCheckOut,
+      };
+    });
+  };
+
+  const handleCheckOutChange = (newDate: string) => {
+    if (!newDate) {
+      setFormState((prev) => ({ ...prev, checkOut: '' }));
+      return;
+    }
+    const minCheckOut = getTomorrowDateString(formState.checkIn || todayStr);
+    const sanitized = newDate < minCheckOut ? minCheckOut : newDate;
+    setFormState((prev) => ({
+      ...prev,
+      checkOut: sanitized,
+    }));
+  };
 
   // Handle switching accommodations with strict capacity clamping
   const handleSelectAccommodation = (newAccId: 'quercia' | 'corbezzolo' | 'melograno') => {
@@ -92,12 +134,13 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
   useEffect(() => {
     if (initialCheckIn) {
-      setFormState((prev) => ({ ...prev, checkIn: initialCheckIn }));
+      const validCheckIn = initialCheckIn >= todayStr ? initialCheckIn : todayStr;
+      setFormState((prev) => ({ ...prev, checkIn: validCheckIn }));
     }
     if (initialCheckOut) {
       setFormState((prev) => ({ ...prev, checkOut: initialCheckOut }));
     }
-  }, [initialCheckIn, initialCheckOut]);
+  }, [initialCheckIn, initialCheckOut, todayStr]);
 
   // Synchronize extra beds whenever adults or children change
   useEffect(() => {
@@ -129,7 +172,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
   // Generate WhatsApp Message
   const handleWhatsAppInquiry = () => {
-    if (isOverCapacity) return;
+    if (isOverCapacity || !quote.isValid || !quote.meetsMinNights || isCheckInPast) return;
 
     const textLines = [
       `*Trullo dei Messapi - Richiesta Prenotazione*`,
@@ -157,7 +200,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
   // Generate Email Inquiry
   const handleEmailInquiry = () => {
-    if (isOverCapacity) return;
+    if (isOverCapacity || !quote.isValid || !quote.meetsMinNights || isCheckInPast) return;
 
     const subject = `Richiesta Prenotazione Trullo dei Messapi - ${selectedAccommodation.name} (${formatDateDisplay(formState.checkIn)} - ${formatDateDisplay(formState.checkOut)})`;
     const bodyLines = [
@@ -284,15 +327,16 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 <label className="text-xs font-bold uppercase tracking-wider text-stone-500">
                   2. {lang === 'it' ? 'Date del Soggiorno' : 'Stay Dates'}
                 </label>
-                {quote.isValid && (
+                {quote.isValid && !isCheckInPast && (
                   <span className="text-xs font-semibold text-[#B99470] bg-[#B99470]/10 px-2.5 py-0.5 rounded-full">
                     {quote.totalNights} {quote.totalNights === 1 ? (lang === 'it' ? 'notte' : 'night') : (lang === 'it' ? 'notti' : 'nights')}
                   </span>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div className="bg-white rounded-2xl p-3.5 border border-[#E8E1D5] shadow-2xs hover:border-[#B99470]/60 transition-colors">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 min-w-0">
+                {/* Check-In Card with strict iOS overflow protection */}
+                <div className="bg-white rounded-2xl p-3.5 border border-[#E8E1D5] shadow-2xs hover:border-[#B99470]/60 transition-colors overflow-hidden min-w-0">
                   <label className="block text-[11px] uppercase tracking-wider font-bold text-stone-500 mb-1.5 flex items-center gap-1.5">
                     <Calendar size={13} className="text-[#B99470]" />
                     {t.calculator.checkInLabel}
@@ -300,15 +344,14 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   <input
                     type="date"
                     value={formState.checkIn}
-                    min={new Date().toISOString().split('T')[0]}
-                    onChange={(e) =>
-                      setFormState((prev) => ({ ...prev, checkIn: e.target.value }))
-                    }
-                    className="w-full bg-[#FAF7F2] border border-[#DDD7CC] rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:bg-white focus:outline-none transition-all cursor-pointer"
+                    min={todayStr}
+                    onChange={(e) => handleCheckInChange(e.target.value)}
+                    className="block w-full max-w-full min-w-0 box-border bg-[#FAF7F2] border border-[#DDD7CC] rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:bg-white focus:outline-none transition-all cursor-pointer [appearance:none] [-webkit-appearance:none]"
                   />
                 </div>
 
-                <div className="bg-white rounded-2xl p-3.5 border border-[#E8E1D5] shadow-2xs hover:border-[#B99470]/60 transition-colors">
+                {/* Check-Out Card with strict iOS overflow protection */}
+                <div className="bg-white rounded-2xl p-3.5 border border-[#E8E1D5] shadow-2xs hover:border-[#B99470]/60 transition-colors overflow-hidden min-w-0">
                   <label className="block text-[11px] uppercase tracking-wider font-bold text-stone-500 mb-1.5 flex items-center gap-1.5">
                     <Calendar size={13} className="text-[#B99470]" />
                     {t.calculator.checkOutLabel}
@@ -316,14 +359,24 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   <input
                     type="date"
                     value={formState.checkOut}
-                    min={formState.checkIn || new Date().toISOString().split('T')[0]}
-                    onChange={(e) =>
-                      setFormState((prev) => ({ ...prev, checkOut: e.target.value }))
-                    }
-                    className="w-full bg-[#FAF7F2] border border-[#DDD7CC] rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:bg-white focus:outline-none transition-all cursor-pointer"
+                    min={minCheckOutDate}
+                    onChange={(e) => handleCheckOutChange(e.target.value)}
+                    className="block w-full max-w-full min-w-0 box-border bg-[#FAF7F2] border border-[#DDD7CC] rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:bg-white focus:outline-none transition-all cursor-pointer [appearance:none] [-webkit-appearance:none]"
                   />
                 </div>
               </div>
+
+              {/* Past Date Alert safeguard */}
+              {isCheckInPast && (
+                <div className="mt-3 p-3 rounded-2xl bg-amber-500/15 border border-amber-400/30 text-amber-900 text-xs flex items-center gap-2">
+                  <AlertCircle size={16} className="text-amber-600 shrink-0" />
+                  <span>
+                    {lang === 'it'
+                      ? 'La data di check-in non può essere nel passato. Seleziona una data a partire da oggi.'
+                      : 'Check-in date cannot be in the past. Please select a date from today onwards.'}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Step 3: Guests Selection with STRICT CAPACITY LOCK */}
@@ -615,20 +668,29 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   </ul>
                 </div>
 
-                {/* Callout Prompt */}
-                <div className="p-4 rounded-2xl bg-[#B99470]/15 border border-[#B99470]/30 text-center text-xs text-[#DFD0B8]">
-                  <Calendar size={20} className="mx-auto mb-1.5 text-[#B99470]" />
-                  <p className="font-semibold text-white">
-                    {lang === 'it'
-                      ? 'Inserisci le date a sinistra'
-                      : 'Select your stay dates on the left'}
-                  </p>
-                  <p className="text-[11px] text-white/60 mt-1 font-light leading-relaxed">
-                    {lang === 'it'
-                      ? 'Calcoleremo il preventivo esatto con tariffe stagionali per bloccare il soggiorno.'
-                      : 'We will calculate the quote with seasonal rates to book your stay.'}
-                  </p>
-                </div>
+                {/* Callout Prompt or Error Message */}
+                {quote.errorMessage ? (
+                  <div className="p-4 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-center text-xs text-amber-200">
+                    <AlertCircle size={20} className="mx-auto mb-1.5 text-amber-400" />
+                    <p className="font-semibold text-white">
+                      {quote.errorMessage[lang]}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-[#B99470]/15 border border-[#B99470]/30 text-center text-xs text-[#DFD0B8]">
+                    <Calendar size={20} className="mx-auto mb-1.5 text-[#B99470]" />
+                    <p className="font-semibold text-white">
+                      {lang === 'it'
+                        ? 'Inserisci le date a sinistra'
+                        : 'Select your stay dates on the left'}
+                    </p>
+                    <p className="text-[11px] text-white/60 mt-1 font-light leading-relaxed">
+                      {lang === 'it'
+                        ? 'Calcoleremo il preventivo esatto con tariffe stagionali per bloccare il soggiorno.'
+                        : 'We will calculate the quote with seasonal rates to book your stay.'}
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="py-5 space-y-4">
@@ -718,7 +780,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 <div className="pt-4 space-y-2.5">
                   <button
                     type="button"
-                    disabled={isOverCapacity || !quote.meetsMinNights}
+                    disabled={isOverCapacity || !quote.meetsMinNights || !quote.isValid || isCheckInPast}
                     onClick={handleWhatsAppInquiry}
                     className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3.5 px-5 rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2.5 text-sm sm:text-base cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
@@ -728,7 +790,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
                   <button
                     type="button"
-                    disabled={isOverCapacity || !quote.meetsMinNights}
+                    disabled={isOverCapacity || !quote.meetsMinNights || !quote.isValid || isCheckInPast}
                     onClick={handleEmailInquiry}
                     className="w-full bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-5 rounded-2xl transition-colors border border-white/20 flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >

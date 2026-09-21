@@ -156,6 +156,30 @@ export function getSeasonForDate(date: Date): SeasonRate {
 }
 
 /**
+ * Returns today's date formatted as YYYY-MM-DD in local time
+ */
+export function getTodayDateString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Returns tomorrow's date formatted as YYYY-MM-DD in local time,
+ * or the day after the given baseDateStr
+ */
+export function getTomorrowDateString(baseDateStr?: string): string {
+  const base = baseDateStr ? new Date(baseDateStr + 'T00:00:00') : new Date();
+  base.setDate(base.getDate() + 1);
+  const year = base.getFullYear();
+  const month = String(base.getMonth() + 1).padStart(2, '0');
+  const day = String(base.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
  * Calculates the exact quote for a stay
  */
 export function calculateStayQuote(
@@ -168,6 +192,27 @@ export function calculateStayQuote(
   if (!checkInStr || !checkOutStr) {
     return {
       isValid: false,
+      totalNights: 0,
+      minNightsRequired: 3,
+      meetsMinNights: false,
+      nightlyRatesBreakdown: [],
+      baseAccommodationTotal: 0,
+      extraBedsCost: 0,
+      cribsCost: 0,
+      totalEstimated: 0,
+      averagePerNight: 0,
+    };
+  }
+
+  // Prevent past dates
+  const todayStr = getTodayDateString();
+  if (checkInStr < todayStr) {
+    return {
+      isValid: false,
+      errorMessage: {
+        it: 'La data di check-in non può essere nel passato. Seleziona una data a partire da oggi.',
+        en: 'Check-in date cannot be in the past. Please select today or a future date.',
+      },
       totalNights: 0,
       minNightsRequired: 3,
       meetsMinNights: false,
