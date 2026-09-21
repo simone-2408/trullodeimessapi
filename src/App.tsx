@@ -16,6 +16,7 @@ import { PoolSection } from './components/PoolSection';
 import { QuoteCalculator } from './components/QuoteCalculator';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
+import { getWhatsAppUrl } from './constants/contact';
 import { MessageCircle, ShieldCheck, Waves, Sun, Utensils } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -297,11 +298,11 @@ export const App: React.FC = () => {
                 {/* Refined Luxury Action Buttons */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-lg mx-auto">
                   <a
-                    href={`https://wa.me/393397985473?text=${encodeURIComponent(
+                    href={getWhatsAppUrl(
                       lang === 'it'
                         ? "Salve Antonella, vorrei richiedere disponibilità e informazioni per affittare l'intera tenuta Trullo dei Messapi in esclusiva."
                         : "Hello Antonella, I would like to request availability and information to rent the entire Trullo dei Messapi estate exclusively."
-                    )}`}
+                    )}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium text-xs sm:text-sm transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 cursor-pointer"
@@ -376,7 +377,11 @@ export const App: React.FC = () => {
       {/* 5. PERSISTENT FLOATING WHATSAPP BUTTON */}
       <aside aria-label="WhatsApp Quick Contact" className="fixed bottom-6 right-6 z-40">
         <a
-          href="https://wa.me/393333339347?text=Salve%20Antonella!%20Vorrei%20informazioni%20su%20Trullo%20dei%20Messapi"
+          href={getWhatsAppUrl(
+            lang === 'it'
+              ? 'Salve Antonella! Vorrei informazioni su Trullo dei Messapi'
+              : 'Hello Antonella! I would like information about Trullo dei Messapi'
+          )}
           target="_blank"
           rel="noopener noreferrer"
           className="group flex items-center gap-3 bg-[#25D366] hover:bg-[#20bd5a] text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl transition-all duration-300 hover:scale-105"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Language } from '../types';
 import { AppRoute } from '../three/types';
 import { TRANSLATIONS } from '../data/translations';
+import { CONTACT_INFO } from '../constants/contact';
 import { Menu, X, Calendar, Phone, MapPin } from 'lucide-react';
 
 interface NavbarProps {
@@ -47,20 +48,20 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Ceglie Messapica • Valle d’Itria, Puglia</span>
             </span>
             <a
-              href="tel:+393333339347"
+              href={`tel:${CONTACT_INFO.phoneTel}`}
               className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
             >
               <Phone size={11} className="text-[#B99470]" />
-              <span>+39 333 333 9347</span>
+              <span>{CONTACT_INFO.phoneDisplay}</span>
             </a>
           </div>
 
           <div className="flex items-center space-x-5">
             <a
-              href="mailto:trullodeimessapi@gmail.com"
+              href={`mailto:${CONTACT_INFO.email}`}
               className="text-white/70 hover:text-white transition-colors"
             >
-              trullodeimessapi@gmail.com
+              {CONTACT_INFO.email}
             </a>
             <span className="text-white/20">|</span>
             <div className="flex items-center space-x-1.5 font-semibold">

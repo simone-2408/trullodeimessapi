@@ -147,7 +147,7 @@ export const TRANSLATIONS = {
       selectDatesFirst: 'Seleziona le date di check-in e check-out per visualizzare il costo',
       capacityExceededNotice: 'La capienza massima per questa dimora è di',
       guestsLimit: 'ospiti',
-      recommendQuercia: 'Per gruppi da 4 a 6 ospiti seleziona la suite Trullo Quercia.',
+      recommendQuercia: 'Per gruppi da 4 a 7 ospiti seleziona la suite Trullo Quercia (tariffa standard per 4 persone).',
     },
     location: {
       sectionTag: 'La Valle d’Itria',
@@ -341,7 +341,7 @@ export const TRANSLATIONS = {
       selectDatesFirst: 'Please select check-in and check-out dates to view price',
       capacityExceededNotice: 'The maximum capacity for this suite is',
       guestsLimit: 'guests',
-      recommendQuercia: 'For groups of 4 to 6 guests, please select Suite Trullo Quercia.',
+      recommendQuercia: 'For groups of 4 to 7 guests, please select Suite Trullo Quercia (standard rate for 4 guests).',
     },
     location: {
       sectionTag: 'Surroundings & Location',

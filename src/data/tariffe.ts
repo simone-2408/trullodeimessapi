@@ -156,6 +156,27 @@ export function getSeasonForDate(date: Date): SeasonRate {
 }
 
 /**
+ * Reliably parses a YYYY-MM-DD date string into a local Date object.
+ * Avoids the critical bug where new Date('YYYY-MM-DD') parses as midnight UTC,
+ * causing users in western timezones (e.g. USA) to see the previous day
+ * and calculating pricing/seasons incorrectly.
+ */
+export function parseLocalDate(dateStr: string): Date {
+  if (!dateStr) return new Date();
+  const datePart = dateStr.trim().split('T')[0];
+  const parts = datePart.split('-');
+  if (parts.length === 3) {
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
+    if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+      return new Date(year, month - 1, day, 0, 0, 0, 0);
+    }
+  }
+  return new Date(dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`);
+}
+
+/**
  * Returns today's date formatted as YYYY-MM-DD in local time
  */
 export function getTodayDateString(): string {
@@ -171,7 +192,7 @@ export function getTodayDateString(): string {
  * or the day after the given baseDateStr
  */
 export function getTomorrowDateString(baseDateStr?: string): string {
-  const base = baseDateStr ? new Date(baseDateStr + 'T00:00:00') : new Date();
+  const base = baseDateStr ? parseLocalDate(baseDateStr) : new Date();
   base.setDate(base.getDate() + 1);
   const year = base.getFullYear();
   const month = String(base.getMonth() + 1).padStart(2, '0');
@@ -225,8 +246,8 @@ export function calculateStayQuote(
     };
   }
 
-  const checkIn = new Date(checkInStr);
-  const checkOut = new Date(checkOutStr);
+  const checkIn = parseLocalDate(checkInStr);
+  const checkOut = parseLocalDate(checkOutStr);
 
   if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime()) || checkOut <= checkIn) {
     return {

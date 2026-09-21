@@ -2,6 +2,7 @@ import React from 'react';
 import { Language } from '../types';
 import { AppRoute } from '../three/types';
 import { TRANSLATIONS } from '../data/translations';
+import { CONTACT_INFO } from '../constants/contact';
 import { MapPin, Phone, Mail, ArrowUp } from 'lucide-react';
 
 interface FooterProps {
@@ -125,18 +126,18 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate }) => {
             <div className="space-y-3 text-sm text-white/70">
               <p className="flex items-start gap-2.5">
                 <MapPin size={16} className="text-[#B99470] shrink-0 mt-1" />
-                <span>Contrada Pisciacalze, 72013 Ceglie Messapica (BR), Puglia, Italia</span>
+                <span>{CONTACT_INFO.address}</span>
               </p>
               <p className="flex items-center gap-2.5">
                 <Phone size={16} className="text-[#B99470] shrink-0" />
-                <a href="tel:+393333339347" className="hover:text-white transition-colors">
-                  +39 333 333 9347 (Antonella)
+                <a href={`tel:${CONTACT_INFO.phoneTel}`} className="hover:text-white transition-colors">
+                  {CONTACT_INFO.phoneDisplay} ({CONTACT_INFO.hostName})
                 </a>
               </p>
               <p className="flex items-center gap-2.5">
                 <Mail size={16} className="text-[#B99470] shrink-0" />
-                <a href="mailto:trullodeimessapi@gmail.com" className="hover:text-white transition-colors">
-                  trullodeimessapi@gmail.com
+                <a href={`mailto:${CONTACT_INFO.email}`} className="hover:text-white transition-colors">
+                  {CONTACT_INFO.email}
                 </a>
               </p>
             </div>

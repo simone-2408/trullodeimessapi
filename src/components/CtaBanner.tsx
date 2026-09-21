@@ -1,6 +1,7 @@
 import React from 'react';
 import { Language } from '../types';
 import { AppRoute } from '../three/types';
+import { CONTACT_INFO, getWhatsAppUrl } from '../constants/contact';
 import { Calendar, MessageCircle } from 'lucide-react';
 
 interface CtaBannerProps {
@@ -32,8 +33,8 @@ export const CtaBanner: React.FC<CtaBannerProps> = ({ lang, onNavigate }) => {
         {/* Contact info subtitle */}
         <p className="text-sm sm:text-base text-white/80 font-light max-w-2xl mx-auto mb-8 leading-relaxed">
           {lang === 'it'
-            ? 'Chiamaci al +39 3333339347 o scrivici a trullodeimessapi@gmail.com'
-            : 'Call us at +39 3333339347 or email us at trullodeimessapi@gmail.com'}
+            ? `Chiamaci al ${CONTACT_INFO.phoneDisplay} o scrivici a ${CONTACT_INFO.email}`
+            : `Call us at ${CONTACT_INFO.phoneDisplay} or email us at ${CONTACT_INFO.email}`}
         </p>
 
         {/* CTA Buttons */}
@@ -47,7 +48,11 @@ export const CtaBanner: React.FC<CtaBannerProps> = ({ lang, onNavigate }) => {
           </button>
 
           <a
-            href="https://wa.me/393333339347?text=Salve%20Antonella!%20Vorrei%20informazioni%20su%20Trullo%20dei%20Messapi"
+            href={getWhatsAppUrl(
+              lang === 'it'
+                ? 'Salve Antonella! Vorrei informazioni su Trullo dei Messapi'
+                : 'Hello Antonella! I would like information about Trullo dei Messapi'
+            )}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/25 px-7 py-3.5 rounded-full text-xs uppercase tracking-widest font-semibold transition-all flex items-center gap-2"

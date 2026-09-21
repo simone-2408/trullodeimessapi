@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Language, BookingFormState } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { ACCOMMODATIONS } from '../data/accommodations';
-import { calculateStayQuote, getTodayDateString, getTomorrowDateString } from '../data/tariffe';
+import { calculateStayQuote, getTodayDateString, getTomorrowDateString, parseLocalDate } from '../data/tariffe';
+import { CONTACT_INFO, getWhatsAppUrl } from '../constants/contact';
 import {
   Calendar,
   MessageCircle,
@@ -159,10 +160,10 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
     formState.cribs
   );
 
-  // Formatting dates for display & messages
+  // Formatting dates for display & messages (timezone safe across the world)
   const formatDateDisplay = (dateStr: string) => {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
+    const d = parseLocalDate(dateStr);
     return d.toLocaleDateString(lang === 'it' ? 'it-IT' : 'en-GB', {
       day: '2-digit',
       month: '2-digit',
@@ -193,8 +194,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
       `Salve Antonella! Vorrei richiedere disponibilità per queste date e bloccare il mio soggiorno. Grazie!`,
     ].filter(Boolean);
 
-    const encoded = encodeURIComponent(textLines.join('\n'));
-    const url = `https://wa.me/393333339347?text=${encoded}`;
+    const url = getWhatsAppUrl(textLines.join('\n'));
     window.open(url, '_blank');
   };
 
@@ -227,8 +227,10 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
       formState.guestName || '',
     ].filter(Boolean);
 
-    const mailto = `mailto:trullodeimessapi@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
-    window.location.href = mailto;
+    const mailtoUrl = `mailto:${CONTACT_INFO.email}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
+    window.location.href = mailtoUrl;
   };
 
   return (
@@ -525,7 +527,15 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 <div className="mt-3.5 p-3 bg-amber-50 rounded-xl border border-amber-200/60 text-xs text-amber-900 flex items-center gap-2">
                   <Info size={16} className="text-amber-700 shrink-0" />
                   <span>
-                    {lang === 'it'
+                    {selectedAccommodation.id === 'quercia'
+                      ? lang === 'it'
+                        ? `Tariffa standard per 4 persone. Inclusi ${totalGuests - 4} ${
+                            totalGuests - 4 === 1 ? 'letto aggiunto' : 'letti aggiunti'
+                          } (+${(totalGuests - 4) * 35}€ a notte).`
+                        : `Standard rate covers 4 guests. Includes ${totalGuests - 4} ${
+                            totalGuests - 4 === 1 ? 'extra bed' : 'extra beds'
+                          } (+${(totalGuests - 4) * 35}€/night).`
+                      : lang === 'it'
                       ? `Incluso 1 letto aggiunto (+35€ a notte) per il 3° ospite.`
                       : `Includes 1 extra bed (+35€/night) for the 3rd guest.`}
                   </span>
@@ -543,7 +553,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     onClick={() => handleSelectAccommodation('quercia')}
                     className="text-[#B99470] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    <span>{lang === 'it' ? 'Passa a Suite Quercia (fino a 6 pax)' : 'Switch to Quercia (up to 6 pax)'}</span>
+                    <span>{lang === 'it' ? 'Passa a Suite Quercia (fino a 7 pax)' : 'Switch to Quercia (up to 7 pax)'}</span>
                     <ArrowRight size={12} />
                   </button>
                 </div>
@@ -852,7 +862,11 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
               <a
-                href="https://wa.me/393397985473?text=Salve%20Antonella,%20desidero%20informazioni%20e%20disponibilit%C3%A0%20per%20riservare%20l'intera%20tenuta%20Trullo%20dei%20Messapi%20in%20esclusiva"
+                href={getWhatsAppUrl(
+                  lang === 'it'
+                    ? "Salve Antonella, desidero informazioni e disponibilità per riservare l'intera tenuta Trullo dei Messapi in esclusiva"
+                    : "Hello Antonella, I would like information and availability to reserve the entire Trullo dei Messapi estate exclusively"
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md cursor-pointer"
@@ -861,7 +875,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 <span>{t.accommodations.estateExclusiveBtn}</span>
               </a>
               <a
-                href="tel:+393333339347"
+                href={`tel:${CONTACT_INFO.phoneTel}`}
                 className="w-full sm:w-auto px-8 py-4 rounded-2xl border border-[#C5BBAE] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
               >
                 <Phone size={16} />

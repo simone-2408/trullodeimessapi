@@ -13,19 +13,19 @@ export const ACCOMMODATIONS: Accommodation[] = [
       en: 'The authentic luxury of resting beneath ancient stone vaults and cones in the heart of Puglia.',
     },
     description: {
-      it: 'Suite Trullo Quercia è la gemma del Trullo dei Messapi. Centocinquanta metri quadri finemente arredati per regalare un’esperienza magica e romantica: tre camere matrimoniali ricavate nelle volte in pietra, due eleganti bagni con box doccia, living room luminosa con imponente camino monumentale, cucina interamente attrezzata con zona pranzo e un riservato terrazzino solarium privato dove godere del cielo e della brezza della Valle d’Itria.',
-      en: 'Suite Trullo Quercia is the master residence of Trullo dei Messapi. Spanning 150 square meters with authentic stone architecture, it features three double bedrooms under vaulted stone ceilings, two modern bathrooms with walk-in showers, an expansive living area with a majestic stone fireplace, a fully equipped kitchen with dining area, and a secluded private sun terrace overlooking the Apulian countryside.',
+      it: 'Suite Trullo Quercia è la gemma del Trullo dei Messapi. Centocinquanta metri quadri finemente arredati per regalare un’esperienza magica e romantica: due spaziose camere matrimoniali ricavate nelle volte in pietra (tariffa standard per 4 persone), con la possibilità di aggiungere fino a 2 o 3 letti singoli a pagamento. Due eleganti bagni con box doccia, living room luminosa con imponente camino monumentale, cucina interamente attrezzata con zona pranzo e un riservato terrazzino solarium privato dove godere del cielo e della brezza della Valle d’Itria.',
+      en: 'Suite Trullo Quercia is the master residence of Trullo dei Messapi. Spanning 150 square meters with authentic stone architecture, it features two spacious double bedrooms under vaulted stone ceilings (standard rate for 4 guests), with the option to add up to 2 or 3 extra single beds on request. Two modern bathrooms with walk-in showers, an expansive living area with a majestic stone fireplace, a fully equipped kitchen with dining area, and a secluded private sun terrace overlooking the Apulian countryside.',
     },
     type: 'trullo',
     sqm: 150,
     capacityStandard: 4,
-    capacityMax: 6,
-    maxExtraBeds: 2,
-    bedroomsCount: 3,
+    capacityMax: 7,
+    maxExtraBeds: 3,
+    bedroomsCount: 2,
     bathroomsCount: 2,
     bedsDescription: {
-      it: '3 camere da letto matrimoniali (possibilità di aggiungere fino a 2 letti singoli)',
-      en: '3 Double master bedrooms (possibility of up to 2 extra single beds)',
+      it: '2 camere matrimoniali (tariffa standard per 4 persone, con possibilità di 2 o 3 letti singoli aggiunti a pagamento)',
+      en: '2 double master bedrooms (standard rate for 4 guests, with option for 2 or 3 extra single beds on request)',
     },
     coverImage: './images/quercia/IMG_3145.JPG',
     gallery: [
@@ -47,7 +47,8 @@ export const ACCOMMODATIONS: Accommodation[] = [
     features: {
       it: [
         '150 mq di superficie esclusiva nei trulli',
-        '3 camere matrimoniali con volte a botte',
+        '2 camere matrimoniali con volte in pietra (tariffa standard 4 persone)',
+        'Possibilità di 2 o 3 letti singoli aggiunti a pagamento',
         '2 bagni completi con doccia',
         'Cucina completa e zona pranzo riservata',
         'Grande camino monumentale in pietra',
@@ -58,8 +59,9 @@ export const ACCOMMODATIONS: Accommodation[] = [
       ],
       en: [
         '150 sqm of exclusive living area inside historic trulli',
-        '3 Master bedrooms with barrel-vaulted stone ceilings',
-        '2 Full private bathrooms with modern showers',
+        '2 master double bedrooms with stone vaults (standard rate 4 guests)',
+        'Option for up to 2 or 3 extra single beds on request',
+        '2 full private bathrooms with modern showers',
         'Fully equipped kitchen with dining area',
         'Monumental historic stone fireplace',
         'Private panoramic sun terrace',

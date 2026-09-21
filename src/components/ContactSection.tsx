@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
+import { CONTACT_INFO, getWhatsAppUrl } from '../constants/contact';
 import {
   Phone,
   MessageCircle,
@@ -32,7 +33,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const mailto = `mailto:trullodeimessapi@gmail.com?subject=${encodeURIComponent(
+    const mailto = `mailto:${CONTACT_INFO.email}?subject=${encodeURIComponent(
       `Richiesta da sito web: ${name || 'Ospite'}`
     )}&body=${encodeURIComponent(
       `Nome: ${name}\nEmail: ${email}\nTelefono: ${phone}\n\nMessaggio:\n${message}`
@@ -147,10 +148,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                         {t.contact.phone}
                       </span>
                       <a
-                        href="tel:+393333339347"
+                        href={`tel:${CONTACT_INFO.phoneTel}`}
                         className="font-serif text-lg sm:text-xl font-bold text-stone-900 hover:text-[#B99470] transition-colors"
                       >
-                        +39 333 333 9347
+                        {CONTACT_INFO.phoneDisplay}
                       </a>
                     </div>
                   </div>
@@ -163,10 +164,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                         {t.contact.email}
                       </span>
                       <a
-                        href="mailto:trullodeimessapi@gmail.com"
+                        href={`mailto:${CONTACT_INFO.email}`}
                         className="font-serif text-base sm:text-lg font-semibold text-stone-900 hover:text-[#B99470] transition-colors break-all"
                       >
-                        trullodeimessapi@gmail.com
+                        {CONTACT_INFO.email}
                       </a>
                     </div>
                   </div>
@@ -190,7 +191,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
               {/* Direct buttons */}
               <div className="pt-8 border-t border-[#EAE3D7] flex flex-col sm:flex-row gap-3">
                 <a
-                  href="https://wa.me/393397985473?text=Salve%20Antonella,%20vorrei%20informazioni%20su%20Trullo%20dei%20Messapi"
+                  href={getWhatsAppUrl(
+                    lang === 'it'
+                      ? 'Salve Antonella, vorrei informazioni su Trullo dei Messapi'
+                      : 'Hello Antonella, I would like information about Trullo dei Messapi'
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 py-3.5 px-5 rounded-2xl bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
@@ -200,7 +205,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                 </a>
 
                 <a
-                  href="tel:+393333339347"
+                  href={`tel:${CONTACT_INFO.phoneTel}`}
                   className="flex-1 py-3.5 px-5 rounded-2xl border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
                 >
                   <Phone size={17} />
