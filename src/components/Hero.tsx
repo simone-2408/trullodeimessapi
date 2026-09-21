@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { ACCOMMODATIONS } from '../data/accommodations';
-import { Calendar, Users, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { Calendar, Users, ArrowRight } from 'lucide-react';
 
 interface HeroProps {
   lang: Language;
@@ -29,43 +29,41 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden">
-      {/* Background Image with warm overlay */}
+    <div className="relative min-h-[92vh] flex items-center justify-center pt-28 pb-20 overflow-hidden">
+      {/* Background Photography with warm natural light */}
       <div className="absolute inset-0 z-0">
         <img
           src="/images/trulli/106730545.jpg"
-          alt="Trullo dei Messapi - Panoramica Trulli e Giardino"
-          className="w-full h-full object-cover object-center scale-105 animate-fade-in filter brightness-90"
+          alt="Trullo dei Messapi - Dimora Storica Pugliese"
+          className="w-full h-full object-cover object-center scale-100 filter brightness-95"
         />
-        {/* Gradients to ensure perfect readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1E2226] via-black/45 to-black/60" />
-        <div className="absolute inset-0 bg-[#B99470]/10 mix-blend-overlay" />
+        {/* Soft, warm vignette for natural contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-black/35" />
       </div>
 
       {/* Hero Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white mt-8 md:mt-12">
-        {/* Luxury pill badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-medium tracking-wider uppercase mb-6 text-[#DFD0B8]">
-          <Sparkles size={14} className="text-[#B99470]" />
-          <span>{t.hero.tag}</span>
-        </div>
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white mt-4">
+        {/* Understated Location Tag */}
+        <span className="inline-block text-xs sm:text-sm font-medium tracking-[0.2em] uppercase text-[#DFD0B8] mb-4 drop-shadow-sm">
+          {t.hero.tag}
+        </span>
 
-        {/* Grand luxury headline */}
-        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.15] mb-6 max-w-5xl mx-auto text-balance">
+        {/* Elegant Editorial Headline */}
+        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.12] mb-6 max-w-4xl mx-auto text-balance drop-shadow-md">
           {t.hero.title}
         </h1>
 
-        <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-light max-w-3xl mx-auto mb-10 leading-relaxed font-sans">
+        <p className="text-base sm:text-lg md:text-xl text-white/90 font-light max-w-2xl mx-auto mb-10 leading-relaxed font-sans drop-shadow-sm">
           {t.hero.subtitle}
         </p>
 
-        {/* Quick Booking Engine Bar */}
-        <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl border border-white/30 text-[#1E2226] mb-12">
+        {/* Clean Luxury Booking Bar */}
+        <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl border border-[#E8DEC8]/60 text-[#2C2926]">
           <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-end text-left">
             {/* Suite selector */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5 flex items-center gap-1.5">
-                <Users size={14} className="text-[#B99470]" />
+                <Users size={13} className="text-[#B99470]" />
                 {lang === 'it' ? 'Alloggio' : 'Suite'}
               </label>
               <select
@@ -75,7 +73,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
               >
                 {ACCOMMODATIONS.map((acc) => (
                   <option key={acc.id} value={acc.id}>
-                    {acc.name} ({acc.capacityMax} pax)
+                    {acc.name} (max {acc.capacityMax} pax)
                   </option>
                 ))}
               </select>
@@ -84,7 +82,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
             {/* Check-In */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5 flex items-center gap-1.5">
-                <Calendar size={14} className="text-[#B99470]" />
+                <Calendar size={13} className="text-[#B99470]" />
                 Check-In
               </label>
               <input
@@ -99,7 +97,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
             {/* Check-Out */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5 flex items-center gap-1.5">
-                <Calendar size={14} className="text-[#B99470]" />
+                <Calendar size={13} className="text-[#B99470]" />
                 Check-Out
               </label>
               <input
@@ -115,57 +113,25 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
             <div>
               <button
                 type="submit"
-                className="w-full bg-[#B99470] hover:bg-[#A37E5A] text-white py-2.5 px-4 rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 group cursor-pointer"
+                className="w-full bg-[#B99470] hover:bg-[#A37E5A] text-white py-2.5 px-4 rounded-xl text-xs uppercase tracking-widest font-semibold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 group cursor-pointer"
               >
-                <span>{lang === 'it' ? 'Calcola Prezzo' : 'Get Quote'}</span>
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <span>{lang === 'it' ? 'Verifica' : 'Check'}</span>
+                <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </form>
 
-          <div className="mt-3 pt-2.5 border-t border-gray-100 flex flex-wrap items-center justify-between text-xs text-gray-500 px-1">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck size={14} className="text-emerald-600" />
+          <div className="mt-3 pt-2.5 border-t border-gray-100 flex flex-wrap items-center justify-between text-[11px] text-gray-500 px-1">
+            <span>
               {lang === 'it'
-                ? 'Nessun pagamento online richiesto • Prenotazione diretta'
-                : 'No online payment required • Direct booking inquiry'}
+                ? 'Prenotazione diretta senza commissioni intermediari'
+                : 'Direct booking without booking commissions'}
             </span>
             <span className="hidden sm:inline text-gray-400">
-              {lang === 'it' ? 'Miglior tariffa garantita senza commissioni' : 'Best rate guaranteed without fees'}
+              {lang === 'it'
+                ? 'Accordi di caparra e saldo direttamente con Antonella'
+                : 'Personal arrangements directly with Antonella'}
             </span>
-          </div>
-        </div>
-
-        {/* Quick Features Row */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto text-left">
-          <div className="bg-black/35 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-[#B99470]/20 flex items-center justify-center text-[#DFD0B8] font-serif text-lg font-bold">
-              3
-            </div>
-            <div>
-              <h4 className="text-white font-medium text-sm sm:text-base">{t.hero.stats.units}</h4>
-              <p className="text-white/60 text-xs">{t.hero.stats.unitsSub}</p>
-            </div>
-          </div>
-
-          <div className="bg-black/35 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-[#B99470]/20 flex items-center justify-center text-[#DFD0B8] font-serif text-lg font-bold">
-              ≈
-            </div>
-            <div>
-              <h4 className="text-white font-medium text-sm sm:text-base">{t.hero.stats.pool}</h4>
-              <p className="text-white/60 text-xs">{t.hero.stats.poolSub}</p>
-            </div>
-          </div>
-
-          <div className="col-span-2 md:col-span-1 bg-black/35 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-[#B99470]/20 flex items-center justify-center text-[#DFD0B8] font-serif text-lg font-bold">
-              ★
-            </div>
-            <div>
-              <h4 className="text-white font-medium text-sm sm:text-base">5.0 / 5.0 Rating</h4>
-              <p className="text-white/60 text-xs">{lang === 'it' ? 'Ospitalità & Relax' : 'Hospitality & Serenity'}</p>
-            </div>
           </div>
         </div>
       </div>

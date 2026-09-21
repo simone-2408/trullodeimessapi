@@ -262,7 +262,7 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
               className="flex-1 sm:flex-initial py-2.5 px-6 rounded-xl bg-[#B99470] hover:bg-[#A37E5A] text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Calendar size={16} />
-              <span>{lang === 'it' ? 'Calcola Preventivo per Questa Dimora' : 'Calculate Quote for this Suite'}</span>
+              <span>{lang === 'it' ? 'Prenota Questa Dimora' : 'Book this Suite'}</span>
             </button>
           </div>
         </div>
