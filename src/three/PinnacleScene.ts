@@ -152,7 +152,7 @@ export class PinnacleScene {
     this.ambientLight = new THREE.AmbientLight(0xfff8ee, 0.9);
     this.scene.add(this.ambientLight);
 
-    // Main grazing directional sun light at an oblique angle to highlight individual stone slabs
+    // Main grazing directional sun light at an oblique angle to highlight individual stone blocks
     this.sunLight = new THREE.DirectionalLight(0xffe8d1, 3.2);
     this.sunLight.position.set(4.5, 4.2, 3.2);
     this.sunLight.castShadow = true;
@@ -246,7 +246,7 @@ export class PinnacleScene {
     return new THREE.MeshStandardMaterial({
       map: diffTexture,
       bumpMap: bumpTexture,
-      bumpScale: 0.07,
+      bumpScale: 0.06,
       roughness: 0.94, // Completely matte & tactile
       metalness: 0.0,
       color: 0xeee7dc,
@@ -254,80 +254,127 @@ export class PinnacleScene {
   }
 
   /**
-   * Procedural Limestone Slab Material for Chiancarelle Stones
+   * Procedural Stacked Stone Blocks Texture on Smooth Cone Surface (2048x2048)
+   * Solves the user's requirement:
+   * "ci sta mettere i blocchetti cosi , ma sporgono , la superficie deve essere liscia"
+   * The cone geometry is completely smooth and continuous,
+   * while the texture renders the stacked rectangular limestone blocks (chiancarelle)
+   * with natural color variations and subtle tactile relief.
    */
-  private createStoneSlabMaterial(): THREE.MeshStandardMaterial {
-    const size = 1024;
+  private createSmoothStackedStoneMaterial(): THREE.MeshStandardMaterial {
+    const size = 2048;
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d')!;
 
-    // Base weathered stone color
-    ctx.fillStyle = '#827C74';
+    // Base weathered mortar/shadow tone
+    ctx.fillStyle = '#423E38';
     ctx.fillRect(0, 0, size, size);
 
-    // Weathering grain and chisel marks
-    for (let i = 0; i < 40000; i++) {
-      const x = Math.random() * size;
-      const y = Math.random() * size;
-      const r = Math.random() * 1.8 + 0.4;
-      const s = Math.random();
-      if (s > 0.65) ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-      else if (s > 0.3) ctx.fillStyle = 'rgba(170, 160, 145, 0.22)';
-      else ctx.fillStyle = 'rgba(70, 65, 58, 0.25)';
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    const bumpCanvas = document.createElement('canvas');
+    bumpCanvas.width = size;
+    bumpCanvas.height = size;
+    const bCtx = bumpCanvas.getContext('2d')!;
+    bCtx.fillStyle = '#202020'; // Deep crevices in bump map
+    bCtx.fillRect(0, 0, size, size);
 
-    // Irregular stone striations along the flat face
-    for (let y = 0; y < size; y += 4) {
-      if (Math.random() > 0.4) {
-        ctx.strokeStyle = `rgba(50, 45, 40, ${Math.random() * 0.15})`;
-        ctx.lineWidth = Math.random() * 2.5 + 0.8;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(size, y + (Math.random() - 0.5) * 8);
-        ctx.stroke();
+    // Number of horizontal stone courses
+    const courseCount = 28;
+    const courseHeight = size / courseCount;
+
+    // Authentic Apulian limestone palette from the real trullo (Photo 3)
+    const blockPalette = [
+      '#78726A', // Weathered grey limestone
+      '#827B72', // Medium taupe grey
+      '#8D857A', // Warm sun-touched stone
+      '#988F84', // Pale aged cream stone
+      '#666159', // Dark shaded stone
+      '#6D7360', // Subtle olive lichen stone
+      '#A2998C', // Sun-bleached limestone
+      '#7C766D', // Neutral calcarenite
+    ];
+
+    for (let c = 0; c < courseCount; c++) {
+      const yStart = c * courseHeight;
+      const yEnd = yStart + courseHeight;
+      const blockH = courseHeight - 3; // 3px dark shadow seam between courses
+
+      // Courses are staggered in running bond (offset by half a block)
+      const blocksInCourse = 38;
+      const avgBlockW = size / blocksInCourse;
+      const xOffset = (c % 2) * (avgBlockW * 0.5) + ((c * 17) % 35);
+
+      for (let b = -1; b < blocksInCourse + 2; b++) {
+        // Subtle natural width variation for handcrafted stone masonry
+        const jitterW = Math.sin(c * 7 + b * 13) * 6;
+        const blockW = avgBlockW + jitterW;
+        const blockX = b * avgBlockW + xOffset;
+        const blockY = yStart + 1.5;
+
+        // Choose organic stone color
+        const colorIdx = Math.floor(Math.abs(Math.sin(c * 5.3 + b * 7.1)) * blockPalette.length) % blockPalette.length;
+        const baseColor = blockPalette[colorIdx];
+
+        // Draw smooth flat stone face (with 2.5px dark joint between adjacent stones)
+        ctx.fillStyle = baseColor;
+        ctx.fillRect(blockX + 1.5, blockY, blockW - 3, blockH);
+
+        // Bump map: Stone block face is elevated (light grey ~200)
+        bCtx.fillStyle = '#C8C8C8';
+        bCtx.fillRect(blockX + 1.5, blockY, blockW - 3, blockH);
+
+        // Subtle gradient on each block: top edge catching sunlight
+        const topHighlight = ctx.createLinearGradient(0, blockY, 0, blockY + blockH);
+        topHighlight.addColorStop(0, 'rgba(255, 255, 255, 0.16)');
+        topHighlight.addColorStop(0.3, 'rgba(255, 255, 255, 0.02)');
+        topHighlight.addColorStop(1, 'rgba(0, 0, 0, 0.18)');
+        ctx.fillStyle = topHighlight;
+        ctx.fillRect(blockX + 1.5, blockY, blockW - 3, blockH);
+
+        // Bump map bevel on stone top/bottom
+        const bGrad = bCtx.createLinearGradient(0, blockY, 0, blockY + blockH);
+        bGrad.addColorStop(0, '#EAEAEA');
+        bGrad.addColorStop(0.3, '#C0C0C0');
+        bGrad.addColorStop(1, '#707070');
+        bCtx.fillStyle = bGrad;
+        bCtx.fillRect(blockX + 1.5, blockY, blockW - 3, blockH);
+
+        // Micro stone surface noise (pitted limestone texture)
+        for (let p = 0; p < 25; p++) {
+          const px = blockX + Math.random() * blockW;
+          const py = blockY + Math.random() * blockH;
+          const pr = Math.random() * 1.5 + 0.4;
+          ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.14)';
+          ctx.beginPath();
+          ctx.arc(px, py, pr, 0, Math.PI * 2);
+          ctx.fill();
+
+          bCtx.fillStyle = Math.random() > 0.5 ? '#DCDCDC' : '#303030';
+          bCtx.beginPath();
+          bCtx.arc(px, py, pr, 0, Math.PI * 2);
+          bCtx.fill();
+        }
+
+        // Random subtle lichen spot
+        if (Math.random() > 0.85) {
+          ctx.fillStyle = 'rgba(105, 115, 90, 0.22)';
+          ctx.beginPath();
+          ctx.arc(blockX + blockW * 0.5, blockY + blockH * 0.45, Math.random() * 6 + 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
-    }
 
-    // Lichen and moss patches
-    for (let i = 0; i < 20; i++) {
-      const x = Math.random() * size;
-      const y = Math.random() * size;
-      const r = Math.random() * 45 + 15;
-      const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-      grad.addColorStop(0, 'rgba(105, 115, 90, 0.25)');
-      grad.addColorStop(1, 'rgba(105, 115, 90, 0)');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
+      // Dark horizontal joint line under each course
+      ctx.fillStyle = '#221F1B';
+      ctx.fillRect(0, yEnd - 2.5, size, 2.5);
+      bCtx.fillStyle = '#050505';
+      bCtx.fillRect(0, yEnd - 3, size, 3);
     }
 
     const diffTexture = new THREE.CanvasTexture(canvas);
     diffTexture.wrapS = THREE.RepeatWrapping;
     diffTexture.wrapT = THREE.RepeatWrapping;
-
-    // High relief bump map for individual stone face rough texture
-    const bumpCanvas = document.createElement('canvas');
-    bumpCanvas.width = size;
-    bumpCanvas.height = size;
-    const bCtx = bumpCanvas.getContext('2d')!;
-    bCtx.fillStyle = '#808080';
-    bCtx.fillRect(0, 0, size, size);
-
-    for (let i = 0; i < 35000; i++) {
-      const x = Math.random() * size;
-      const y = Math.random() * size;
-      const isPit = Math.random() > 0.5;
-      bCtx.fillStyle = isPit ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
-      bCtx.beginPath();
-      bCtx.arc(x, y, Math.random() * 2 + 0.6, 0, Math.PI * 2);
-      bCtx.fill();
-    }
 
     const bumpTexture = new THREE.CanvasTexture(bumpCanvas);
     bumpTexture.wrapS = THREE.RepeatWrapping;
@@ -336,157 +383,64 @@ export class PinnacleScene {
     return new THREE.MeshStandardMaterial({
       map: diffTexture,
       bumpMap: bumpTexture,
-      bumpScale: 0.14,
-      roughness: 0.96, // Truly matte rough dry stone
+      bumpScale: 0.05, // Subtle, realistic stone relief without physical protrusions
+      roughness: 0.95, // Truly matte dry stone
       metalness: 0.0,
-      color: 0xffffff, // Base white to multiply with instance colors
+      color: 0xe8e2d8,
     });
   }
 
   /**
-   * Build Real Stacked Dry-Stone Cone (Pietre Impilate a Secco) & Crowning Sphere Pinnacle
-   * NO circular rings or toruses!
-   * Built out of hundreds of individual stacked limestone slabs (chiancarelle) with natural irregularities.
+   * Build Sculptural Pinnacle & Smooth Stacked-Stone Cone
+   * Directly solves:
+   * - Smooth, continuous cone surface (NO protruding blocks, NO circular toruses)
+   * - Realistic stacked stone blocks texture (chiancarelle courses)
+   * - Crowning stone sphere (ONLY the ball on top, NO triangle/cusp)
    */
   private buildSculpturalPinnacle() {
     const pinnacleMaterial = this.createPinnacleLimestoneMaterial();
-    const stoneSlabMaterial = this.createStoneSlabMaterial();
+    const stoneConeMaterial = this.createSmoothStackedStoneMaterial();
 
     // =========================================================================
-    // 1. STACKED DRY-STONE CHIANCARELLE CONE (Pietre Impilate a Secco)
+    // 1. SMOOTH STACKED-STONE CONE (Superficie Liscia con Texture a Blocchetti)
     // =========================================================================
-    const courseCount = 20; // 20 tiered stone courses
     const baseRadius = 1.45;
     const topRadius = 0.28;
-    const coneHeight = 1.85;
+    const coneHeight = 1.88;
     const startY = -1.15;
-    const stoneWidth = 0.175; // average width of an individual chiancarella slab
-    const stoneDepth = 0.24; // depth protruding into the roof
-    const stoneHeight = coneHeight / courseCount; // slab thickness
 
-    // Base geometry for an individual stone slab with irregular hand-chiseled feel
-    const stoneGeo = new THREE.BoxGeometry(stoneWidth, stoneHeight * 1.08, stoneDepth, 2, 1, 2);
-    // Subtle vertex jitter for organic chiseled stone shape
-    const posAttr = stoneGeo.attributes.position;
-    for (let i = 0; i < posAttr.count; i++) {
-      const vx = posAttr.getX(i);
-      const vy = posAttr.getY(i);
-      const vz = posAttr.getZ(i);
-      posAttr.setXYZ(
-        i,
-        vx + (Math.sin(vx * 15 + vy * 20) * 0.006),
-        vy + (Math.cos(vz * 18) * 0.004),
-        vz + (Math.sin(vy * 22) * 0.006)
-      );
-    }
-    stoneGeo.computeVertexNormals();
+    // Smooth truncated cone geometry with 64 segments for an immaculate silhouette
+    const coneGeo = new THREE.CylinderGeometry(topRadius, baseRadius, coneHeight, 64, 32, true);
+    const coneMesh = new THREE.Mesh(coneGeo, stoneConeMaterial);
+    coneMesh.position.y = startY + coneHeight / 2;
+    coneMesh.castShadow = true;
+    coneMesh.receiveShadow = true;
+    this.pinnacleGroup.add(coneMesh);
 
-    // Calculate total number of stone instances needed
-    let totalStoneCount = 0;
-    const tierStones: { tier: number; count: number; radius: number; y: number }[] = [];
-    for (let c = 0; c < courseCount; c++) {
-      const t = c / courseCount;
-      const r = baseRadius - t * (baseRadius - topRadius);
-      const circ = 2 * Math.PI * r;
-      const count = Math.max(8, Math.round(circ / stoneWidth));
-      tierStones.push({ tier: c, count, radius: r, y: startY + c * stoneHeight + stoneHeight / 2 });
-      totalStoneCount += count;
-    }
-
-    // InstancedMesh: Renders all 600+ individual stones in a single GPU draw call!
-    const instancedStones = new THREE.InstancedMesh(stoneGeo, stoneSlabMaterial, totalStoneCount);
-    instancedStones.castShadow = true;
-    instancedStones.receiveShadow = true;
-
-    // Palette of authentic Apulian limestone tones from the real trullo (Photo 3)
-    const stonePalette = [
-      new THREE.Color(0x767068), // Weathered limestone grey
-      new THREE.Color(0x847d74), // Medium taupe grey
-      new THREE.Color(0x8f877d), // Warm sun-touched limestone
-      new THREE.Color(0x9a9186), // Pale aged cream stone
-      new THREE.Color(0x656059), // Shadowed dark slate stone
-      new THREE.Color(0x6c7260), // Subtle olive lichen stone
-      new THREE.Color(0xa29a8f), // Sun-bleached top stone
-    ];
-
-    const dummy = new THREE.Object3D();
-    let instanceIdx = 0;
-
-    for (let c = 0; c < tierStones.length; c++) {
-      const tier = tierStones[c];
-      // Running bond angular offset between courses so stones are staggered
-      const angleOffset = (c % 2) * (Math.PI / tier.count) + (c * 0.22);
-
-      for (let s = 0; s < tier.count; s++) {
-        const baseAngle = (s / tier.count) * Math.PI * 2 + angleOffset;
-
-        // Natural irregular offset for hand-stacked dry stones
-        const radJitter = (Math.sin(s * 13 + c * 17) * 0.022) + ((Math.random() - 0.5) * 0.015);
-        const yJitter = (Math.sin(s * 19 + c * 7) * 0.008);
-        const r = tier.radius + radJitter;
-
-        const x = Math.cos(baseAngle) * r;
-        const z = Math.sin(baseAngle) * r;
-        const y = tier.y + yJitter;
-
-        dummy.position.set(x, y, z);
-
-        // Orient stone facing radially outward
-        dummy.rotation.y = -baseAngle + Math.PI / 2 + (Math.random() - 0.5) * 0.06;
-
-        // Traditional trullo stone slope: stones pitch slightly downward (~6 deg) for water runoff
-        const pitchSlope = 0.12 + (Math.random() - 0.5) * 0.04;
-        dummy.rotation.x = Math.sin(baseAngle) * pitchSlope;
-        dummy.rotation.z = -Math.cos(baseAngle) * pitchSlope;
-
-        // Subtle scale variation per slab (each stone is unique)
-        const scaleW = 0.92 + (Math.sin(s * 9 + c * 11) * 0.12);
-        const scaleH = 0.88 + (Math.cos(s * 7 + c * 13) * 0.18);
-        const scaleD = 0.95 + (Math.sin(s * 15 + c * 5) * 0.1);
-        dummy.scale.set(scaleW, scaleH, scaleD);
-
-        dummy.updateMatrix();
-        instancedStones.setMatrixAt(instanceIdx, dummy.matrix);
-
-        // Pick color from natural limestone palette with organic clustering
-        const colorIdx = Math.floor(Math.abs(Math.sin(s * 5 + c * 3.7)) * stonePalette.length) % stonePalette.length;
-        instancedStones.setColorAt(instanceIdx, stonePalette[colorIdx]);
-
-        instanceIdx++;
-      }
-    }
-
-    instancedStones.instanceMatrix.needsUpdate = true;
-    if (instancedStones.instanceColor) {
-      instancedStones.instanceColor.needsUpdate = true;
-    }
-    this.pinnacleGroup.add(instancedStones);
-
-    // Inner backing core: dark interior masonry to prevent see-through gaps between stacked stones
-    const innerCoreMat = new THREE.MeshStandardMaterial({
-      color: 0x38342f,
-      roughness: 0.98,
-      metalness: 0.0,
-    });
-    const innerCoreGeo = new THREE.ConeGeometry(baseRadius * 0.88, coneHeight * 1.02, 36);
-    const innerCoreMesh = new THREE.Mesh(innerCoreGeo, innerCoreMat);
-    innerCoreMesh.position.y = startY + coneHeight / 2;
-    this.pinnacleGroup.add(innerCoreMesh);
+    // Bottom stone base cap to close the cone underneath
+    const bottomCapGeo = new THREE.CircleGeometry(baseRadius, 64);
+    bottomCapGeo.rotateX(Math.PI / 2);
+    const bottomCapMesh = new THREE.Mesh(
+      bottomCapGeo,
+      new THREE.MeshBasicMaterial({ color: 0x302c27 })
+    );
+    bottomCapMesh.position.y = startY;
+    this.pinnacleGroup.add(bottomCapMesh);
 
     // =========================================================================
     // 2. APEX MORTAR CAP (Calotta Sommitale in Malta a Calce Sbiancata)
-    // Smooth lime mortar capping the apex of the stacked stone cone
+    // Smooth lime mortar capping the apex of the cone
     // =========================================================================
     const mortarMaterial = pinnacleMaterial.clone();
     mortarMaterial.color = new THREE.Color(0xdad3c6);
-    mortarMaterial.bumpScale = 0.06;
+    mortarMaterial.bumpScale = 0.05;
 
     const capHeight = 0.35;
-    const capBottomR = topRadius * 1.05;
+    const capBottomR = topRadius * 1.03;
     const capTopR = 0.13;
     const capY = startY + coneHeight + capHeight / 2 - 0.02;
 
-    const capGeo = new THREE.CylinderGeometry(capTopR, capBottomR, capHeight, 36);
+    const capGeo = new THREE.CylinderGeometry(capTopR, capBottomR, capHeight, 48);
     const capMesh = new THREE.Mesh(capGeo, mortarMaterial);
     capMesh.position.y = capY;
     capMesh.castShadow = true;
@@ -501,7 +455,7 @@ export class PinnacleScene {
 
     // A. Plinth Base Collar (Basamento a collare)
     const plinthY = capY + capHeight / 2 + 0.04;
-    const plinthGeo = new THREE.CylinderGeometry(0.125, 0.145, 0.08, 36);
+    const plinthGeo = new THREE.CylinderGeometry(0.125, 0.145, 0.08, 48);
     const plinthMesh = new THREE.Mesh(plinthGeo, pinnacleMaterial);
     plinthMesh.position.y = plinthY;
     plinthMesh.castShadow = true;
@@ -509,7 +463,7 @@ export class PinnacleScene {
     this.pinnacleGroup.add(plinthMesh);
 
     // Subtle stone ring at the plinth base
-    const plinthRingGeo = new THREE.TorusGeometry(0.138, 0.016, 12, 36);
+    const plinthRingGeo = new THREE.TorusGeometry(0.138, 0.015, 12, 48);
     plinthRingGeo.rotateX(Math.PI / 2);
     const plinthRing = new THREE.Mesh(plinthRingGeo, pinnacleMaterial);
     plinthRing.position.y = plinthY - 0.02;
@@ -522,7 +476,7 @@ export class PinnacleScene {
     const chaliceTopR = 0.175;
     const chaliceY = plinthY + 0.04 + chaliceHeight / 2;
 
-    const chaliceGeo = new THREE.CylinderGeometry(chaliceTopR, chaliceBottomR, chaliceHeight, 36);
+    const chaliceGeo = new THREE.CylinderGeometry(chaliceTopR, chaliceBottomR, chaliceHeight, 48);
     const chaliceMesh = new THREE.Mesh(chaliceGeo, pinnacleMaterial);
     chaliceMesh.position.y = chaliceY;
     chaliceMesh.castShadow = true;
@@ -530,7 +484,7 @@ export class PinnacleScene {
     this.pinnacleGroup.add(chaliceMesh);
 
     // Soft rounded lip on the upper rim of the chalice
-    const chaliceRimGeo = new THREE.TorusGeometry(chaliceTopR * 0.98, 0.016, 12, 36);
+    const chaliceRimGeo = new THREE.TorusGeometry(chaliceTopR * 0.98, 0.015, 12, 48);
     chaliceRimGeo.rotateX(Math.PI / 2);
     const chaliceRim = new THREE.Mesh(chaliceRimGeo, pinnacleMaterial);
     chaliceRim.position.y = chaliceY + chaliceHeight / 2;
@@ -541,7 +495,7 @@ export class PinnacleScene {
     const neckR = 0.076;
     const neckY = chaliceY + chaliceHeight / 2 + neckHeight / 2;
 
-    const neckGeo = new THREE.CylinderGeometry(neckR, neckR, neckHeight, 36);
+    const neckGeo = new THREE.CylinderGeometry(neckR, neckR, neckHeight, 48);
     const neckMesh = new THREE.Mesh(neckGeo, pinnacleMaterial);
     neckMesh.position.y = neckY;
     neckMesh.castShadow = true;
@@ -556,7 +510,7 @@ export class PinnacleScene {
     const sphereGeo = new THREE.SphereGeometry(sphereRadius, 64, 48);
     const sphereMesh = new THREE.Mesh(sphereGeo, pinnacleMaterial);
     sphereMesh.position.y = sphereY;
-    // Slightly oblate (1.03, 0.95, 1.03) to match hand-sculpted rustic stone sphere in photo 3
+    // Slightly oblate (1.03, 0.96, 1.03) to match hand-sculpted rustic stone sphere in photo 3
     sphereMesh.scale.set(1.03, 0.96, 1.03);
     sphereMesh.castShadow = true;
     sphereMesh.receiveShadow = true;
