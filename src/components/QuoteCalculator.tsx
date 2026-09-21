@@ -11,6 +11,9 @@ import {
   ShieldCheck,
   Sparkles,
   Info,
+  Users,
+  AlertCircle,
+  ArrowRight,
 } from 'lucide-react';
 
 interface QuoteCalculatorProps {
@@ -32,7 +35,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
     accommodationId: preselectedSuite || 'quercia',
     checkIn: initialCheckIn || '',
     checkOut: initialCheckOut || '',
-    adults: 2,
+    adults: preselectedSuite === 'quercia' ? 4 : 2,
     children: 0,
     extraBeds: 0,
     cribs: 0,
@@ -42,14 +45,45 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
     notes: '',
   });
 
+  const selectedAccommodation =
+    ACCOMMODATIONS.find((a) => a.id === formState.accommodationId) || ACCOMMODATIONS[0];
+
+  const totalGuests = formState.adults + formState.children;
+  const isOverCapacity = totalGuests > selectedAccommodation.capacityMax;
+
+  // Handle switching accommodations with strict capacity clamping
+  const handleSelectAccommodation = (newAccId: 'quercia' | 'corbezzolo' | 'melograno') => {
+    const targetAcc = ACCOMMODATIONS.find((a) => a.id === newAccId) || ACCOMMODATIONS[0];
+
+    setFormState((prev) => {
+      let newAdults = prev.adults;
+      let newChildren = prev.children;
+
+      // If current total guests exceeds the new accommodation's max capacity, clamp down!
+      if (newAdults + newChildren > targetAcc.capacityMax) {
+        newAdults = Math.min(newAdults, targetAcc.capacityMax);
+        newChildren = Math.min(newChildren, targetAcc.capacityMax - newAdults);
+        if (newAdults === 0) newAdults = 1;
+      }
+
+      const newTotal = newAdults + newChildren;
+      // Auto-compute extra beds needed beyond standard capacity
+      const neededExtraBeds = Math.max(0, Math.min(targetAcc.maxExtraBeds, newTotal - targetAcc.capacityStandard));
+
+      return {
+        ...prev,
+        accommodationId: newAccId,
+        adults: newAdults,
+        children: newChildren,
+        extraBeds: neededExtraBeds,
+      };
+    });
+  };
+
   // Keep state updated if preselected props change
   useEffect(() => {
     if (preselectedSuite) {
-      setFormState((prev) => ({
-        ...prev,
-        accommodationId: preselectedSuite,
-        extraBeds: 0, // reset extra beds when switching unit
-      }));
+      handleSelectAccommodation(preselectedSuite);
     }
   }, [preselectedSuite]);
 
@@ -62,8 +96,14 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
     }
   }, [initialCheckIn, initialCheckOut]);
 
-  const selectedAccommodation =
-    ACCOMMODATIONS.find((a) => a.id === formState.accommodationId) || ACCOMMODATIONS[0];
+  // Synchronize extra beds whenever adults or children change
+  useEffect(() => {
+    const currentTotal = formState.adults + formState.children;
+    const needed = Math.max(0, Math.min(selectedAccommodation.maxExtraBeds, currentTotal - selectedAccommodation.capacityStandard));
+    if (formState.extraBeds !== needed) {
+      setFormState((prev) => ({ ...prev, extraBeds: needed }));
+    }
+  }, [formState.adults, formState.children, selectedAccommodation]);
 
   const quote = calculateStayQuote(
     formState.checkIn,
@@ -73,9 +113,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
     formState.cribs
   );
 
-  const maxExtraBedsAllowed = selectedAccommodation.maxExtraBeds;
-
-  // Formatting dates for message
+  // Formatting dates for display & messages
   const formatDateDisplay = (dateStr: string) => {
     if (!dateStr) return '';
     const d = new Date(dateStr);
@@ -88,8 +126,10 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
   // Generate WhatsApp Message
   const handleWhatsAppInquiry = () => {
+    if (isOverCapacity) return;
+
     const textLines = [
-      `*Trullo dei Messapi - Richiesta Preventivo & Disponibilità*`,
+      `*Trullo dei Messapi - Richiesta Prenotazione*`,
       `----------------------------------------`,
       `• *Alloggio*: ${selectedAccommodation.name}`,
       `• *Check-in*: ${formatDateDisplay(formState.checkIn)}`,
@@ -97,14 +137,14 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
       `• *Ospiti*: ${formState.adults} Adulti${formState.children > 0 ? `, ${formState.children} Bambini` : ''}`,
       formState.extraBeds > 0 ? `• *Letti Aggiunti*: ${formState.extraBeds} (+35€/notte)` : '',
       formState.cribs > 0 ? `• *Culla*: ${formState.cribs} (+15€/giorno)` : '',
-      `• *Totale Preventivato*: ${quote.totalEstimated}€`,
+      `• *Totale Stimato*: ${quote.totalEstimated}€`,
       `----------------------------------------`,
       formState.guestName ? `• *Ospite*: ${formState.guestName}` : '',
       formState.guestEmail ? `• *Email*: ${formState.guestEmail}` : '',
       formState.guestPhone ? `• *Telefono*: ${formState.guestPhone}` : '',
       formState.notes ? `• *Note*: ${formState.notes}` : '',
       `----------------------------------------`,
-      `Salve Antonella! Vorrei verificare la disponibilità per queste date e procedere con la prenotazione. Grazie!`,
+      `Salve Antonella! Vorrei richiedere disponibilità per queste date e bloccare il mio soggiorno. Grazie!`,
     ].filter(Boolean);
 
     const encoded = encodeURIComponent(textLines.join('\n'));
@@ -114,18 +154,20 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
   // Generate Email Inquiry
   const handleEmailInquiry = () => {
-    const subject = `Richiesta Preventivo Trullo dei Messapi - ${selectedAccommodation.name} (${formatDateDisplay(formState.checkIn)} - ${formatDateDisplay(formState.checkOut)})`;
+    if (isOverCapacity) return;
+
+    const subject = `Richiesta Prenotazione Trullo dei Messapi - ${selectedAccommodation.name} (${formatDateDisplay(formState.checkIn)} - ${formatDateDisplay(formState.checkOut)})`;
     const bodyLines = [
       `Gentile Antonella,`,
       ``,
-      `Desidero richiedere la disponibilità per un soggiorno presso il Trullo dei Messapi con il seguente preventivo calcolato dal sito web:`,
+      `Desidero verificare la disponibilità per un soggiorno presso il Trullo dei Messapi:`,
       ``,
       `Alloggio: ${selectedAccommodation.name}`,
       `Check-in: ${formatDateDisplay(formState.checkIn)}`,
       `Check-out: ${formatDateDisplay(formState.checkOut)} (${quote.totalNights} notti)`,
       `Numero Ospiti: ${formState.adults} Adulti${formState.children > 0 ? `, ${formState.children} Bambini` : ''}`,
       formState.extraBeds > 0 ? `Letti aggiunti: ${formState.extraBeds} (${quote.extraBedsCost}€)` : '',
-      formState.cribs > 0 ? `Culla: ${formState.cribs} (${quote.cribsCost}€)` : '',
+      formState.cribs > 0 ? `Culla per neonati: ${formState.cribs} (${quote.cribsCost}€)` : '',
       `Totale Stimato: ${quote.totalEstimated}€`,
       ``,
       `Dati di Contatto:`,
@@ -134,7 +176,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
       `Telefono: ${formState.guestPhone || 'Non specificato'}`,
       formState.notes ? `Note/Richieste: ${formState.notes}` : '',
       ``,
-      `Resto in attesa di una vostra gentile conferma per accordarci su caparra e saldo.`,
+      `Resto in attesa di una vostra gentile conferma per accordarci su caparra e dettagli.`,
       `Cordiali saluti,`,
       formState.guestName || '',
     ].filter(Boolean);
@@ -149,7 +191,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B99470]/15 text-[#8A6743] text-xs font-bold uppercase tracking-widest mb-3">
-            <Sparkles size={14} />
+            <Calendar size={14} />
             <span>{t.calculator.sectionTag}</span>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
@@ -166,22 +208,25 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
           <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-[#E7D7C1]/60 space-y-6">
             {/* Step 1: Accommodation Visual Switcher */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
-                1. {t.calculator.accommodationLabel}
-              </label>
+              <div className="flex justify-between items-baseline mb-3">
+                <label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  1. {t.calculator.accommodationLabel}
+                </label>
+                <span className="text-xs text-gray-500">
+                  {lang === 'it' ? 'Capienza:' : 'Capacity:'}{' '}
+                  <strong className="text-gray-800">
+                    max {selectedAccommodation.capacityMax} {lang === 'it' ? 'ospiti' : 'guests'}
+                  </strong>
+                </span>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {ACCOMMODATIONS.map((acc) => {
                   const isSelected = formState.accommodationId === acc.id;
                   return (
                     <div
                       key={acc.id}
-                      onClick={() =>
-                        setFormState((prev) => ({
-                          ...prev,
-                          accommodationId: acc.id,
-                          extraBeds: Math.min(prev.extraBeds, acc.maxExtraBeds),
-                        }))
-                      }
+                      onClick={() => handleSelectAccommodation(acc.id)}
                       className={`cursor-pointer rounded-2xl p-3.5 border-2 transition-all flex flex-col justify-between ${
                         isSelected
                           ? 'border-[#B99470] bg-[#B99470]/5 shadow-md'
@@ -203,8 +248,9 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                           </span>
                         </div>
                       </div>
-                      <div className="text-right text-xs font-semibold text-[#B99470]">
-                        da {acc.startingPrice}€ / nt
+                      <div className="flex justify-between items-center text-xs font-semibold text-[#B99470] pt-1 border-t border-gray-100">
+                        <span>da {acc.startingPrice}€ / nt</span>
+                        {isSelected && <span className="text-[10px] bg-[#B99470] text-white px-2 py-0.5 rounded-full">Selezionato</span>}
                       </div>
                     </div>
                   );
@@ -252,134 +298,121 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
               </div>
             </div>
 
-            {/* Step 3: Guests & Extras */}
+            {/* Step 3: Guests Selection with STRICT CAPACITY LOCK */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
-                3. {lang === 'it' ? 'Ospiti & Letti Aggiuntivi' : 'Guests & Extras'}
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {/* Adults */}
-                <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-gray-100">
-                  <span className="block text-xs text-gray-500 font-medium mb-1">
-                    {t.calculator.adultsLabel}
-                  </span>
-                  <div className="flex items-center justify-between">
+              <div className="flex justify-between items-center mb-3">
+                <label className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                  <Users size={14} className="text-[#B99470]" />
+                  3. {lang === 'it' ? 'Ospiti' : 'Guests'}
+                </label>
+                <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                  totalGuests === selectedAccommodation.capacityMax
+                    ? 'bg-amber-100 text-amber-800'
+                    : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {totalGuests} / {selectedAccommodation.capacityMax} {lang === 'it' ? 'ospiti max' : 'max guests'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {/* Adults counter */}
+                <div className="bg-[#FAF8F5] p-3.5 rounded-2xl border border-gray-100">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-gray-700 font-semibold">
+                      {t.calculator.adultsLabel}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
                     <button
                       type="button"
+                      disabled={formState.adults <= 1}
                       onClick={() =>
                         setFormState((prev) => ({
                           ...prev,
                           adults: Math.max(1, prev.adults - 1),
                         }))
                       }
-                      className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100"
+                      className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
                     >
                       -
                     </button>
-                    <span className="font-bold text-gray-900 text-base">{formState.adults}</span>
+                    <span className="font-bold text-gray-900 text-lg">{formState.adults}</span>
                     <button
                       type="button"
+                      disabled={totalGuests >= selectedAccommodation.capacityMax}
                       onClick={() =>
                         setFormState((prev) => ({
                           ...prev,
-                          adults: Math.min(selectedAccommodation.capacityMax, prev.adults + 1),
+                          adults: prev.adults + 1,
                         }))
                       }
-                      className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100"
+                      className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
                     >
                       +
                     </button>
                   </div>
                 </div>
 
-                {/* Children */}
-                <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-gray-100">
-                  <span className="block text-xs text-gray-500 font-medium mb-1">
-                    {t.calculator.childrenLabel}
-                  </span>
-                  <div className="flex items-center justify-between">
+                {/* Children counter */}
+                <div className="bg-[#FAF8F5] p-3.5 rounded-2xl border border-gray-100">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-gray-700 font-semibold truncate">
+                      {t.calculator.childrenLabel}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
                     <button
                       type="button"
+                      disabled={formState.children <= 0}
                       onClick={() =>
                         setFormState((prev) => ({
                           ...prev,
                           children: Math.max(0, prev.children - 1),
                         }))
                       }
-                      className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100"
+                      className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
                     >
                       -
                     </button>
-                    <span className="font-bold text-gray-900 text-base">{formState.children}</span>
+                    <span className="font-bold text-gray-900 text-lg">{formState.children}</span>
                     <button
                       type="button"
+                      disabled={totalGuests >= selectedAccommodation.capacityMax}
                       onClick={() =>
                         setFormState((prev) => ({
                           ...prev,
                           children: prev.children + 1,
                         }))
                       }
-                      className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100"
+                      className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
                     >
                       +
                     </button>
                   </div>
                 </div>
 
-                {/* Extra Beds */}
-                <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-gray-100">
-                  <span className="block text-[11px] text-gray-500 font-medium mb-1 truncate" title="Letti Aggiunti (+35€)">
-                    {lang === 'it' ? 'Letti Agg. (+35€)' : 'Extra Bed (+35€)'}
-                  </span>
-                  <div className="flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFormState((prev) => ({
-                          ...prev,
-                          extraBeds: Math.max(0, prev.extraBeds - 1),
-                        }))
-                      }
-                      className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100"
-                    >
-                      -
-                    </button>
-                    <span className="font-bold text-gray-900 text-base">{formState.extraBeds}</span>
-                    <button
-                      type="button"
-                      disabled={formState.extraBeds >= maxExtraBedsAllowed}
-                      onClick={() =>
-                        setFormState((prev) => ({
-                          ...prev,
-                          extraBeds: Math.min(maxExtraBedsAllowed, prev.extraBeds + 1),
-                        }))
-                      }
-                      className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-                    >
-                      +
-                    </button>
+                {/* Baby Crib counter (for infants 0-2 yrs, doesn't count towards bed occupancy) */}
+                <div className="bg-[#FAF8F5] p-3.5 rounded-2xl border border-gray-100 col-span-2 sm:col-span-1">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-gray-700 font-semibold truncate" title="Culla neonati (+15€/gg)">
+                      {lang === 'it' ? 'Culla (+15€/gg)' : 'Crib (+15€/day)'}
+                    </span>
                   </div>
-                </div>
-
-                {/* Crib */}
-                <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-gray-100">
-                  <span className="block text-[11px] text-gray-500 font-medium mb-1 truncate" title="Culla neonati (+15€)">
-                    {lang === 'it' ? 'Culla (+15€/gg)' : 'Crib (+15€/day)'}
-                  </span>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-2">
                     <button
                       type="button"
+                      disabled={formState.cribs <= 0}
                       onClick={() =>
                         setFormState((prev) => ({
                           ...prev,
                           cribs: Math.max(0, prev.cribs - 1),
                         }))
                       }
-                      className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100"
+                      className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
                     >
                       -
                     </button>
-                    <span className="font-bold text-gray-900 text-base">{formState.cribs}</span>
+                    <span className="font-bold text-gray-900 text-lg">{formState.cribs}</span>
                     <button
                       type="button"
                       disabled={formState.cribs >= 1}
@@ -389,7 +422,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                           cribs: 1,
                         }))
                       }
-                      className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
                     >
                       +
                     </button>
@@ -397,17 +430,40 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 </div>
               </div>
 
-              {maxExtraBedsAllowed > 0 && (
-                <p className="text-[11px] text-gray-400 mt-2">
-                  * {selectedAccommodation.name}: {lang === 'it' ? `massimo ${maxExtraBedsAllowed} letto/i aggiunto/i consentito/i.` : `maximum ${maxExtraBedsAllowed} extra bed(s) permitted.`}
-                </p>
+              {/* Helpful notices on guests and capacity */}
+              {totalGuests > selectedAccommodation.capacityStandard && (
+                <div className="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-200/60 text-xs text-amber-900 flex items-center gap-2">
+                  <Info size={16} className="text-amber-700 shrink-0" />
+                  <span>
+                    {lang === 'it'
+                      ? `Incluso 1 letto aggiunto (+35€ a notte) per il 3° ospite.`
+                      : `Includes 1 extra bed (+35€/night) for the 3rd guest.`}
+                  </span>
+                </div>
+              )}
+
+              {/* Warning if someone wants more than 3 guests and is on Corbezzolo / Melograno */}
+              {selectedAccommodation.capacityMax === 3 && totalGuests === 3 && (
+                <div className="mt-2 text-xs text-gray-500 flex items-center justify-between bg-gray-50 p-2.5 rounded-xl">
+                  <span>
+                    {lang === 'it' ? 'Viaggiate in 4 o più persone?' : 'Traveling with 4 or more guests?'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectAccommodation('quercia')}
+                    className="text-[#B99470] font-semibold hover:underline flex items-center gap-1"
+                  >
+                    <span>{lang === 'it' ? 'Passa a Suite Quercia (fino a 6 pax)' : 'Switch to Quercia (up to 6 pax)'}</span>
+                    <ArrowRight size={12} />
+                  </button>
+                </div>
               )}
             </div>
 
             {/* Step 4: Contact Details (for personalizing message/email) */}
             <div className="pt-3 border-t border-gray-100">
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
-                4. {lang === 'it' ? 'I Tuoi Dati di Contatto' : 'Your Contact Information'}
+                4. {lang === 'it' ? 'I Tuoi Dati' : 'Your Contact Information'}
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                 <input
@@ -451,7 +507,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             </div>
           </div>
 
-          {/* Right: Transparent Quote Breakdown & Action Buttons */}
+          {/* Right: Booking Summary & Action Buttons */}
           <div className="lg:col-span-5 bg-[#1E2226] text-white rounded-3xl p-7 sm:p-8 shadow-2xl border border-white/10 sticky top-28">
             <div className="flex items-center justify-between pb-5 border-b border-white/10">
               <div>
@@ -492,10 +548,27 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   </div>
                 )}
 
-                {/* Dates preview */}
+                {/* Over capacity alert safeguard */}
+                {isOverCapacity && (
+                  <div className="p-4 rounded-2xl bg-rose-500/20 border border-rose-400/40 text-rose-200 text-xs flex items-start gap-2.5">
+                    <AlertCircle size={18} className="text-rose-400 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="block font-semibold">
+                        {lang === 'it' ? 'Capienza Massima Superata' : 'Maximum Capacity Exceeded'}
+                      </strong>
+                      <span>
+                        {t.calculator.capacityExceededNotice} {selectedAccommodation.capacityMax} {t.calculator.guestsLimit}.
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Dates & Guests preview */}
                 <div className="flex justify-between items-center text-xs text-white/70 bg-white/5 p-3 rounded-xl">
                   <span>{formatDateDisplay(formState.checkIn)} → {formatDateDisplay(formState.checkOut)}</span>
-                  <span className="font-semibold text-[#DFD0B8]">{quote.totalNights} {t.calculator.nights}</span>
+                  <span className="font-semibold text-[#DFD0B8]">
+                    {quote.totalNights} {t.calculator.nights} • {totalGuests} {lang === 'it' ? 'ospiti' : 'guests'}
+                  </span>
                 </div>
 
                 {/* Line items */}
@@ -532,7 +605,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                       {t.calculator.grandTotal}
                     </span>
                     <span className="text-xs text-emerald-400 font-medium">
-                      {lang === 'it' ? 'Tariffa Ufficiale 2026' : 'Official 2026 Rate'}
+                      {lang === 'it' ? 'Tariffa diretta senza commissioni' : 'Direct rate without fees'}
                     </span>
                   </div>
                   <div className="text-right">
@@ -546,8 +619,9 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 <div className="pt-6 space-y-3">
                   <button
                     type="button"
+                    disabled={isOverCapacity || !quote.meetsMinNights}
                     onClick={handleWhatsAppInquiry}
-                    className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3.5 px-5 rounded-2xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2.5 text-sm sm:text-base cursor-pointer"
+                    className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3.5 px-5 rounded-2xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2.5 text-sm sm:text-base cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <MessageCircle size={20} />
                     <span>{t.calculator.btnWhatsapp}</span>
@@ -555,8 +629,9 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
                   <button
                     type="button"
+                    disabled={isOverCapacity || !quote.meetsMinNights}
                     onClick={handleEmailInquiry}
-                    className="w-full bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-5 rounded-2xl transition-colors border border-white/20 flex items-center justify-center gap-2 text-sm cursor-pointer"
+                    className="w-full bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-5 rounded-2xl transition-colors border border-white/20 flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Mail size={18} className="text-[#B99470]" />
                     <span>{t.calculator.btnEmail}</span>

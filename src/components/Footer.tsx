@@ -84,14 +84,6 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('listino-2026')}
-                  className="hover:text-[#B99470] transition-colors"
-                >
-                  {t.nav.rates}
-                </button>
-              </li>
-              <li>
-                <button
                   onClick={() => scrollTo('preventivo')}
                   className="hover:text-[#B99470] transition-colors font-medium text-[#DFD0B8]"
                 >

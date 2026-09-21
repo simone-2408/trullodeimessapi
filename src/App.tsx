@@ -11,7 +11,6 @@ import { AccommodationModal } from './components/AccommodationModal';
 import { PoolSection } from './components/PoolSection';
 import { ExperienceSection } from './components/ExperienceSection';
 import { QuoteCalculator } from './components/QuoteCalculator';
-import { RatesTable } from './components/RatesTable';
 import { LocationSection } from './components/LocationSection';
 import { ReviewsSection } from './components/ReviewsSection';
 import { ContactSection } from './components/ContactSection';
@@ -214,14 +213,13 @@ export const App: React.FC = () => {
 
         {/* === ROUTE: /preventivo === */}
         {currentRoute === 'preventivo' && (
-          <div className="animate-in fade-in duration-500 py-8 bg-[#FAF8F5]/90 backdrop-blur-md space-y-12">
+          <div className="animate-in fade-in duration-500 py-8 bg-[#FAF8F5]/90 backdrop-blur-md">
             <QuoteCalculator
               lang={lang}
               preselectedSuite={calculatorSuite}
               initialCheckIn={calculatorCheckIn}
               initialCheckOut={calculatorCheckOut}
             />
-            <RatesTable lang={lang} />
           </div>
         )}
 
