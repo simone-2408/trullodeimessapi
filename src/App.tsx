@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Language, Accommodation } from './types';
 import { useAppRouter } from './utils/router';
 import { TRANSLATIONS } from './data/translations';
@@ -23,6 +23,33 @@ export const App: React.FC = () => {
   const [currentRoute, navigate] = useAppRouter();
   const [activeModalAccommodation, setActiveModalAccommodation] =
     useState<Accommodation | null>(null);
+
+  // Disable automatic browser scroll restoration so SPA route transitions always start at the top
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
+  // Guarantee that every route change immediately resets scroll position to the top of the page
+  useEffect(() => {
+    const scrollToTopImmediate = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    scrollToTopImmediate();
+
+    // Re-verify on the next animation frame and a short delay to account for dynamic DOM rendering
+    const rafId = requestAnimationFrame(scrollToTopImmediate);
+    const timeoutId = setTimeout(scrollToTopImmediate, 40);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timeoutId);
+    };
+  }, [currentRoute]);
 
   // States passed to QuoteCalculator
   const [calculatorSuite, setCalculatorSuite] = useState<
@@ -333,7 +360,7 @@ export const App: React.FC = () => {
       </main>
 
       {/* 3. LUXURY FOOTER */}
-      <Footer lang={lang} />
+      <Footer lang={lang} onNavigate={navigate} />
 
       {/* 4. MODAL FOR SUITE DETAILS & FULL-SCREEN PHOTO GALLERY */}
       <AccommodationModal

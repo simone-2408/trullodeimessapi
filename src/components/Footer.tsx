@@ -1,27 +1,35 @@
 import React from 'react';
 import { Language } from '../types';
+import { AppRoute } from '../three/types';
 import { TRANSLATIONS } from '../data/translations';
 import { MapPin, Phone, Mail, ArrowUp } from 'lucide-react';
 
 interface FooterProps {
   lang: Language;
+  onNavigate?: (route: AppRoute) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ lang }) => {
+export const Footer: React.FC<FooterProps> = ({ lang, onNavigate }) => {
   const t = TRANSLATIONS[lang];
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
 
-  const navigateTo = (route: string) => {
-    if (route === 'home') {
-      window.location.hash = '';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  const navigateTo = (route: AppRoute) => {
+    if (onNavigate) {
+      onNavigate(route);
     } else {
-      window.location.hash = `#${route}`;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (route === 'home') {
+        window.history.pushState(null, '', window.location.pathname + window.location.search);
+      } else {
+        window.location.hash = `#${route}`;
+      }
     }
+    // Instant scroll to top on both window and document root
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   };
 
   return (

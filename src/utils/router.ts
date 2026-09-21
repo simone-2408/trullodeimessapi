@@ -29,6 +29,9 @@ export function useAppRouter(): [AppRoute, (route: AppRoute) => void] {
   useEffect(() => {
     const handleLocationChange = () => {
       setCurrentRoute(parseRouteFromLocation());
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     };
 
     window.addEventListener('popstate', handleLocationChange);
@@ -40,7 +43,10 @@ export function useAppRouter(): [AppRoute, (route: AppRoute) => void] {
   }, []);
 
   const navigate = (route: AppRoute) => {
-    if (route === currentRoute) return;
+    if (route === currentRoute) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      return;
+    }
 
     if (route === 'home') {
       window.history.pushState(null, '', window.location.pathname + window.location.search);
@@ -49,8 +55,10 @@ export function useAppRouter(): [AppRoute, (route: AppRoute) => void] {
     }
     setCurrentRoute(route);
 
-    // Scroll to top of the page smoothly when changing routes
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top of the page immediately when changing routes
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   };
 
   return [currentRoute, navigate];
