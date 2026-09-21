@@ -205,16 +205,16 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
         {/* Main 2-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left: Input Form Controls */}
-          <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-[#E7D7C1]/60 space-y-6">
+          <div className="lg:col-span-7 bg-[#FAF7F2] rounded-3xl p-6 sm:p-8 shadow-xl border border-[#E2DDD3] space-y-6">
             {/* Step 1: Accommodation Visual Switcher */}
             <div>
               <div className="flex justify-between items-baseline mb-3">
-                <label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                <label className="text-xs font-bold uppercase tracking-wider text-stone-500">
                   1. {t.calculator.accommodationLabel}
                 </label>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-stone-500">
                   {lang === 'it' ? 'Capienza:' : 'Capacity:'}{' '}
-                  <strong className="text-gray-800">
+                  <strong className="text-stone-800">
                     max {selectedAccommodation.capacityMax} {lang === 'it' ? 'ospiti' : 'guests'}
                   </strong>
                 </span>
@@ -229,8 +229,8 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                       onClick={() => handleSelectAccommodation(acc.id)}
                       className={`cursor-pointer rounded-2xl p-3.5 border-2 transition-all flex flex-col justify-between ${
                         isSelected
-                          ? 'border-[#B99470] bg-[#B99470]/5 shadow-md'
-                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                          ? 'border-[#B99470] bg-[#B99470]/10 shadow-sm'
+                          : 'border-[#DDD7CC] hover:border-[#B99470]/60 bg-[#F4EFE6]/70'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 mb-2">

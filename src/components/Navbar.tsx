@@ -38,10 +38,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-      {/* Clean, Bright, Pure White Luxury Navbar */}
+      {/* Bianco Pietra Pugliese Luxury Navbar */}
       <nav
-        className={`w-full transition-all duration-300 bg-white/95 backdrop-blur-md border-b border-[#E8DEC8]/60 ${
-          isScrolled ? 'py-2 shadow-sm' : 'py-2.5 sm:py-3'
+        className={`w-full transition-all duration-300 bg-[#F7F4EE]/96 backdrop-blur-md border-b border-[#E2DDD3] ${
+          isScrolled ? 'py-2 shadow-[0_4px_20px_-4px_rgba(60,50,40,0.08)]' : 'py-2.5 sm:py-3'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -128,20 +128,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right actions: Clean Minimalist Language Switcher & Booking Button */}
           <div className="hidden lg:flex items-center space-x-6">
             {/* Minimalist Language Switcher (IT | EN) */}
-            <div className="flex items-center space-x-1.5 text-xs font-semibold text-[#2C2926]">
+            <div className="flex items-center space-x-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-[#EFECE5] border border-[#DDD7CC] text-[#34302B]">
               <button
                 onClick={() => onLanguageChange('it')}
                 className={`cursor-pointer transition-colors ${
-                  lang === 'it' ? 'text-[#B99470] font-bold underline underline-offset-4' : 'text-gray-400 hover:text-gray-700'
+                  lang === 'it' ? 'text-[#B99470] font-bold underline underline-offset-4' : 'text-stone-500 hover:text-stone-900'
                 }`}
               >
                 IT
               </button>
-              <span className="text-gray-300">/</span>
+              <span className="text-stone-300">/</span>
               <button
                 onClick={() => onLanguageChange('en')}
                 className={`cursor-pointer transition-colors ${
-                  lang === 'en' ? 'text-[#B99470] font-bold underline underline-offset-4' : 'text-gray-400 hover:text-gray-700'
+                  lang === 'en' ? 'text-[#B99470] font-bold underline underline-offset-4' : 'text-stone-500 hover:text-stone-900'
                 }`}
               >
                 EN
@@ -163,17 +163,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Mobile Actions: Language + Hamburger Menu */}
           <div className="flex items-center space-x-3 lg:hidden">
-            <div className="flex items-center space-x-1 text-xs font-semibold text-[#2C2926] mr-1">
+            <div className="flex items-center space-x-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-[#EFECE5] border border-[#DDD7CC] text-[#34302B] mr-1">
               <button
                 onClick={() => onLanguageChange('it')}
-                className={`px-1.5 py-0.5 ${lang === 'it' ? 'text-[#B99470] font-bold' : 'text-gray-400'}`}
+                className={`px-1.5 py-0.5 ${lang === 'it' ? 'text-[#B99470] font-bold' : 'text-stone-400'}`}
               >
                 IT
               </button>
-              <span className="text-gray-300">/</span>
+              <span className="text-stone-300">/</span>
               <button
                 onClick={() => onLanguageChange('en')}
-                className={`px-1.5 py-0.5 ${lang === 'en' ? 'text-[#B99470] font-bold' : 'text-gray-400'}`}
+                className={`px-1.5 py-0.5 ${lang === 'en' ? 'text-[#B99470] font-bold' : 'text-stone-400'}`}
               >
                 EN
               </button>
@@ -181,7 +181,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-[#2C2926] hover:text-[#B99470] transition-colors"
+              className="p-2 text-[#34302B] hover:text-[#B99470] transition-colors"
               aria-label="Toggle Menu"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -189,43 +189,43 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Mobile Dropdown Drawer (Clean White Background) */}
+        {/* Mobile Dropdown Drawer (Bianco Pietra Background) */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-[#E8DEC8]/60 px-6 py-6 shadow-xl animate-in slide-in-from-top duration-200">
+          <div className="lg:hidden bg-[#F7F4EE] border-t border-[#E2DDD3] px-6 py-6 shadow-2xl animate-in slide-in-from-top duration-200">
             <div className="flex flex-col space-y-4">
               <button
                 onClick={() => handleNavClick('home')}
-                className="text-left text-base font-medium py-2 border-b border-gray-100 text-[#2C2926] hover:text-[#B99470] transition-colors"
+                className="text-left text-base font-medium py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 Home
               </button>
               <button
                 onClick={() => handleNavClick('suites')}
-                className="text-left text-base font-medium py-2 border-b border-gray-100 text-[#2C2926] hover:text-[#B99470] transition-colors"
+                className="text-left text-base font-medium py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 {t.nav.accommodations}
               </button>
               <button
                 onClick={() => handleNavClick('piscina')}
-                className="text-left text-base font-medium py-2 border-b border-gray-100 text-[#2C2926] hover:text-[#B99470] transition-colors"
+                className="text-left text-base font-medium py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 {t.nav.pool}
               </button>
               <button
                 onClick={() => handleNavClick('esperienza')}
-                className="text-left text-base font-medium py-2 border-b border-gray-100 text-[#2C2926] hover:text-[#B99470] transition-colors"
+                className="text-left text-base font-medium py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 {t.nav.experience}
               </button>
               <button
                 onClick={() => handleNavClick('preventivo')}
-                className="text-left text-base font-medium py-2 border-b border-gray-100 text-[#2C2926] hover:text-[#B99470] transition-colors"
+                className="text-left text-base font-medium py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 {t.nav.calculator}
               </button>
               <button
                 onClick={() => handleNavClick('contatti')}
-                className="text-left text-base font-medium py-2 border-b border-gray-100 text-[#2C2926] hover:text-[#B99470] transition-colors"
+                className="text-left text-base font-medium py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 {t.nav.contact}
               </button>

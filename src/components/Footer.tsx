@@ -32,15 +32,23 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-white/10">
           {/* Brand & Mission */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3.5">
               <img
-                src="/favicon.png"
+                src="./favicon.png"
                 alt="Trullo dei Messapi"
-                className="w-8 h-8 object-contain brightness-110"
+                className="w-9 h-9 object-contain brightness-125 drop-shadow-sm"
+                onError={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = 'none';
+                }}
               />
-              <span className="font-serif text-2xl font-bold tracking-wide text-white">
-                Trullo dei Messapi
-              </span>
+              <div>
+                <span className="font-serif text-2xl font-bold tracking-wide text-white block leading-tight">
+                  Trullo dei Messapi
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.25em] text-[#DFD0B8] block mt-0.5">
+                  Valle d'Itria • Puglia
+                </span>
+              </div>
             </div>
             <p className="text-white/70 text-sm leading-relaxed max-w-sm font-light">
               {t.footer.desc}

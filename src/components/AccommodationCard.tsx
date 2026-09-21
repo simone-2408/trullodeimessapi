@@ -19,7 +19,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
   const t = TRANSLATIONS[lang];
 
   return (
-    <div className="bg-white rounded-3xl overflow-hidden shadow-xl border border-[#E7D7C1]/40 flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group">
+    <div className="bg-[#FAF7F2] rounded-3xl overflow-hidden shadow-md hover:shadow-xl border border-[#E2DDD3] flex flex-col transition-all duration-300 hover:-translate-y-1 group">
       {/* Image with overlay badge */}
       <div className="relative h-72 sm:h-80 overflow-hidden cursor-pointer" onClick={() => onOpenDetails(accommodation)}>
         <img
@@ -69,40 +69,40 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
         </div>
       </div>
 
-      {/* Card Body */}
-      <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between">
+      {/* Card Body with Stone Aesthetics */}
+      <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between bg-[#FAF7F2]">
         <div>
           {/* Key Quick Stats Pills */}
-          <div className="grid grid-cols-4 gap-2 pb-5 border-b border-gray-100 text-center">
-            <div className="bg-[#FAF8F5] p-2 rounded-xl">
+          <div className="grid grid-cols-4 gap-2 pb-5 border-b border-[#EBE6DC] text-center">
+            <div className="bg-[#F2EDE4]/80 border border-[#E5E0D5] p-2 rounded-xl">
               <Maximize2 size={16} className="mx-auto text-[#B99470] mb-1" />
-              <span className="block text-xs font-bold text-gray-800">{accommodation.sqm} {t.accommodations.sqm}</span>
-              <span className="text-[10px] text-gray-400 uppercase">Spazio</span>
+              <span className="block text-xs font-bold text-stone-800">{accommodation.sqm} {t.accommodations.sqm}</span>
+              <span className="text-[10px] text-stone-400 uppercase">Spazio</span>
             </div>
-            <div className="bg-[#FAF8F5] p-2 rounded-xl">
+            <div className="bg-[#F2EDE4]/80 border border-[#E5E0D5] p-2 rounded-xl">
               <Users size={16} className="mx-auto text-[#B99470] mb-1" />
-              <span className="block text-xs font-bold text-gray-800">{accommodation.capacityStandard}-{accommodation.capacityMax}</span>
-              <span className="text-[10px] text-gray-400 uppercase">{t.accommodations.guests}</span>
+              <span className="block text-xs font-bold text-stone-800">{accommodation.capacityStandard}-{accommodation.capacityMax}</span>
+              <span className="text-[10px] text-stone-400 uppercase">{t.accommodations.guests}</span>
             </div>
-            <div className="bg-[#FAF8F5] p-2 rounded-xl">
+            <div className="bg-[#F2EDE4]/80 border border-[#E5E0D5] p-2 rounded-xl">
               <Bed size={16} className="mx-auto text-[#B99470] mb-1" />
-              <span className="block text-xs font-bold text-gray-800">{accommodation.bedroomsCount}</span>
-              <span className="text-[10px] text-gray-400 uppercase">{t.accommodations.bedrooms}</span>
+              <span className="block text-xs font-bold text-stone-800">{accommodation.bedroomsCount}</span>
+              <span className="text-[10px] text-stone-400 uppercase">{t.accommodations.bedrooms}</span>
             </div>
-            <div className="bg-[#FAF8F5] p-2 rounded-xl">
+            <div className="bg-[#F2EDE4]/80 border border-[#E5E0D5] p-2 rounded-xl">
               <Bath size={16} className="mx-auto text-[#B99470] mb-1" />
-              <span className="block text-xs font-bold text-gray-800">{accommodation.bathroomsCount}</span>
-              <span className="text-[10px] text-gray-400 uppercase">{t.accommodations.bathrooms}</span>
+              <span className="block text-xs font-bold text-stone-800">{accommodation.bathroomsCount}</span>
+              <span className="text-[10px] text-stone-400 uppercase">{t.accommodations.bathrooms}</span>
             </div>
           </div>
 
           {/* Description */}
-          <p className="mt-4 text-sm text-gray-600 line-clamp-3 leading-relaxed">
+          <p className="mt-4 text-sm text-stone-600 line-clamp-3 leading-relaxed">
             {accommodation.description[lang]}
           </p>
 
           {/* Feature Bullets Preview */}
-          <ul className="mt-4 space-y-2 text-xs text-gray-700">
+          <ul className="mt-4 space-y-2 text-xs text-stone-700">
             {accommodation.features[lang].slice(0, 3).map((feat, idx) => (
               <li key={idx} className="flex items-start gap-2">
                 <span className="text-[#B99470] font-bold mt-0.5">•</span>
@@ -117,17 +117,17 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-6 pt-5 border-t border-gray-100 flex flex-col sm:flex-row gap-3">
+        <div className="mt-6 pt-5 border-t border-[#EBE6DC] flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => onOpenDetails(accommodation)}
-            className="flex-1 py-3 px-4 rounded-xl border border-gray-300 text-gray-700 font-medium text-xs sm:text-sm hover:border-[#B99470] hover:text-[#B99470] transition-colors flex items-center justify-center gap-1.5"
+            className="flex-1 py-3 px-4 rounded-xl border border-[#D8D2C6] bg-white/70 text-stone-700 font-medium text-xs sm:text-sm hover:border-[#B99470] hover:text-[#B99470] transition-colors flex items-center justify-center gap-1.5"
           >
             <Images size={15} />
             <span>{t.accommodations.viewDetails}</span>
           </button>
           <button
             onClick={() => onSelectForQuote(accommodation.id)}
-            className="flex-1 py-3 px-4 rounded-xl bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium text-xs sm:text-sm transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 cursor-pointer"
+            className="flex-1 py-3 px-4 rounded-xl bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium text-xs sm:text-sm transition-colors shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Calendar size={15} />
             <span>{t.accommodations.selectForQuote}</span>

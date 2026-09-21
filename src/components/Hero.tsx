@@ -57,19 +57,19 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
           {t.hero.subtitle}
         </p>
 
-        {/* Clean Luxury Booking Bar */}
-        <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl border border-[#E8DEC8]/60 text-[#2C2926]">
+        {/* Bianco Pietra Luxury Booking Bar */}
+        <div className="max-w-4xl mx-auto bg-[#F8F5EE]/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_-15px_rgba(40,30,20,0.35)] border border-[#E2DDD3] text-[#332F2A]">
           <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-end text-left">
             {/* Suite selector */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5 flex items-center gap-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5 flex items-center gap-1.5">
                 <Users size={13} className="text-[#B99470]" />
                 {lang === 'it' ? 'Alloggio' : 'Suite'}
               </label>
               <select
                 value={selectedSuite}
                 onChange={(e) => setSelectedSuite(e.target.value as any)}
-                className="w-full bg-[#FAF8F5] border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#B99470]"
+                className="w-full bg-[#EFECE5]/80 border border-[#DDD7CC] rounded-xl px-3 py-2.5 text-sm font-medium text-[#332F2A] focus:outline-none focus:ring-2 focus:ring-[#B99470]"
               >
                 {ACCOMMODATIONS.map((acc) => (
                   <option key={acc.id} value={acc.id}>
@@ -81,7 +81,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
 
             {/* Check-In */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5 flex items-center gap-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5 flex items-center gap-1.5">
                 <Calendar size={13} className="text-[#B99470]" />
                 Check-In
               </label>
@@ -90,13 +90,13 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
                 value={checkIn}
                 min={new Date().toISOString().split('T')[0]}
                 onChange={(e) => setCheckIn(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#B99470]"
+                className="w-full bg-[#EFECE5]/80 border border-[#DDD7CC] rounded-xl px-3 py-2.5 text-sm font-medium text-[#332F2A] focus:outline-none focus:ring-2 focus:ring-[#B99470]"
               />
             </div>
 
             {/* Check-Out */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5 flex items-center gap-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-1.5 flex items-center gap-1.5">
                 <Calendar size={13} className="text-[#B99470]" />
                 Check-Out
               </label>
@@ -105,7 +105,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
                 value={checkOut}
                 min={checkIn || new Date().toISOString().split('T')[0]}
                 onChange={(e) => setCheckOut(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#B99470]"
+                className="w-full bg-[#EFECE5]/80 border border-[#DDD7CC] rounded-xl px-3 py-2.5 text-sm font-medium text-[#332F2A] focus:outline-none focus:ring-2 focus:ring-[#B99470]"
               />
             </div>
 
@@ -121,7 +121,7 @@ export const Hero: React.FC<HeroProps> = ({ lang, onQuickSearch }) => {
             </div>
           </form>
 
-          <div className="mt-3 pt-2.5 border-t border-gray-100 flex flex-wrap items-center justify-between text-[11px] text-gray-500 px-1">
+          <div className="mt-3 pt-2.5 border-t border-[#E8E3D9] flex flex-wrap items-center justify-between text-[11px] text-stone-500 px-1">
             <span>
               {lang === 'it'
                 ? 'Prenotazione diretta senza commissioni intermediari'
