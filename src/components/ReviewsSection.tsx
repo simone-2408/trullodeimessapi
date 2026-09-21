@@ -40,7 +40,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ lang }) => {
           {TESTIMONIALS.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-3xl p-7 sm:p-8 shadow-lg border border-[#E7D7C1]/60 flex flex-col justify-between hover:shadow-xl transition-all"
+              className="bg-[#FAF7F2] rounded-3xl p-7 sm:p-8 shadow-sm border border-[#E2DDD3] flex flex-col justify-between hover:shadow-md transition-all"
             >
               <div>
                 {/* Rating Stars & Room Badge */}
@@ -50,7 +50,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ lang }) => {
                       <Star key={i} size={16} fill="currentColor" strokeWidth={0} />
                     ))}
                   </div>
-                  <span className="text-xs font-medium px-3 py-1 bg-[#FAF8F5] text-[#8A6743] rounded-full border border-[#B99470]/20">
+                  <span className="text-xs font-medium px-3 py-1 bg-[#F2EDE4] text-[#8A6743] rounded-full border border-[#DDD7CB]">
                     {item.room}
                   </span>
                 </div>

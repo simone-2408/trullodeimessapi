@@ -30,77 +30,77 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ lang }) =>
         {/* 4 Storytelling Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {/* Card 1: Antonella */}
-          <div className="bg-white rounded-3xl p-8 shadow-lg border border-[#E7D7C1]/50 flex flex-col justify-between hover:shadow-xl transition-shadow relative overflow-hidden group">
+          <div className="bg-[#FAF7F2] rounded-3xl p-8 shadow-sm border border-[#E2DDD3] flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#B99470]/10 rounded-bl-full pointer-events-none transition-transform group-hover:scale-110" />
             <div>
-              <div className="w-14 h-14 rounded-2xl bg-[#FAF8F5] border border-[#B99470]/30 flex items-center justify-center text-[#B99470] mb-6 shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-[#F2EDE4] border border-[#B99470]/30 flex items-center justify-center text-[#B99470] mb-6 shadow-xs">
                 <HeartHandshake size={28} />
               </div>
-              <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">
+              <h3 className="font-serif text-2xl font-bold text-stone-900 mb-3">
                 {t.experience.card1Title}
               </h3>
-              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+              <p className="text-stone-600 text-sm sm:text-base leading-relaxed">
                 {t.experience.card1Desc}
               </p>
             </div>
-            <div className="mt-6 pt-4 border-t border-gray-100 text-xs font-semibold text-[#B99470] uppercase tracking-wider">
-              {lang === 'it' ? 'Ospitalità sincera & riservata' : 'Genuine & thoughtful hospitality'}
+            <div className="mt-6 pt-4 border-t border-[#EBE6DC] text-xs font-semibold text-[#B99470] uppercase tracking-wider">
+              {lang === 'it' ? 'Ospitalità sincera e riservata' : 'Genuine & thoughtful hospitality'}
             </div>
           </div>
 
           {/* Card 2: Self-Catering & Kitchen */}
-          <div className="bg-white rounded-3xl p-8 shadow-lg border border-[#E7D7C1]/50 flex flex-col justify-between hover:shadow-xl transition-shadow relative overflow-hidden group">
+          <div className="bg-[#FAF7F2] rounded-3xl p-8 shadow-sm border border-[#E2DDD3] flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#4A5645]/10 rounded-bl-full pointer-events-none transition-transform group-hover:scale-110" />
             <div>
-              <div className="w-14 h-14 rounded-2xl bg-[#FAF8F5] border border-[#4A5645]/30 flex items-center justify-center text-[#4A5645] mb-6 shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-[#F2EDE4] border border-[#4A5645]/30 flex items-center justify-center text-[#4A5645] mb-6 shadow-xs">
                 <UtensilsCrossed size={28} />
               </div>
-              <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">
+              <h3 className="font-serif text-2xl font-bold text-stone-900 mb-3">
                 {t.experience.card2Title}
               </h3>
-              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+              <p className="text-stone-600 text-sm sm:text-base leading-relaxed">
                 {t.experience.card2Desc}
               </p>
             </div>
-            <div className="mt-6 pt-4 border-t border-gray-100 text-xs font-semibold text-[#4A5645] uppercase tracking-wider">
+            <div className="mt-6 pt-4 border-t border-[#EBE6DC] text-xs font-semibold text-[#4A5645] uppercase tracking-wider">
               {lang === 'it' ? 'Massima libertà nei vostri orari' : 'Total freedom on your schedule'}
             </div>
           </div>
 
           {/* Card 3: Estate Olive Oil */}
-          <div className="bg-white rounded-3xl p-8 shadow-lg border border-[#E7D7C1]/50 flex flex-col justify-between hover:shadow-xl transition-shadow relative overflow-hidden group">
+          <div className="bg-[#FAF7F2] rounded-3xl p-8 shadow-sm border border-[#E2DDD3] flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#B99470]/10 rounded-bl-full pointer-events-none transition-transform group-hover:scale-110" />
             <div>
-              <div className="w-14 h-14 rounded-2xl bg-[#FAF8F5] border border-[#B99470]/30 flex items-center justify-center text-[#B99470] mb-6 shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-[#F2EDE4] border border-[#B99470]/30 flex items-center justify-center text-[#B99470] mb-6 shadow-xs">
                 <SunMedium size={28} />
               </div>
-              <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">
+              <h3 className="font-serif text-2xl font-bold text-stone-900 mb-3">
                 {t.experience.card3Title}
               </h3>
-              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+              <p className="text-stone-600 text-sm sm:text-base leading-relaxed">
                 {t.experience.card3Desc}
               </p>
             </div>
-            <div className="mt-6 pt-4 border-t border-gray-100 text-xs font-semibold text-[#B99470] uppercase tracking-wider">
+            <div className="mt-6 pt-4 border-t border-[#EBE6DC] text-xs font-semibold text-[#B99470] uppercase tracking-wider">
               {lang === 'it' ? 'Sapori e profumi del territorio' : 'Authentic taste of Apulian terroir'}
             </div>
           </div>
 
           {/* Card 4: Peace & Nature */}
-          <div className="bg-white rounded-3xl p-8 shadow-lg border border-[#E7D7C1]/50 flex flex-col justify-between hover:shadow-xl transition-shadow relative overflow-hidden group">
+          <div className="bg-[#FAF7F2] rounded-3xl p-8 shadow-sm border border-[#E2DDD3] flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#4A5645]/10 rounded-bl-full pointer-events-none transition-transform group-hover:scale-110" />
             <div>
-              <div className="w-14 h-14 rounded-2xl bg-[#FAF8F5] border border-[#4A5645]/30 flex items-center justify-center text-[#4A5645] mb-6 shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-[#F2EDE4] border border-[#4A5645]/30 flex items-center justify-center text-[#4A5645] mb-6 shadow-xs">
                 <Trees size={28} />
               </div>
-              <h3 className="font-serif text-2xl font-bold text-gray-900 mb-3">
+              <h3 className="font-serif text-2xl font-bold text-stone-900 mb-3">
                 {t.experience.card4Title}
               </h3>
-              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+              <p className="text-stone-600 text-sm sm:text-base leading-relaxed">
                 {t.experience.card4Desc}
               </p>
             </div>
-            <div className="mt-6 pt-4 border-t border-gray-100 text-xs font-semibold text-[#4A5645] uppercase tracking-wider">
+            <div className="mt-6 pt-4 border-t border-[#EBE6DC] text-xs font-semibold text-[#4A5645] uppercase tracking-wider">
               {lang === 'it' ? 'Silenzio, stelle e macchia mediterranea' : 'Silence, starlight & Mediterranean nature'}
             </div>
           </div>

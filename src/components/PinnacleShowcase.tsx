@@ -43,10 +43,10 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
   // Route-specific editorial narratives for the 60% Left column
   const narrative = {
     home: {
-      tag: lang === 'it' ? 'Scultura & Tradizione' : 'Sculpture & Heritage',
+      tag: lang === 'it' ? 'Scultura e tradizione' : 'Sculpture & Heritage',
       title:
         lang === 'it'
-          ? 'Il Pinnacolo del Trullo: Custode di Pietra e Simbolo Apotropaico'
+          ? 'Il pinnacolo del trullo: custode di pietra e simbolo apotropaico'
           : 'The Trullo Pinnacle: Stone Guardian & Sacred Apotropaic Symbol',
       desc1:
         lang === 'it'
@@ -59,14 +59,14 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
       specs: [
         { label: lang === 'it' ? 'Materiale' : 'Material', val: lang === 'it' ? 'Pietra calcarea a scalpello' : 'Hand-chiseled limestone' },
         { label: lang === 'it' ? 'Tecnica' : 'Technique', val: lang === 'it' ? 'Posa a secco (chiancarelle)' : 'Dry-stone stacking' },
-        { label: lang === 'it' ? 'Significato' : 'Meaning', val: lang === 'it' ? 'Simbolo solare & cosmico' : 'Solar & cosmic symbol' },
+        { label: lang === 'it' ? 'Significato' : 'Meaning', val: lang === 'it' ? 'Simbolo solare e cosmico' : 'Solar & cosmic symbol' },
       ],
     },
     suites: {
-      tag: lang === 'it' ? 'Architettura delle Dimore' : 'Suite Architecture',
+      tag: lang === 'it' ? 'Architettura delle dimore' : 'Suite Architecture',
       title:
         lang === 'it'
-          ? 'Il Cono Maestro della Suite Trullo Quercia'
+          ? 'Il cono maestro della suite Trullo Quercia'
           : 'The Master Cone of Suite Trullo Quercia',
       desc1:
         lang === 'it'
@@ -83,10 +83,10 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
       ],
     },
     piscina: {
-      tag: lang === 'it' ? 'La Pietra e l’Acqua' : 'Stone & Water',
+      tag: lang === 'it' ? 'La pietra e l’acqua' : 'Stone & Water',
       title:
         lang === 'it'
-          ? 'L’Armonia tra Chianche Bianche e Acque Cristalline'
+          ? 'L’armonia tra chianche bianche e acque cristalline'
           : 'The Harmony Between White Stone & Turquoise Waters',
       desc1:
         lang === 'it'
@@ -106,7 +106,7 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
       tag: lang === 'it' ? 'Vivere la Puglia' : 'The Apulian Lifestyle',
       title:
         lang === 'it'
-          ? 'L’Autentica Accoglienza Pugliese di Antonella'
+          ? 'L’autentica accoglienza pugliese di Antonella'
           : 'Antonella’s Authentic Warm Apulian Welcome',
       desc1:
         lang === 'it'
@@ -123,10 +123,10 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
       ],
     },
     preventivo: {
-      tag: lang === 'it' ? 'Prenotazione Diretta' : 'Direct Booking',
+      tag: lang === 'it' ? 'Prenotazione diretta' : 'Direct Booking',
       title:
         lang === 'it'
-          ? 'Prenota il Tuo Soggiorno Direttamente con Antonella'
+          ? 'Prenota il tuo soggiorno direttamente con Antonella'
           : 'Book Your Stay Directly with Antonella',
       desc1:
         lang === 'it'
@@ -137,16 +137,16 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
           ? 'Concorda direttamente la caparra e ogni dettaglio personalizzato con Antonella.'
           : 'Agree directly on deposit arrangements and personalized stay requests with Antonella.',
       specs: [
-        { label: lang === 'it' ? 'Commissioni' : 'Fees', val: lang === 'it' ? '0% Diretta con l’host' : '0% Direct with owner' },
-        { label: lang === 'it' ? 'Contatto' : 'Contact', val: 'WhatsApp / Email' },
+        { label: lang === 'it' ? 'Commissioni' : 'Fees', val: lang === 'it' ? '0% diretta con l’host' : '0% Direct with owner' },
+        { label: lang === 'it' ? 'Contatto' : 'Contact', val: 'WhatsApp / email' },
         { label: lang === 'it' ? 'Flessibilità' : 'Flexibility', val: lang === 'it' ? 'Accordi personalizzati' : 'Tailored arrangements' },
       ],
     },
     contatti: {
-      tag: lang === 'it' ? 'Informazioni & Posizione' : 'Inquiries & Location',
+      tag: lang === 'it' ? 'Informazioni e posizione' : 'Inquiries & Location',
       title:
         lang === 'it'
-          ? 'Siamo a Ceglie Messapica, nel Cuore della Puglia'
+          ? 'Siamo a Ceglie Messapica, nel cuore della Puglia'
           : 'Located in Ceglie Messapica, the Heart of Puglia',
       desc1:
         lang === 'it'

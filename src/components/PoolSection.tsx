@@ -51,10 +51,10 @@ export const PoolSection: React.FC<PoolSectionProps> = ({ lang }) => {
               <div className="absolute bottom-5 left-5 right-5 flex justify-between items-end text-white">
                 <div>
                   <span className="text-xs uppercase tracking-widest text-[#DFD0B8] font-semibold block">
-                    {lang === 'it' ? 'Oasi di Quiete' : 'Quiet Oasis'}
+                    {lang === 'it' ? 'Oasi di quiete' : 'Quiet Oasis'}
                   </span>
                   <h4 className="font-serif text-xl sm:text-2xl font-bold drop-shadow">
-                    {lang === 'it' ? 'Piscina & Angolo Idromassaggio' : 'Pool & Hydromassage Jacuzzi'}
+                    {lang === 'it' ? 'Piscina e angolo idromassaggio' : 'Pool & Hydromassage Jacuzzi'}
                   </h4>
                 </div>
                 <button

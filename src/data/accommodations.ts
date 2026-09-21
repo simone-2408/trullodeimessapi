@@ -5,7 +5,7 @@ export const ACCOMMODATIONS: Accommodation[] = [
     id: 'quercia',
     name: 'Suite Trullo Quercia',
     badge: {
-      it: 'Dimora Storica nei Trulli',
+      it: 'Dimora storica nei trulli',
       en: 'Historic Trullo Residence',
     },
     tagline: {
@@ -24,7 +24,7 @@ export const ACCOMMODATIONS: Accommodation[] = [
     bedroomsCount: 3,
     bathroomsCount: 2,
     bedsDescription: {
-      it: '3 Camere da letto matrimoniali (possibilità di aggiungere fino a 2 letti singoli)',
+      it: '3 camere da letto matrimoniali (possibilità di aggiungere fino a 2 letti singoli)',
       en: '3 Double master bedrooms (possibility of up to 2 extra single beds)',
     },
     coverImage: './images/quercia/106724849.jpg',
@@ -46,14 +46,14 @@ export const ACCOMMODATIONS: Accommodation[] = [
     features: {
       it: [
         '150 mq di superficie esclusiva nei trulli',
-        '3 Camere matrimoniali con volte a botte',
-        '2 Bagni completi con doccia',
+        '3 camere matrimoniali con volte a botte',
+        '2 bagni completi con doccia',
         'Cucina completa e zona pranzo riservata',
         'Grande camino monumentale in pietra',
         'Terrazzino panoramico e solarium privato',
         'Wi-Fi gratuito ad alta velocità',
         'TV LCD, cassaforte e linea cortesia',
-        'Accesso alla piscina panoramica & Jacuzzi condivisa',
+        'Accesso alla piscina panoramica e idromassaggio condiviso',
       ],
       en: [
         '150 sqm of exclusive living area inside historic trulli',
@@ -84,7 +84,7 @@ export const ACCOMMODATIONS: Accommodation[] = [
     id: 'corbezzolo',
     name: 'Mini Suite Corbezzolo',
     badge: {
-      it: 'Lamia & Patio Vista Piscina',
+      it: 'Lamia e patio vista piscina',
       en: 'Stone Lamia & Poolside Patio',
     },
     tagline: {
@@ -103,7 +103,7 @@ export const ACCOMMODATIONS: Accommodation[] = [
     bedroomsCount: 1,
     bathroomsCount: 1,
     bedsDescription: {
-      it: '1 Letto Matrimoniale Queen Size + divano letto / possibilità letto aggiunto o culla',
+      it: '1 letto matrimoniale queen size + divano letto / possibilità letto aggiunto o culla',
       en: '1 Queen Size double bed + sofa bed / optional extra bed or crib',
     },
     coverImage: './images/corbezzolo/106730545.jpg',
@@ -121,13 +121,13 @@ export const ACCOMMODATIONS: Accommodation[] = [
     features: {
       it: [
         'Circa 50 mq di charme in pietra e calce',
-        'Camera matrimoniale con letto Queen Size',
+        'Camera matrimoniale con letto queen size',
         'Patio esterno privato con tavolo e sedie vista piscina',
         'Caminetto in pietra tradizionale',
         'Cucina attrezzata per pranzi e cene in autonomia',
         'Bagno privato con cabina doccia',
         'Climatizzazione caldo/freddo e Wi-Fi',
-        'Accesso alla piscina panoramica & Jacuzzi condivisa',
+        'Accesso alla piscina panoramica e idromassaggio condiviso',
       ],
       en: [
         'Approx. 50 sqm of typical Apulian stone architecture',
@@ -157,7 +157,7 @@ export const ACCOMMODATIONS: Accommodation[] = [
     id: 'melograno',
     name: 'Mini Suite Melograno',
     badge: {
-      it: 'Charme Romantico & Relax',
+      it: 'Charme romantico e relax',
       en: 'Romantic Charm & Serenity',
     },
     tagline: {
@@ -176,7 +176,7 @@ export const ACCOMMODATIONS: Accommodation[] = [
     bedroomsCount: 1,
     bathroomsCount: 1,
     bedsDescription: {
-      it: '1 Letto Matrimoniale Queen Size + divano letto / possibilità letto aggiunto o culla',
+      it: '1 letto matrimoniale queen size + divano letto / possibilità letto aggiunto o culla',
       en: '1 Queen Size double bed + sofa bed / optional extra bed or crib',
     },
     coverImage: './images/melograno/106725328.jpg',
@@ -194,13 +194,13 @@ export const ACCOMMODATIONS: Accommodation[] = [
     features: {
       it: [
         'Circa 50 mq con finiture in pietra e calce naturale',
-        'Camera matrimoniale Queen Size',
+        'Camera matrimoniale queen size',
         'Soggiorno con divano letto e tavolo da pranzo',
         'Cucina completa e attrezzata con utensili e stoviglie',
         'Climatizzatore a controllo autonomo',
         'Bagno privato con doccia e set asciugamani',
         'Patio esterno attrezzato per il relax',
-        'Accesso alla piscina panoramica & Jacuzzi condivisa',
+        'Accesso alla piscina panoramica e idromassaggio condiviso',
       ],
       en: [
         'Approx. 50 sqm with natural limestone finishes',
@@ -229,7 +229,7 @@ export const ACCOMMODATIONS: Accommodation[] = [
 
 export const POOL_DATA = {
   title: {
-    it: 'La Piscina Panoramica & Angolo Jacuzzi',
+    it: 'La piscina panoramica e angolo jacuzzi',
     en: 'Panoramic Swimming Pool & Outdoor Jacuzzi',
   },
   subtitle: {
