@@ -84,3 +84,38 @@ input[type="date"]::-webkit-date-and-time-value {
   padding: 0;
   margin: 0;
 }
+
+/* Mobile Landscape Optimization (Smartphones held horizontally) */
+@media (orientation: landscape) and (max-height: 550px) {
+  .mobile-landscape-photo-container {
+    min-height: 260px !important;
+    height: 75vh !important;
+    max-height: 380px !important;
+  }
+
+  .mobile-landscape-full-photo {
+    min-height: 280px !important;
+    height: 85vh !important;
+    max-height: 400px !important;
+  }
+
+  /* Lightbox in landscape mobile */
+  .lightbox-mobile-landscape-img {
+    max-height: 82vh !important;
+    max-height: 82dvh !important;
+    width: auto !important;
+    max-width: 88vw !important;
+    object-fit: contain !important;
+  }
+
+  /* Hide bottom thumbnails on landscape phones to maximize image viewing */
+  .lightbox-thumbnails-container {
+    display: none !important;
+  }
+
+  /* Compact header in landscape */
+  .lightbox-header-landscape {
+    padding-top: max(8px, calc(env(safe-area-inset-top, 0px) + 6px)) !important;
+    padding-bottom: 6px !important;
+  }
+}

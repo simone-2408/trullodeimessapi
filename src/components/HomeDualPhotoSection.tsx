@@ -35,7 +35,7 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
         {/* Full-Screen Photo 1: I Trulli in pietra viva */}
         <div
           onClick={() => onNavigate('suites')}
-          className="group relative w-full h-[85vh] sm:h-screen min-h-[580px] overflow-hidden bg-stone-950 cursor-pointer"
+          className="group relative w-full h-[85vh] sm:h-screen min-h-[400px] sm:min-h-[580px] mobile-landscape-full-photo overflow-hidden bg-stone-950 cursor-pointer"
         >
           <img
             src="./images/quercia/IMG_3145.JPG"
@@ -79,7 +79,7 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
         {/* Full-Screen Photo 2: La Piscina tra gli ulivi */}
         <div
           onClick={() => onNavigate('piscina')}
-          className="group relative w-full h-[85vh] sm:h-screen min-h-[580px] overflow-hidden bg-stone-950 cursor-pointer"
+          className="group relative w-full h-[85vh] sm:h-screen min-h-[400px] sm:min-h-[580px] mobile-landscape-full-photo overflow-hidden bg-stone-950 cursor-pointer"
         >
           <img
             src="./images/piscina/106724803.jpg"

@@ -80,12 +80,12 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
       id={`suite-${accommodation.id}`}
       className="w-full bg-[#FAF7F2] border-y border-[#EBE4D8] overflow-hidden"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 w-full min-h-[560px] lg:min-h-[660px] xl:min-h-[720px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 w-full min-h-[460px] lg:min-h-[660px] xl:min-h-[720px]">
         {/* ==================================================== */}
         {/* PHOTO COLUMN: 50% EDGE-TO-EDGE FULL BLEED */}
         {/* ==================================================== */}
         <div
-          className={`relative w-full min-h-[420px] sm:min-h-[500px] lg:min-h-[640px] xl:min-h-[720px] bg-stone-900 overflow-hidden group ${
+          className={`relative w-full min-h-[320px] sm:min-h-[460px] lg:min-h-[640px] xl:min-h-[720px] mobile-landscape-photo-container bg-stone-900 overflow-hidden group ${
             isReversed ? 'order-1 lg:order-2' : 'order-1 lg:order-1'
           }`}
         >

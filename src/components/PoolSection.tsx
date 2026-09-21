@@ -77,7 +77,7 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
       {/* ==================================================== */}
       {/* 2. IMMAGINE A TUTTO SCHERMO: 106724803.jpg */}
       {/* ==================================================== */}
-      <div className="w-full h-[65vh] sm:h-[80vh] lg:h-[90vh] relative overflow-hidden bg-stone-900 cursor-pointer group"
+      <div className="w-full h-[65vh] sm:h-[80vh] lg:h-[90vh] mobile-landscape-full-photo relative overflow-hidden bg-stone-900 cursor-pointer group"
         onClick={() => openLightbox(2)}
       >
         <img
@@ -112,9 +112,9 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
       {/* 3. IL SINGOLO BLOCCO 50/50 EDGE-TO-EDGE PISCINA & JACUZZI */}
       {/* ==================================================== */}
       <section className="w-full bg-[#FAF7F2] border-y border-[#EBE4D8] overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-2 w-full min-h-[560px] lg:min-h-[660px] xl:min-h-[720px]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 w-full min-h-[460px] lg:min-h-[660px] xl:min-h-[720px]">
           {/* PHOTO COLUMN: 50% FULL BLEED LEFT */}
-          <div className="relative w-full min-h-[420px] sm:min-h-[500px] lg:min-h-[640px] xl:min-h-[720px] bg-stone-900 overflow-hidden group order-1 lg:order-1">
+          <div className="relative w-full min-h-[320px] sm:min-h-[460px] lg:min-h-[640px] xl:min-h-[720px] mobile-landscape-photo-container bg-stone-900 overflow-hidden group order-1 lg:order-1">
             {/* Main Active Image */}
             <img
               src={pool.gallery[activePhotoIdx]}
