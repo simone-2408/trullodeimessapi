@@ -66,3 +66,8 @@ Thumbs.db
 
 # Local agent tooling
 .claude/
+
+# Agent handoff notes (local only)
+AGENTS.md
+PROJECT_CONTEXT.md
+AGENT_HANDOFF.md
