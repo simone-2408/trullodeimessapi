@@ -1,4 +1,6 @@
 export type Language = 'it' | 'en';
+export type AccommodationId = 'quercia' | 'corbezzolo' | 'melograno';
+export type BookingSelection = AccommodationId | 'tenuta';
 
 export interface Accommodation {
   id: 'quercia' | 'corbezzolo' | 'melograno';
@@ -37,7 +39,7 @@ export interface SeasonRate {
 }
 
 export interface BookingFormState {
-  accommodationId: 'quercia' | 'corbezzolo' | 'melograno';
+  accommodationId: BookingSelection;
   checkIn: string; // YYYY-MM-DD
   checkOut: string; // YYYY-MM-DD
   adults: number;

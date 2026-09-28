@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Language, Accommodation } from './types';
+import { Language, Accommodation, BookingSelection } from './types';
 import { useAppRouter } from './utils/router';
 import { TRANSLATIONS } from './data/translations';
 import { ACCOMMODATIONS } from './data/accommodations';
@@ -54,7 +54,7 @@ export const App: React.FC = () => {
 
   // States passed to QuoteCalculator
   const [calculatorSuite, setCalculatorSuite] = useState<
-    'quercia' | 'corbezzolo' | 'melograno'
+    BookingSelection
   >('quercia');
   const [calculatorCheckIn, setCalculatorCheckIn] = useState<string>('');
   const [calculatorCheckOut, setCalculatorCheckOut] = useState<string>('');
@@ -274,7 +274,7 @@ export const App: React.FC = () => {
                       {lang === 'it' ? '3 Dimore Riservate' : '3 Private Suites'}
                     </span>
                     <span className="text-stone-500 font-light text-xs">
-                      {lang === 'it' ? 'Fino a 12 ospiti in totale privacy' : 'Up to 12 guests in complete privacy'}
+                      {lang === 'it' ? 'Fino a 13 ospiti in totale privacy' : 'Up to 13 guests in complete privacy'}
                     </span>
                   </div>
                   <div className="flex flex-col items-center border-t sm:border-t-0 sm:border-x border-[#EAE3D7] pt-3 sm:pt-0 sm:px-3">
@@ -316,7 +316,7 @@ export const App: React.FC = () => {
                   </a>
 
                   <button
-                    onClick={() => navigate('preventivo')}
+                    onClick={() => { setCalculatorSuite('tenuta'); navigate('preventivo'); }}
                     className="w-full sm:w-auto px-7 py-3.5 rounded-2xl border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer hover:border-[#B99470]"
                   >
                     <span>{t.accommodations.estateExclusiveBtn}</span>

@@ -259,7 +259,7 @@ export const POOL_DATA = {
       'Angolo idromassaggio Jacuzzi per il massimo relax',
       'Solarium attrezzato con lettini ed ombrelloni',
       'Teli piscina in morbida spugna forniti per tutti gli ospiti',
-      'Atmosfera intima e silenziosa (massimo 10-12 ospiti totali nella tenuta)',
+      'Atmosfera intima e silenziosa (massimo 13 ospiti totali nella tenuta)',
       'Boschetto privato pavimentato con le antiche "chianche" pugliesi',
     ],
     en: [
@@ -267,7 +267,7 @@ export const POOL_DATA = {
       'Hydromassage Jacuzzi corner for complete unwinding',
       'Furnished solarium deck with luxury sunbeds and parasols',
       'Complimentary plush pool towels provided for every guest',
-      'Intimate, serene atmosphere (only up to 10-12 guests across the whole estate)',
+      'Intimate, serene atmosphere (only up to 13 guests across the whole estate)',
       'Private wooded grove paved with traditional Apulian "chianche" stone',
     ],
   },

@@ -1,4 +1,4 @@
-import { SeasonRate, PriceCalculationResult } from '../types';
+import { SeasonRate, PriceCalculationResult, BookingSelection } from '../types';
 
 export const SEASONS_2026: SeasonRate[] = [
   {
@@ -163,14 +163,16 @@ export function getSeasonForDate(date: Date): SeasonRate {
  */
 export function parseLocalDate(dateStr: string): Date {
   if (!dateStr) return new Date();
-  const datePart = dateStr.trim().split('T')[0];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return new Date(NaN);
+  const datePart = dateStr;
   const parts = datePart.split('-');
   if (parts.length === 3) {
     const year = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10);
     const day = parseInt(parts[2], 10);
     if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-      return new Date(year, month - 1, day, 0, 0, 0, 0);
+      const date = new Date(year, month - 1, day);
+      return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : new Date(NaN);
     }
   }
   return new Date(dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`);
@@ -206,7 +208,7 @@ export function getTomorrowDateString(baseDateStr?: string): string {
 export function calculateStayQuote(
   checkInStr: string,
   checkOutStr: string,
-  accommodationId: 'quercia' | 'corbezzolo' | 'melograno',
+  accommodationId: BookingSelection,
   extraBeds: number = 0,
   cribs: number = 0
 ): PriceCalculationResult {
@@ -225,6 +227,7 @@ export function calculateStayQuote(
     };
   }
 
+  // Published seasonal schedule repeats annually, as agreed with the owner.
   // Prevent past dates
   const todayStr = getTodayDateString();
   if (checkInStr < todayStr) {
@@ -276,7 +279,7 @@ export function calculateStayQuote(
   const current = new Date(checkIn);
   while (current < checkOut) {
     const season = getSeasonForDate(current);
-    const rate = isQuercia ? season.rate4Pax : season.rate2Pax;
+    const rate = accommodationId === 'tenuta' ? season.rate4Pax + 2 * season.rate2Pax : isQuercia ? season.rate4Pax : season.rate2Pax;
 
     if (season.minNights > maxMinNights) {
       maxMinNights = season.minNights;

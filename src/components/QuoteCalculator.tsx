@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Language, BookingFormState } from '../types';
+import { Language, BookingFormState, BookingSelection } from '../types';
 import { TRANSLATIONS } from '../data/translations';
-import { ACCOMMODATIONS } from '../data/accommodations';
+import { BOOKING_OPTIONS, bookingOption, bookingName, changeAccommodation, extraBedsFor, inquiryText } from '../utils/booking';
 import { calculateStayQuote, getTodayDateString, getTomorrowDateString, parseLocalDate } from '../data/tariffe';
 import { CONTACT_INFO, getWhatsAppUrl } from '../constants/contact';
 import {
@@ -22,7 +22,7 @@ import {
 
 interface QuoteCalculatorProps {
   lang: Language;
-  preselectedSuite?: 'quercia' | 'corbezzolo' | 'melograno';
+  preselectedSuite?: BookingSelection;
   initialCheckIn?: string;
   initialCheckOut?: string;
 }
@@ -44,7 +44,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
       accommodationId: preselectedSuite || 'quercia',
       checkIn: validCheckIn,
       checkOut: validCheckOut,
-      adults: preselectedSuite === 'quercia' ? 4 : 2,
+      adults: bookingOption(preselectedSuite || 'quercia').capacityStandard,
       children: 0,
       extraBeds: 0,
       cribs: 0,
@@ -56,7 +56,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
   });
 
   const selectedAccommodation =
-    ACCOMMODATIONS.find((a) => a.id === formState.accommodationId) || ACCOMMODATIONS[0];
+    bookingOption(formState.accommodationId);
 
   const totalGuests = formState.adults + formState.children;
   const isOverCapacity = totalGuests > selectedAccommodation.capacityMax;
@@ -97,66 +97,22 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
     }));
   };
 
-  // Handle switching accommodations with strict capacity clamping
-  const handleSelectAccommodation = (newAccId: 'quercia' | 'corbezzolo' | 'melograno') => {
-    const targetAcc = ACCOMMODATIONS.find((a) => a.id === newAccId) || ACCOMMODATIONS[0];
-
-    setFormState((prev) => {
-      let newAdults = prev.adults;
-      let newChildren = prev.children;
-
-      // If current total guests exceeds the new accommodation's max capacity, clamp down!
-      if (newAdults + newChildren > targetAcc.capacityMax) {
-        newAdults = Math.min(newAdults, targetAcc.capacityMax);
-        newChildren = Math.min(newChildren, targetAcc.capacityMax - newAdults);
-        if (newAdults === 0) newAdults = 1;
-      }
-
-      const newTotal = newAdults + newChildren;
-      // Auto-compute extra beds needed beyond standard capacity
-      const neededExtraBeds = Math.max(0, Math.min(targetAcc.maxExtraBeds, newTotal - targetAcc.capacityStandard));
-
-      return {
-        ...prev,
-        accommodationId: newAccId,
-        adults: newAdults,
-        children: newChildren,
-        extraBeds: neededExtraBeds,
-      };
-    });
+  const handleSelectAccommodation = (id: BookingSelection) => {
+    setFormState(prev => changeAccommodation(prev, id));
   };
 
-  // Keep state updated if preselected props change
   useEffect(() => {
-    if (preselectedSuite) {
-      handleSelectAccommodation(preselectedSuite);
-    }
+    if (preselectedSuite) setFormState(prev => changeAccommodation(prev, preselectedSuite));
   }, [preselectedSuite]);
 
-  useEffect(() => {
-    if (initialCheckIn) {
-      const validCheckIn = initialCheckIn >= todayStr ? initialCheckIn : todayStr;
-      setFormState((prev) => ({ ...prev, checkIn: validCheckIn }));
-    }
-    if (initialCheckOut) {
-      setFormState((prev) => ({ ...prev, checkOut: initialCheckOut }));
-    }
-  }, [initialCheckIn, initialCheckOut, todayStr]);
-
-  // Synchronize extra beds whenever adults or children change
-  useEffect(() => {
-    const currentTotal = formState.adults + formState.children;
-    const needed = Math.max(0, Math.min(selectedAccommodation.maxExtraBeds, currentTotal - selectedAccommodation.capacityStandard));
-    if (formState.extraBeds !== needed) {
-      setFormState((prev) => ({ ...prev, extraBeds: needed }));
-    }
-  }, [formState.adults, formState.children, selectedAccommodation]);
+  const extraBeds = extraBedsFor(formState.accommodationId, totalGuests);
+  const inquiryState = { ...formState, extraBeds };
 
   const quote = calculateStayQuote(
     formState.checkIn,
     formState.checkOut,
     formState.accommodationId,
-    formState.extraBeds,
+    extraBeds,
     formState.cribs
   );
 
@@ -171,66 +127,15 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
     });
   };
 
-  // Generate WhatsApp Message
+  const canRequest = !isOverCapacity && quote.isValid && quote.meetsMinNights && !isCheckInPast;
   const handleWhatsAppInquiry = () => {
-    if (isOverCapacity || !quote.isValid || !quote.meetsMinNights || isCheckInPast) return;
-
-    const textLines = [
-      `*Trullo dei Messapi - Richiesta Prenotazione*`,
-      `----------------------------------------`,
-      `• *Alloggio*: ${selectedAccommodation.name}`,
-      `• *Check-in*: ${formatDateDisplay(formState.checkIn)}`,
-      `• *Check-out*: ${formatDateDisplay(formState.checkOut)} (${quote.totalNights} notti)`,
-      `• *Ospiti*: ${formState.adults} Adulti${formState.children > 0 ? `, ${formState.children} Bambini` : ''}`,
-      formState.extraBeds > 0 ? `• *Letti Aggiunti*: ${formState.extraBeds} (+35€/notte)` : '',
-      formState.cribs > 0 ? `• *Culla*: ${formState.cribs} (+15€/giorno)` : '',
-      `• *Totale Stimato*: ${quote.totalEstimated}€`,
-      `----------------------------------------`,
-      formState.guestName ? `• *Ospite*: ${formState.guestName}` : '',
-      formState.guestEmail ? `• *Email*: ${formState.guestEmail}` : '',
-      formState.guestPhone ? `• *Telefono*: ${formState.guestPhone}` : '',
-      formState.notes ? `• *Note*: ${formState.notes}` : '',
-      `----------------------------------------`,
-      `Salve Antonella! Vorrei richiedere disponibilità per queste date e bloccare il mio soggiorno. Grazie!`,
-    ].filter(Boolean);
-
-    const url = getWhatsAppUrl(textLines.join('\n'));
-    window.open(url, '_blank');
+    if (!canRequest) return;
+    window.open(getWhatsAppUrl(inquiryText(inquiryState, quote.totalEstimated, quote.totalNights, lang)), '_blank', 'noopener,noreferrer');
   };
-
-  // Generate Email Inquiry
   const handleEmailInquiry = () => {
-    if (isOverCapacity || !quote.isValid || !quote.meetsMinNights || isCheckInPast) return;
-
-    const subject = `Richiesta Prenotazione Trullo dei Messapi - ${selectedAccommodation.name} (${formatDateDisplay(formState.checkIn)} - ${formatDateDisplay(formState.checkOut)})`;
-    const bodyLines = [
-      `Gentile Antonella,`,
-      ``,
-      `Desidero verificare la disponibilità per un soggiorno presso il Trullo dei Messapi:`,
-      ``,
-      `Alloggio: ${selectedAccommodation.name}`,
-      `Check-in: ${formatDateDisplay(formState.checkIn)}`,
-      `Check-out: ${formatDateDisplay(formState.checkOut)} (${quote.totalNights} notti)`,
-      `Numero Ospiti: ${formState.adults} Adulti${formState.children > 0 ? `, ${formState.children} Bambini` : ''}`,
-      formState.extraBeds > 0 ? `Letti aggiunti: ${formState.extraBeds} (${quote.extraBedsCost}€)` : '',
-      formState.cribs > 0 ? `Culla per neonati: ${formState.cribs} (${quote.cribsCost}€)` : '',
-      `Totale Stimato: ${quote.totalEstimated}€`,
-      ``,
-      `Dati di Contatto:`,
-      `Nome: ${formState.guestName || 'Non specificato'}`,
-      `Email: ${formState.guestEmail || 'Non specificata'}`,
-      `Telefono: ${formState.guestPhone || 'Non specificato'}`,
-      formState.notes ? `Note/Richieste: ${formState.notes}` : '',
-      ``,
-      `Resto in attesa di una vostra gentile conferma per accordarci su caparra e dettagli.`,
-      `Cordiali saluti,`,
-      formState.guestName || '',
-    ].filter(Boolean);
-
-    const mailtoUrl = `mailto:${CONTACT_INFO.email}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
-    window.location.href = mailtoUrl;
+    if (!canRequest) return;
+    const subject = lang === 'it' ? 'Trullo dei Messapi — Richiesta di disponibilità' : 'Trullo dei Messapi — Availability request';
+    window.location.href = `mailto:${CONTACT_INFO.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(inquiryText(inquiryState, quote.totalEstimated, quote.totalNights, lang))}`;
   };
 
   return (
@@ -270,13 +175,15 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {ACCOMMODATIONS.map((acc) => {
+                {BOOKING_OPTIONS.map((acc) => {
                   const isSelected = formState.accommodationId === acc.id;
                   return (
-                    <div
+                    <button
+                      type="button"
+                      aria-pressed={formState.accommodationId === acc.id}
                       key={acc.id}
                       onClick={() => handleSelectAccommodation(acc.id)}
-                      className={`cursor-pointer rounded-2xl overflow-hidden border transition-all flex flex-col justify-between group ${
+                      className={`text-left cursor-pointer rounded-2xl overflow-hidden border transition-all flex flex-col justify-between group ${
                         isSelected
                           ? 'border-[#B99470] bg-white ring-2 ring-[#B99470] shadow-md -translate-y-0.5'
                           : 'border-[#E8E1D5] bg-white/70 hover:bg-white hover:border-[#B99470]/60 shadow-xs hover:-translate-y-0.5'
@@ -286,7 +193,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                       <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-200">
                         <img
                           src={acc.coverImage}
-                          alt={acc.name}
+                          alt={bookingName(acc.id, lang)}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
@@ -307,7 +214,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                       <div className="p-3.5 flex flex-col justify-between flex-1">
                         <div>
                           <h4 className="font-serif font-bold text-base text-stone-900 leading-snug">
-                            {acc.name}
+                            {bookingName(acc.id, lang)}
                           </h4>
                         </div>
                         <div className="flex justify-between items-center text-xs font-semibold text-[#B99470] pt-2.5 mt-2.5 border-t border-stone-100">
@@ -317,12 +224,14 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                           </span>
                         </div>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
             </div>
 
+            {isOverCapacity && <p role="alert" className="border-l-2 border-amber-700 pl-4 text-sm text-amber-900">{lang === 'it' ? `Questo alloggio può ospitare massimo ${selectedAccommodation.capacityMax} persone. Il tuo gruppo di ${totalGuests} ospiti è rimasto invariato: scegli un’altra dimora o modifica gli ospiti.` : `This accommodation sleeps up to ${selectedAccommodation.capacityMax} people. Your group of ${totalGuests} has not changed: choose another accommodation or edit the guests.`}</p>}
+            {formState.accommodationId === 'tenuta' && <p className="text-sm text-stone-700">{lang === 'it' ? 'Quercia (7) + Corbezzolo (3) + Melograno (3). La stima comprende le tre dimore: 8 ospiti nella tariffa base, fino a 5 letti aggiunti. La distribuzione degli ospiti e le culle si concordano con Antonella.' : 'Quercia (7) + Corbezzolo (3) + Melograno (3). The estimate includes all three residences: 8 guests at the base rate, up to 5 extra beds. Guest allocation and cribs are agreed with Antonella.'}</p>}
             {/* Step 2: Date Pickers */}
             <div>
               <div className="flex justify-between items-baseline mb-3">
@@ -619,7 +528,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             <div className="relative rounded-2xl overflow-hidden mb-5 aspect-[16/9] w-full border border-white/10 shadow-sm bg-stone-900">
               <img
                 src={selectedAccommodation.coverImage}
-                alt={selectedAccommodation.name}
+                alt={bookingName(formState.accommodationId, lang)}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#1C1A17] via-transparent to-transparent pointer-events-none" />
@@ -636,7 +545,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   {lang === 'it' ? 'Dimora Selezionata' : 'Selected Suite'}
                 </span>
                 <h3 className="font-serif text-2xl font-bold text-white leading-tight">
-                  {selectedAccommodation.name}
+                  {bookingName(formState.accommodationId, lang)}
                 </h3>
                 <p className="text-xs text-white/60 mt-1">
                   max {selectedAccommodation.capacityMax} ospiti • {selectedAccommodation.sqm} mq • {selectedAccommodation.bedroomsCount} {selectedAccommodation.bedroomsCount === 1 ? (lang === 'it' ? 'camera' : 'bedroom') : (lang === 'it' ? 'camere' : 'bedrooms')}
@@ -661,7 +570,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   <ul className="space-y-2 text-xs text-white/70">
                     <li className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#B99470] shrink-0" />
-                      <span>{lang === 'it' ? 'Accesso esclusivo alla piscina e idromassaggio' : 'Exclusive access to swimming pool and jacuzzi'}</span>
+                      <span>{lang === 'it' ? (formState.accommodationId === 'tenuta' ? 'Piscina e idromassaggio a uso privato della tenuta' : 'Piscina e idromassaggio condivisi fra le tre dimore') : (formState.accommodationId === 'tenuta' ? 'Private use of the estate pool and jacuzzi' : 'Pool and jacuzzi shared by the three residences')}</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#B99470] shrink-0" />
@@ -751,7 +660,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
                   {quote.extraBedsCost > 0 && (
                     <div className="flex justify-between items-center text-white/80 text-xs sm:text-sm">
-                      <span>{t.calculator.extraBedsTotal} ({formState.extraBeds} x 35€ x {quote.totalNights} nt)</span>
+                      <span>{t.calculator.extraBedsTotal} ({extraBeds} x 35€ x {quote.totalNights} nt)</span>
                       <span className="font-medium text-white">+{quote.extraBedsCost}€</span>
                     </div>
                   )}
@@ -849,7 +758,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 ✨ {lang === 'it' ? '3 Dimore indipendenti' : '3 Private Suites'}
               </span>
               <span className="px-3.5 py-1.5 rounded-full bg-white/90 border border-[#D5CCC0] text-stone-700 text-xs font-medium shadow-2xs">
-                👥 {lang === 'it' ? 'Fino a 12 ospiti' : 'Up to 12 guests'}
+                👥 {lang === 'it' ? 'Fino a 13 ospiti' : 'Up to 13 guests'}
               </span>
               <span className="px-3.5 py-1.5 rounded-full bg-white/90 border border-[#D5CCC0] text-stone-700 text-xs font-medium shadow-2xs">
                 🏊‍♂️ {lang === 'it' ? 'Piscina & idromassaggio ad uso 100% privato' : '100% private pool & jacuzzi use'}
