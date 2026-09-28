@@ -17,11 +17,16 @@ import { QuoteCalculator } from './components/QuoteCalculator';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { getWhatsAppUrl } from './constants/contact';
+import { AppRoute } from './utils/routes';
+import { useMetadata } from './utils/metadata';
+import { AccommodationPage } from './components/AccommodationPage';
+import { PrivacyPage } from './components/PrivacyPage';
+import { SiteLink } from './components/SiteLink';
 import { MessageCircle, ShieldCheck, Waves, Sun, Utensils } from 'lucide-react';
 
-export const App: React.FC = () => {
-  const [lang, setLang] = useState<Language>('it');
-  const [currentRoute, navigate] = useAppRouter();
+export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> = ({ initialRoute = 'home', initialLang = 'it' }) => {
+  const { currentRoute, lang, navigate, setLang } = useAppRouter(initialRoute, initialLang);
+  useMetadata(currentRoute, lang);
   const [activeModalAccommodation, setActiveModalAccommodation] =
     useState<Accommodation | null>(null);
 
@@ -56,8 +61,12 @@ export const App: React.FC = () => {
   const [calculatorSuite, setCalculatorSuite] = useState<
     BookingSelection
   >('quercia');
-  const [calculatorCheckIn, setCalculatorCheckIn] = useState<string>('');
-  const [calculatorCheckOut, setCalculatorCheckOut] = useState<string>('');
+
+  useEffect(() => {
+    if (currentRoute !== 'preventivo') return;
+    const selection = new URLSearchParams(window.location.search).get('alloggio');
+    if (selection && ['quercia', 'corbezzolo', 'melograno', 'tenuta'].includes(selection)) setCalculatorSuite(selection as BookingSelection);
+  }, [currentRoute]);
 
   const t = TRANSLATIONS[lang];
 
@@ -65,7 +74,7 @@ export const App: React.FC = () => {
     suiteId: 'quercia' | 'corbezzolo' | 'melograno'
   ) => {
     setCalculatorSuite(suiteId);
-    navigate('preventivo');
+    navigate('preventivo', suiteId);
   };
 
   const handleScrollTo3D = () => {
@@ -77,35 +86,24 @@ export const App: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-[#FAF8F5] text-[#22252A] flex flex-col selection:bg-[#B99470] selection:text-white">
+      <a className="skip-link" href="#main-content">{lang === 'it' ? 'Vai al contenuto' : 'Skip to content'}</a>
       {/* 1. REFINED LUXURY NAVIGATION BAR */}
       <Navbar
         currentRoute={currentRoute}
         onNavigate={navigate}
         lang={lang}
         onLanguageChange={setLang}
-        onOpenCalculator={(suiteId) => {
-          if (suiteId) setCalculatorSuite(suiteId);
-          navigate('preventivo');
-        }}
       />
 
       {/* 2. MAIN CONTENT (ROUTED) */}
-      <main className="relative z-10 flex-grow pt-16">
+      <main id="main-content" tabIndex={-1} className="relative z-10 flex-grow pt-[80px] md:pt-[120px]">
         {/* ==================================================== */}
         {/* === ROUTE: HOME (MINIMAL, ELEGANT, BOUTIQUE STYLE) === */}
         {/* ==================================================== */}
         {currentRoute === 'home' && (
           <div className="animate-in fade-in duration-500">
-            {/* 1. Cinematic Hero with video (videopiscina.mp4) & photos */}
-            <Hero
-              lang={lang}
-              onQuickSearch={({ accommodationId, checkIn, checkOut }) => {
-                if (accommodationId) setCalculatorSuite(accommodationId);
-                if (checkIn) setCalculatorCheckIn(checkIn);
-                if (checkOut) setCalculatorCheckOut(checkOut);
-                navigate('preventivo');
-              }}
-            />
+            {/* 1. Cinematic Hero with pool video */}
+            <Hero lang={lang} />
 
             {/* 2. Subito dopo il video: Le due foto (IMG_3145.JPG & 106724803.jpg) */}
             <HomeDualPhotoSection
@@ -305,7 +303,7 @@ export const App: React.FC = () => {
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium text-xs sm:text-sm transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-[#87613F] hover:bg-[#715033] text-white font-medium text-xs sm:text-sm transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <MessageCircle size={17} />
                     <span>
@@ -315,12 +313,11 @@ export const App: React.FC = () => {
                     </span>
                   </a>
 
-                  <button
-                    onClick={() => { setCalculatorSuite('tenuta'); navigate('preventivo'); }}
+                  <SiteLink route="preventivo" lang={lang} query="?alloggio=tenuta" onNavigate={() => { setCalculatorSuite('tenuta'); navigate('preventivo', 'tenuta'); }}
                     className="w-full sm:w-auto px-7 py-3.5 rounded-2xl border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer hover:border-[#B99470]"
                   >
                     <span>{t.accommodations.estateExclusiveBtn}</span>
-                  </button>
+                  </SiteLink>
                 </div>
               </div>
             </div>
@@ -344,8 +341,6 @@ export const App: React.FC = () => {
             <QuoteCalculator
               lang={lang}
               preselectedSuite={calculatorSuite}
-              initialCheckIn={calculatorCheckIn}
-              initialCheckOut={calculatorCheckOut}
             />
           </div>
         )}
@@ -358,6 +353,8 @@ export const App: React.FC = () => {
             <ContactSection lang={lang} />
           </div>
         )}
+        {['quercia', 'corbezzolo', 'melograno'].includes(currentRoute) && <AccommodationPage accommodation={ACCOMMODATIONS.find(item => item.id === currentRoute)!} lang={lang} onOpenDetails={setActiveModalAccommodation} onSelectForQuote={handleSelectAccommodationForQuote} onNavigate={navigate} />}
+        {currentRoute === 'privacy' && <PrivacyPage lang={lang} />}
       </main>
 
       {/* 3. LUXURY FOOTER */}
@@ -375,7 +372,7 @@ export const App: React.FC = () => {
       />
 
       {/* 5. PERSISTENT FLOATING WHATSAPP BUTTON */}
-      <aside aria-label="WhatsApp Quick Contact" className="fixed bottom-6 right-6 z-40">
+      <aside aria-label={lang === 'it' ? 'Contatto rapido WhatsApp' : 'WhatsApp quick contact'} className="fixed bottom-6 right-6 z-40">
         <a
           href={getWhatsAppUrl(
             lang === 'it'
@@ -384,8 +381,8 @@ export const App: React.FC = () => {
           )}
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex items-center gap-3 bg-[#25D366] hover:bg-[#20bd5a] text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
-          title="Contatta Antonella su WhatsApp"
+          className="group flex items-center gap-3 bg-[#137A42] hover:bg-[#106537] text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
+          title={lang === 'it' ? 'Contatta Antonella su WhatsApp' : 'Contact Antonella on WhatsApp'}
         >
           <MessageCircle size={22} className="group-hover:rotate-12 transition-transform" />
           <span className="hidden sm:inline font-semibold text-xs uppercase tracking-wider">

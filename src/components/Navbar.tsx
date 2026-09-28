@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { routePath } from '../utils/routes';
+import { SiteLink } from './SiteLink';
+import { SmartImage } from './SmartImage';
+import React, { useState, useEffect, useRef } from 'react';
 import { Language } from '../types';
 import { AppRoute } from '../three/types';
 import { TRANSLATIONS } from '../data/translations';
@@ -10,7 +13,6 @@ interface NavbarProps {
   onNavigate: (route: AppRoute) => void;
   lang: Language;
   onLanguageChange: (lang: Language) => void;
-  onOpenCalculator: (accommodationId?: 'quercia' | 'corbezzolo' | 'melograno') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -18,11 +20,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigate,
   lang,
   onLanguageChange,
-  onOpenCalculator,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const t = TRANSLATIONS[lang];
+  const menuButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') { setIsMobileMenuOpen(false); menuButton.current?.focus(); } };
+    document.addEventListener('keydown', close);
+    return () => document.removeEventListener('keydown', close);
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -96,14 +104,15 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo */}
           <a
-            href="/"
+            href={routePath('home', lang)}
             onClick={(e) => {
+              if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
               e.preventDefault();
               handleNavClick('home');
             }}
             className="flex items-center gap-3 group py-0.5"
           >
-            <img
+            <SmartImage loading="eager"
               src="./images/logo.png"
               alt="Trullo dei Messapi - Relais di Puglia"
               className="h-12 sm:h-14 lg:h-16 w-auto object-contain transition-transform group-hover:scale-[1.02]"
@@ -112,8 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Desktop Navigation Links (Understated, Editorial Typography) */}
           <div className="hidden lg:flex items-center space-x-7 xl:space-x-8">
-            <button
-              onClick={() => handleNavClick('home')}
+            <SiteLink route="home" lang={lang} onNavigate={handleNavClick}
               className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'home'
                   ? 'text-[#B99470] border-b-2 border-[#B99470]'
@@ -121,9 +129,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               Home
-            </button>
-            <button
-              onClick={() => handleNavClick('suites')}
+            </SiteLink>
+            <SiteLink route="suites" lang={lang} onNavigate={handleNavClick}
               className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'suites'
                   ? 'text-[#B99470] border-b-2 border-[#B99470]'
@@ -131,9 +138,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               {t.nav.accommodations}
-            </button>
-            <button
-              onClick={() => handleNavClick('piscina')}
+            </SiteLink>
+            <SiteLink route="piscina" lang={lang} onNavigate={handleNavClick}
               className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'piscina'
                   ? 'text-[#B99470] border-b-2 border-[#B99470]'
@@ -141,9 +147,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               {t.nav.pool}
-            </button>
-            <button
-              onClick={() => handleNavClick('preventivo')}
+            </SiteLink>
+            <SiteLink route="preventivo" lang={lang} onNavigate={handleNavClick}
               className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'preventivo'
                   ? 'text-[#B99470] border-b-2 border-[#B99470]'
@@ -151,9 +156,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               {t.nav.calculator}
-            </button>
-            <button
-              onClick={() => handleNavClick('contatti')}
+            </SiteLink>
+            <SiteLink route="contatti" lang={lang} onNavigate={handleNavClick}
               className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'contatti'
                   ? 'text-[#B99470] border-b-2 border-[#B99470]'
@@ -161,21 +165,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               {t.nav.contact}
-            </button>
+            </SiteLink>
           </div>
 
           {/* Right actions: Direct Booking Button */}
           <div className="hidden lg:flex items-center space-x-4">
-            <button
-              onClick={() => {
-                handleNavClick('preventivo');
-                onOpenCalculator();
-              }}
-              className="bg-[#B99470] hover:bg-[#A37E5A] text-white px-5 py-2.5 rounded-full text-xs font-semibold tracking-[0.18em] uppercase transition-all shadow-xs hover:shadow-md flex items-center gap-2 cursor-pointer"
+            <SiteLink route="preventivo" lang={lang} onNavigate={handleNavClick}
+              className="bg-[#87613F] hover:bg-[#715033] text-white px-5 py-2.5 rounded-full text-xs font-semibold tracking-[0.18em] uppercase transition-all shadow-xs hover:shadow-md flex items-center gap-2 cursor-pointer"
             >
               <Calendar size={13} />
               <span>{t.nav.bookNow}</span>
-            </button>
+            </SiteLink>
           </div>
 
           {/* Mobile Actions: Language + Hamburger Menu */}
@@ -197,9 +197,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              ref={menuButton} onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-[#34302B] hover:text-[#B99470] transition-colors"
-              aria-label="Toggle Menu"
+              aria-expanded={isMobileMenuOpen} aria-controls="mobile-navigation" aria-label={lang === 'it' ? 'Menu di navigazione' : 'Navigation menu'}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -208,49 +208,40 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Mobile Dropdown Drawer */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-[#F7F4EE] border-t border-[#E2DDD3] px-6 py-6 shadow-2xl animate-in slide-in-from-top duration-200">
+          <div id="mobile-navigation" className="lg:hidden bg-[#F7F4EE] border-t border-[#E2DDD3] px-6 py-6 shadow-2xl animate-in slide-in-from-top duration-200">
             <div className="flex flex-col space-y-4">
-              <button
-                onClick={() => handleNavClick('home')}
+              <SiteLink route="home" lang={lang} onNavigate={handleNavClick}
                 className="text-left text-sm uppercase tracking-wider font-semibold py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 Home
-              </button>
-              <button
-                onClick={() => handleNavClick('suites')}
+              </SiteLink>
+              <SiteLink route="suites" lang={lang} onNavigate={handleNavClick}
                 className="text-left text-sm uppercase tracking-wider font-semibold py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 {t.nav.accommodations}
-              </button>
-              <button
-                onClick={() => handleNavClick('piscina')}
+              </SiteLink>
+              <SiteLink route="piscina" lang={lang} onNavigate={handleNavClick}
                 className="text-left text-sm uppercase tracking-wider font-semibold py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 {t.nav.pool}
-              </button>
-              <button
-                onClick={() => handleNavClick('preventivo')}
+              </SiteLink>
+              <SiteLink route="preventivo" lang={lang} onNavigate={handleNavClick}
                 className="text-left text-sm uppercase tracking-wider font-semibold py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 {t.nav.calculator}
-              </button>
-              <button
-                onClick={() => handleNavClick('contatti')}
+              </SiteLink>
+              <SiteLink route="contatti" lang={lang} onNavigate={handleNavClick}
                 className="text-left text-sm uppercase tracking-wider font-semibold py-2 border-b border-[#EBE6DC] text-[#34302B] hover:text-[#B99470] transition-colors"
               >
                 {t.nav.contact}
-              </button>
+              </SiteLink>
 
-              <button
-                onClick={() => {
-                  handleNavClick('preventivo');
-                  onOpenCalculator();
-                }}
-                className="w-full mt-3 bg-[#B99470] hover:bg-[#A37E5A] text-white py-3 rounded-xl text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 shadow-sm"
+              <SiteLink route="preventivo" lang={lang} onNavigate={handleNavClick}
+                className="w-full mt-3 bg-[#87613F] hover:bg-[#715033] text-white py-3 rounded-xl text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 shadow-sm"
               >
                 <Calendar size={16} />
                 <span>{t.nav.bookNow}</span>
-              </button>
+              </SiteLink>
             </div>
           </div>
         )}

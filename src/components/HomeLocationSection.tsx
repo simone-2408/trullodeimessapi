@@ -1,3 +1,5 @@
+import { SiteLink } from './SiteLink';
+import { SmartImage } from './SmartImage';
 import React from 'react';
 import { Language } from '../types';
 import { AppRoute } from '../three/types';
@@ -19,9 +21,9 @@ export const HomeLocationSection: React.FC<HomeLocationSectionProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 w-full min-h-[500px] lg:min-h-[680px]">
         {/* Left Column: Authentic Pinnacle Photography Full-Bleed */}
         <div className="relative min-h-[420px] sm:min-h-[500px] lg:min-h-full bg-stone-900 overflow-hidden group">
-          <img
+          <SmartImage
             src="./images/pinnacolo.jpg"
-            alt="Pinnacolo in pietra calcarea del Trullo dei Messapi"
+            alt={lang === 'it' ? 'Pinnacolo in pietra calcarea del Trullo dei Messapi' : 'Limestone pinnacle at Trullo dei Messapi'}
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
             loading="lazy"
           />
@@ -35,7 +37,7 @@ export const HomeLocationSection: React.FC<HomeLocationSectionProps> = ({
                 onClick={onScrollTo3D}
                 className="bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-xs px-4 py-2.5 rounded-full border border-white/20 transition-all flex items-center gap-2 cursor-pointer shadow-lg hover:border-[#B99470]"
               >
-                <Sparkles size={14} className="text-[#B99470]" />
+                <Sparkles size={14} className="text-[#D6B38F]" />
                 <span>{lang === 'it' ? 'Esplora il modello 3D' : 'Explore 3D Model'}</span>
               </button>
             </div>
@@ -46,7 +48,7 @@ export const HomeLocationSection: React.FC<HomeLocationSectionProps> = ({
         <div className="bg-[#1C1C1C] text-white p-8 sm:p-14 lg:p-16 xl:p-24 flex flex-col justify-center">
           <div className="max-w-xl">
             {/* Minimal Eyebrow & Heading */}
-            <span className="text-xs uppercase tracking-[0.25em] text-[#B99470] font-semibold block mb-3">
+            <span className="text-xs uppercase tracking-[0.25em] text-[#D6B38F] font-semibold block mb-3">
               {lang === 'it' ? 'La Terra e i Trulli' : 'Earth & Trulli'}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-wide text-white leading-tight">
@@ -61,19 +63,19 @@ export const HomeLocationSection: React.FC<HomeLocationSectionProps> = ({
               {lang === 'it' ? (
                 <>
                   <p>
-                    Il Trullo dei Messapi sorge tra la terra rossa e gli ulivi secolari di Ceglie Messapica. Un luogo protetto dal silenzio della campagna, dove il tempo rallenta e la pietra viva racconta la memoria contadina della Valle d’Itria.
+                    Siamo nella campagna di Ceglie Messapica, tra muretti a secco e ulivi. Da qui puoi esplorare i borghi della Valle d’Itria e ritrovare, al rientro, gli spazi aperti della tenuta.
                   </p>
                   <p>
-                    Tre dimore indipendenti ricavate da trulli storici e lamie, restaurate preservando la purezza della calce e il fresco naturale delle spesse mura. Qui ogni risveglio è accompagnato dalla luce limpida e dal respiro quieto della natura.
+                    Quercia accoglie famiglie e gruppi fino a sette persone; Corbezzolo e Melograno offrono spazi raccolti per due o tre ospiti. Ogni dimora ha la propria cucina e uno spazio esterno, con piscina e idromassaggio condivisi.
                   </p>
                 </>
               ) : (
                 <>
                   <p>
-                    Trullo dei Messapi rises amidst the red earth and ancient olive groves of Ceglie Messapica. A sanctuary embraced by countryside silence, where time slows down and authentic limestone speaks of timeless rural heritage.
+                    We are in the countryside of Ceglie Messapica, among dry-stone walls and olive trees. Explore the villages of the Itria Valley, then return to the open spaces of the estate.
                   </p>
                   <p>
-                    Three independent dwellings carved from historic trulli and lamie, restored to preserve the purity of white lime and the natural coolness of thick stone walls. Here, each day awakens with golden light and the peaceful rhythm of nature.
+                    Quercia welcomes families and groups of up to seven; Corbezzolo and Melograno offer intimate spaces for two or three guests. Each residence has its own kitchen and outdoor space, with a shared pool and hydromassage.
                   </p>
                 </>
               )}
@@ -81,13 +83,12 @@ export const HomeLocationSection: React.FC<HomeLocationSectionProps> = ({
 
             {/* Bronze CTA Button */}
             <div>
-              <button
-                onClick={() => onNavigate('contatti')}
-                className="bg-[#B99470] hover:bg-[#A37E5A] text-white px-8 py-3.5 font-serif text-sm tracking-wider transition-all inline-flex items-center gap-2 shadow-sm hover:shadow-md cursor-pointer"
+              <SiteLink route="contatti" lang={lang} onNavigate={onNavigate}
+                className="bg-[#87613F] hover:bg-[#715033] text-white px-8 py-3.5 font-serif text-sm tracking-wider transition-all inline-flex items-center gap-2 shadow-sm hover:shadow-md cursor-pointer"
               >
                 <span>{lang === 'it' ? 'Dove siamo & Contatti' : 'Location & Contacts'}</span>
                 <ChevronRight size={16} />
-              </button>
+              </SiteLink>
             </div>
           </div>
         </div>

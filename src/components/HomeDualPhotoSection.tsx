@@ -1,3 +1,5 @@
+import { SiteLink } from './SiteLink';
+import { SmartImage } from './SmartImage';
 import React from 'react';
 import { Language } from '../types';
 import { AppRoute } from '../three/types';
@@ -33,18 +35,17 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
       {/* 2. Sequential Full-Screen Visual Panoramas */}
       <div className="w-full flex flex-col">
         {/* Full-Screen Photo 1: I Trulli in pietra viva */}
-        <div
-          onClick={() => onNavigate('suites')}
+        <SiteLink route="suites" lang={lang} onNavigate={onNavigate}
           className="group relative w-full h-[85vh] sm:h-screen min-h-[400px] sm:min-h-[580px] mobile-landscape-full-photo overflow-hidden bg-stone-950 cursor-pointer"
         >
-          <img
+          <SmartImage sizes="100vw"
             src="./images/quercia/IMG_3145.JPG"
-            alt="I trulli in pietra viva del Trullo dei Messapi"
+            alt={lang === 'it' ? 'I trulli in pietra viva del Trullo dei Messapi' : 'The limestone trulli at Trullo dei Messapi'}
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
             loading="lazy"
           />
           {/* Subtle Vignette & Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30 group-hover:via-black/20 transition-colors duration-700" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent group-hover:via-black/20 transition-colors duration-700" />
 
           {/* Full-Screen Caption Overlay */}
           <div className="absolute inset-0 flex items-end">
@@ -71,24 +72,23 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </SiteLink>
 
         {/* Piccolo spazio bianco tra le foto */}
         <div className="w-full h-12 sm:h-20 bg-white" />
 
         {/* Full-Screen Photo 2: La Piscina tra gli ulivi */}
-        <div
-          onClick={() => onNavigate('piscina')}
+        <SiteLink route="piscina" lang={lang} onNavigate={onNavigate}
           className="group relative w-full h-[85vh] sm:h-screen min-h-[400px] sm:min-h-[580px] mobile-landscape-full-photo overflow-hidden bg-stone-950 cursor-pointer"
         >
-          <img
+          <SmartImage sizes="100vw"
             src="./images/piscina/106724803.jpg"
-            alt="La piscina tra gli ulivi del Trullo dei Messapi"
+            alt={lang === 'it' ? 'La piscina tra gli ulivi del Trullo dei Messapi' : 'The pool among olive trees at Trullo dei Messapi'}
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
             loading="lazy"
           />
           {/* Subtle Vignette & Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30 group-hover:via-black/20 transition-colors duration-700" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent group-hover:via-black/20 transition-colors duration-700" />
 
           {/* Full-Screen Caption Overlay */}
           <div className="absolute inset-0 flex items-end">
@@ -115,7 +115,7 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </SiteLink>
       </div>
     </section>
   );

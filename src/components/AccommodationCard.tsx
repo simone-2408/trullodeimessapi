@@ -1,3 +1,5 @@
+import { SiteLink } from './SiteLink';
+import { SmartImage } from './SmartImage';
 import React, { useState } from 'react';
 import { Accommodation, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
@@ -90,11 +92,10 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
           }`}
         >
           {/* Main Active Image */}
-          <img
+          <SmartImage
             src={accommodation.gallery[activePhotoIndex]}
-            alt={`${accommodation.name} - foto ${activePhotoIndex + 1}`}
+            alt={`${accommodation.name} — ${lang === 'it' ? 'foto' : 'photo'} ${activePhotoIndex + 1}`}
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out cursor-pointer"
-            onClick={() => setIsLightboxOpen(true)}
           />
 
           {/* Subtle Vignette Gradient */}
@@ -129,7 +130,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
           <button
             onClick={prevPhoto}
             className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/40 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all opacity-80 hover:opacity-100 hover:scale-110 shadow-lg cursor-pointer"
-            aria-label="Foto precedente"
+            aria-label={lang === 'it' ? 'Foto precedente' : 'Previous photo'}
           >
             <ChevronLeft size={22} />
           </button>
@@ -137,7 +138,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
           <button
             onClick={nextPhoto}
             className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/40 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all opacity-80 hover:opacity-100 hover:scale-110 shadow-lg cursor-pointer"
-            aria-label="Foto successiva"
+            aria-label={lang === 'it' ? 'Foto successiva' : 'Next photo'}
           >
             <ChevronRight size={22} />
           </button>
@@ -152,6 +153,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
 
                 return (
                   <button
+                    aria-label={`${lang === 'it' ? 'Mostra foto' : 'Show photo'} ${pIdx + 1}`}
                     key={pIdx}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -167,8 +169,8 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
                         : 'border-white/50 opacity-70 hover:opacity-100 hover:scale-105'
                     }`}
                   >
-                    <img
-                      src={photoUrl}
+                    <SmartImage
+                      sizes="80px" src={photoUrl}
                       alt=""
                       className="w-full h-full object-cover"
                     />
@@ -211,7 +213,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
 
             {/* Suite Title */}
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-semibold text-stone-900 leading-[1.15] tracking-tight">
-              {accommodation.name}
+              <SiteLink route={accommodation.id} lang={lang}>{accommodation.name}</SiteLink>
             </h2>
 
             {/* Poetic Tagline */}
@@ -319,7 +321,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
 
                 <button
                   onClick={() => onSelectForQuote(accommodation.id)}
-                  className="px-5 py-3 rounded-xl sm:rounded-2xl bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group/btn"
+                  className="px-5 py-3 rounded-xl sm:rounded-2xl bg-[#87613F] hover:bg-[#715033] text-white font-medium text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group/btn"
                 >
                   <Calendar size={15} />
                   <span>{t.accommodations.selectForQuote}</span>

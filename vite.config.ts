@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 // https://vite.dev/config/
-export default defineConfig({
-  base: './',
+export default defineConfig(({ isSsrBuild }) => ({
+  base: process.env.VITE_BASE_PATH || '/trullodeimessapi/',
   plugins: [
     react(),
     tailwindcss(),
@@ -14,14 +14,14 @@ export default defineConfig({
     open: false,
   },
   build: {
+    copyPublicDir: !isSsrBuild,
     rollupOptions: {
       output: {
-        manualChunks: {
+        manualChunks: isSsrBuild ? undefined : {
           three: ['three'],
-          gsap: ['gsap'],
           vendor: ['react', 'react-dom', 'lucide-react'],
         },
       },
     },
   },
-});
+}));

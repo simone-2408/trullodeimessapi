@@ -1,3 +1,5 @@
+import { SiteLink } from './SiteLink';
+import { SmartImage } from './SmartImage';
 import React, { useState } from 'react';
 import { Language } from '../types';
 import { AppRoute } from '../three/types';
@@ -78,11 +80,10 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
       {/* 2. IMMAGINE A TUTTO SCHERMO: 106724803.jpg */}
       {/* ==================================================== */}
       <div className="w-full h-[65vh] sm:h-[80vh] lg:h-[90vh] mobile-landscape-full-photo relative overflow-hidden bg-stone-900 cursor-pointer group"
-        onClick={() => openLightbox(2)}
       >
-        <img
+        <SmartImage
           src="./images/piscina/106724803.jpg"
-          alt="Piscina e Trullo dei Messapi al tramonto"
+          alt={lang === 'it' ? 'Piscina e Trullo dei Messapi al tramonto' : 'Pool and Trullo dei Messapi at sunset'}
           className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-1000 ease-out"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
@@ -116,11 +117,10 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
           {/* PHOTO COLUMN: 50% FULL BLEED LEFT */}
           <div className="relative w-full min-h-[320px] sm:min-h-[460px] lg:min-h-[640px] xl:min-h-[720px] mobile-landscape-photo-container bg-stone-900 overflow-hidden group order-1 lg:order-1">
             {/* Main Active Image */}
-            <img
+            <SmartImage
               src={pool.gallery[activePhotoIdx]}
-              alt={`Piscina e idromassaggio - foto ${activePhotoIdx + 1}`}
+              alt={`${lang === 'it' ? 'Piscina e idromassaggio — foto' : 'Pool and hydromassage — photo'} ${activePhotoIdx + 1}`}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out cursor-pointer"
-              onClick={() => openLightbox(activePhotoIdx)}
             />
 
             {/* Subtle Vignette Gradient */}
@@ -155,7 +155,7 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
             <button
               onClick={prevPhoto}
               className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/40 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all opacity-80 hover:opacity-100 hover:scale-110 shadow-lg cursor-pointer"
-              aria-label="Foto precedente"
+              aria-label={lang === 'it' ? 'Foto precedente' : 'Previous photo'}
             >
               <ChevronLeft size={22} />
             </button>
@@ -163,7 +163,7 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
             <button
               onClick={nextPhoto}
               className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/40 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all opacity-80 hover:opacity-100 hover:scale-110 shadow-lg cursor-pointer"
-              aria-label="Foto successiva"
+              aria-label={lang === 'it' ? 'Foto successiva' : 'Next photo'}
             >
               <ChevronRight size={22} />
             </button>
@@ -177,7 +177,8 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
 
                   return (
                     <button
-                      key={pIdx}
+                      aria-label={`${lang === 'it' ? 'Mostra foto' : 'Show photo'} ${pIdx + 1}`}
+                    key={pIdx}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (isLastThumbnail) {
@@ -192,8 +193,8 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
                           : 'border-white/50 opacity-70 hover:opacity-100 hover:scale-105'
                       }`}
                     >
-                      <img
-                        src={photoUrl}
+                      <SmartImage
+                        sizes="80px" src={photoUrl}
                         alt=""
                         className="w-full h-full object-cover"
                       />
@@ -313,9 +314,8 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
                 </button>
 
                 {onNavigate && (
-                  <button
-                    onClick={() => onNavigate('suites')}
-                    className="px-5 py-3.5 rounded-xl sm:rounded-2xl bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group/btn"
+                  <SiteLink route="suites" lang={lang} onNavigate={onNavigate}
+                    className="px-5 py-3.5 rounded-xl sm:rounded-2xl bg-[#87613F] hover:bg-[#715033] text-white font-medium text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group/btn"
                   >
                     <span>
                       {lang === 'it' ? 'Scopri le 3 Dimore' : 'Explore the 3 Suites'}
@@ -324,7 +324,7 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
                       size={14}
                       className="group-hover/btn:translate-x-1 transition-transform"
                     />
-                  </button>
+                  </SiteLink>
                 )}
               </div>
             </div>

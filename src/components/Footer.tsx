@@ -1,3 +1,5 @@
+import { SiteLink } from './SiteLink';
+import { SmartImage } from './SmartImage';
 import React from 'react';
 import { Language } from '../types';
 import { AppRoute } from '../three/types';
@@ -17,21 +19,7 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate }) => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
 
-  const navigateTo = (route: AppRoute) => {
-    if (onNavigate) {
-      onNavigate(route);
-    } else {
-      if (route === 'home') {
-        window.history.pushState(null, '', window.location.pathname + window.location.search);
-      } else {
-        window.location.hash = `#${route}`;
-      }
-    }
-    // Instant scroll to top on both window and document root
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  };
+  const navigateTo = onNavigate;
 
   return (
     <footer className="bg-[#181B1E] text-white pt-16 pb-12 border-t border-white/5">
@@ -40,7 +28,7 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate }) => {
           {/* Brand & Mission */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3.5">
-              <img
+              <SmartImage
                 src="./favicon.png"
                 alt="Trullo dei Messapi"
                 className="w-9 h-9 object-contain brightness-125 drop-shadow-sm"
@@ -76,45 +64,42 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate }) => {
             </h4>
             <ul className="space-y-2 text-sm text-white/70">
               <li>
-                <button
-                  onClick={() => navigateTo('home')}
+                <SiteLink route="home" lang={lang} onNavigate={navigateTo}
                   className="hover:text-[#B99470] transition-colors cursor-pointer"
                 >
                   Home
-                </button>
+                </SiteLink>
               </li>
               <li>
-                <button
-                  onClick={() => navigateTo('suites')}
+                <SiteLink route="suites" lang={lang} onNavigate={navigateTo}
                   className="hover:text-[#B99470] transition-colors cursor-pointer"
                 >
                   {t.nav.accommodations}
-                </button>
+                </SiteLink>
               </li>
               <li>
-                <button
-                  onClick={() => navigateTo('piscina')}
+                <SiteLink route="piscina" lang={lang} onNavigate={navigateTo}
                   className="hover:text-[#B99470] transition-colors cursor-pointer"
                 >
                   {t.nav.pool}
-                </button>
+                </SiteLink>
               </li>
               <li>
-                <button
-                  onClick={() => navigateTo('preventivo')}
+                <SiteLink route="preventivo" lang={lang} onNavigate={navigateTo}
                   className="hover:text-[#B99470] transition-colors font-medium text-[#DFD0B8] cursor-pointer"
                 >
                   {t.nav.calculator}
-                </button>
+                </SiteLink>
               </li>
               <li>
-                <button
-                  onClick={() => navigateTo('contatti')}
+                <SiteLink route="contatti" lang={lang} onNavigate={navigateTo}
                   className="hover:text-[#B99470] transition-colors cursor-pointer"
                 >
                   {t.nav.contact}
-                </button>
+                </SiteLink>
               </li>
+              <li><SiteLink route="privacy" lang={lang} onNavigate={onNavigate}>Privacy</SiteLink></li>
+              {(['quercia', 'corbezzolo', 'melograno'] as const).map(route => <li key={route}><SiteLink route={route} lang={lang} onNavigate={onNavigate}>{route.charAt(0).toUpperCase() + route.slice(1)}</SiteLink></li>)}
             </ul>
           </div>
 
@@ -150,14 +135,14 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate }) => {
             © {new Date().getFullYear()} Trullo dei Messapi • {t.footer.allRights}
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap justify-center items-center gap-4">
             <span className="text-white/80 font-medium tracking-wide">Web by Simone Suma</span>
             <span className="text-white/20">•</span>
             <span>{t.footer.madeWithLove}</span>
             <button
               onClick={scrollToTop}
               className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center gap-1 cursor-pointer"
-              title="Torna su"
+              title={lang === 'it' ? 'Torna su' : 'Back to top'}
             >
               <ArrowUp size={14} />
             </button>

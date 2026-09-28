@@ -40,7 +40,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ lang }) => {
           {TESTIMONIALS.map((item) => (
             <div
               key={item.id}
-              className="bg-[#FAF7F2] rounded-3xl p-7 sm:p-8 shadow-sm border border-[#E2DDD3] flex flex-col justify-between hover:shadow-md transition-all"
+              className="bg-[#FAF7F2] rounded-xl p-7 sm:p-8 shadow-none border border-[#E2DDD3] flex flex-col justify-between hover:border-[#B99470] transition-all"
             >
               <div>
                 {/* Rating Stars & Room Badge */}
@@ -75,7 +75,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ lang }) => {
                       {item.guest}
                     </h4>
                     <span className="text-[11px] text-gray-400">
-                      {item.country} • {item.stayDate}
+                      {lang === 'en' && item.country === 'Italia' ? 'Italy' : item.country} • {lang === 'en' ? ({ Agosto: 'August', Luglio: 'July', Settembre: 'September', Giugno: 'June' } as Record<string, string>)[item.stayDate] || item.stayDate : item.stayDate}
                     </span>
                   </div>
                 </div>
