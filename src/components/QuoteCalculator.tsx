@@ -1,3 +1,4 @@
+import { SmartImage } from './SmartImage';
 import React, { useState, useEffect } from 'react';
 import { Language, BookingFormState, BookingSelection } from '../types';
 import { TRANSLATIONS } from '../data/translations';
@@ -63,38 +64,27 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
   // Strict past date protection
   const isCheckInPast = Boolean(formState.checkIn && formState.checkIn < todayStr);
-  const minCheckOutDate = getTomorrowDateString(formState.checkIn || todayStr);
+  const minCheckOutDate = getTomorrowDateString(formState.checkIn > todayStr ? formState.checkIn : todayStr);
 
+  // Keyboard entry emits partial years (0002, 0020…): keep raw values while typing, clamp on blur.
   const handleCheckInChange = (newDate: string) => {
-    if (!newDate) {
-      setFormState((prev) => ({ ...prev, checkIn: '' }));
-      return;
-    }
-    const sanitized = newDate < todayStr ? todayStr : newDate;
-    setFormState((prev) => {
-      let nextCheckOut = prev.checkOut;
-      if (nextCheckOut && nextCheckOut <= sanitized) {
-        nextCheckOut = getTomorrowDateString(sanitized);
-      }
-      return {
-        ...prev,
-        checkIn: sanitized,
-        checkOut: nextCheckOut,
-      };
-    });
+    setFormState((prev) => ({
+      ...prev,
+      checkIn: newDate,
+      checkOut: newDate >= todayStr && prev.checkOut && prev.checkOut <= newDate ? getTomorrowDateString(newDate) : prev.checkOut,
+    }));
+  };
+
+  const handleCheckInBlur = () => {
+    if (formState.checkIn && formState.checkIn < todayStr) handleCheckInChange(todayStr);
   };
 
   const handleCheckOutChange = (newDate: string) => {
-    if (!newDate) {
-      setFormState((prev) => ({ ...prev, checkOut: '' }));
-      return;
-    }
-    const minCheckOut = getTomorrowDateString(formState.checkIn || todayStr);
-    const sanitized = newDate < minCheckOut ? minCheckOut : newDate;
-    setFormState((prev) => ({
-      ...prev,
-      checkOut: sanitized,
-    }));
+    setFormState((prev) => ({ ...prev, checkOut: newDate }));
+  };
+
+  const handleCheckOutBlur = () => {
+    if (formState.checkOut && formState.checkOut < minCheckOutDate) handleCheckOutChange(minCheckOutDate);
   };
 
   const handleSelectAccommodation = (id: BookingSelection) => {
@@ -143,12 +133,12 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
       {/* Editorial Header */}
       <div className="pt-10 sm:pt-16 pb-10 sm:pb-14 max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <span className="text-xs uppercase tracking-[0.25em] text-[#B99470] font-bold block mb-2.5">
-          {lang === 'it' ? 'PRENOTA IL TUO SOGGIORNO' : 'BOOK YOUR STAY'}
+          {lang === 'it' ? 'ORGANIZZA IL TUO SOGGIORNO' : 'PLAN YOUR STAY'}
         </span>
         <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-normal text-stone-900 leading-[1.1] tracking-tight">
           {lang === 'it'
-            ? 'Verifica disponibilità & Calcola il preventivo'
-            : 'Check availability & Calculate your stay'}
+            ? 'Calcola il soggiorno e richiedi disponibilità'
+            : 'Estimate your stay and request availability'}
         </h1>
         <p className="mt-3.5 text-base sm:text-lg text-stone-600 font-light max-w-2xl mx-auto leading-relaxed">
           {t.calculator.subtitle}
@@ -163,9 +153,9 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             {/* Step 1: Accommodation Visual Switcher with Generous Photography */}
             <div>
               <div className="flex justify-between items-baseline mb-3.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-stone-500">
+                <p className="text-xs font-bold uppercase tracking-wider text-stone-500">
                   1. {t.calculator.accommodationLabel}
-                </label>
+                </p>
                 <span className="text-xs text-stone-500">
                   {lang === 'it' ? 'Capienza:' : 'Capacity:'}{' '}
                   <strong className="text-stone-800 font-semibold">
@@ -191,7 +181,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     >
                       {/* Suite Cover Photo with Badges */}
                       <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-200">
-                        <img
+                        <SmartImage
                           src={acc.coverImage}
                           alt={bookingName(acc.id, lang)}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -206,21 +196,21 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                         )}
                         
                         <span className="absolute bottom-2.5 left-2.5 bg-black/60 backdrop-blur-xs text-white text-[11px] font-medium px-2 py-0.5 rounded-md">
-                          max {acc.capacityMax} pax • {acc.sqm} mq
+                          max {acc.capacityMax} pax • {acc.sqm} m²
                         </span>
                       </div>
 
                       {/* Suite Info Card Body */}
                       <div className="p-3.5 flex flex-col justify-between flex-1">
                         <div>
-                          <h4 className="font-serif font-bold text-base text-stone-900 leading-snug">
+                          <span className="block font-serif font-bold text-base text-stone-900 leading-snug">
                             {bookingName(acc.id, lang)}
-                          </h4>
+                          </span>
                         </div>
                         <div className="flex justify-between items-center text-xs font-semibold text-[#B99470] pt-2.5 mt-2.5 border-t border-stone-100">
-                          <span>da {acc.startingPrice}€ / nt</span>
+                          <span>{lang === 'it' ? 'da' : 'from'} {acc.startingPrice}€ / nt</span>
                           <span className="text-[11px] text-stone-400 font-normal">
-                            {acc.bedroomsCount} {lang === 'it' ? (acc.bedroomsCount === 1 ? 'camera' : 'camere') : 'bedrooms'}
+                            {acc.bedroomsCount} {lang === 'it' ? (acc.bedroomsCount === 1 ? 'camera' : 'camere') : (acc.bedroomsCount === 1 ? 'bedroom' : 'bedrooms')}
                           </span>
                         </div>
                       </div>
@@ -235,9 +225,9 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             {/* Step 2: Date Pickers */}
             <div>
               <div className="flex justify-between items-baseline mb-3">
-                <label className="text-xs font-bold uppercase tracking-wider text-stone-500">
+                <p className="text-xs font-bold uppercase tracking-wider text-stone-500">
                   2. {lang === 'it' ? 'Date del Soggiorno' : 'Stay Dates'}
-                </label>
+                </p>
                 {quote.isValid && !isCheckInPast && (
                   <span className="text-xs font-semibold text-[#B99470] bg-[#B99470]/10 px-2.5 py-0.5 rounded-full">
                     {quote.totalNights} {quote.totalNights === 1 ? (lang === 'it' ? 'notte' : 'night') : (lang === 'it' ? 'notti' : 'nights')}
@@ -248,30 +238,34 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 min-w-0">
                 {/* Check-In Card with strict iOS overflow protection */}
                 <div className="bg-white rounded-2xl p-3.5 border border-[#E8E1D5] shadow-2xs hover:border-[#B99470]/60 transition-colors overflow-hidden min-w-0">
-                  <label className="block text-[11px] uppercase tracking-wider font-bold text-stone-500 mb-1.5 flex items-center gap-1.5">
+                  <label htmlFor="quote-checkIn" className="block text-[11px] uppercase tracking-wider font-bold text-stone-500 mb-1.5 flex items-center gap-1.5">
                     <Calendar size={13} className="text-[#B99470]" />
                     {t.calculator.checkInLabel}
                   </label>
                   <input
+                    id="quote-checkIn"
                     type="date"
                     value={formState.checkIn}
                     min={todayStr}
                     onChange={(e) => handleCheckInChange(e.target.value)}
+                    onBlur={handleCheckInBlur}
                     className="block w-full max-w-full min-w-0 box-border bg-[#FAF7F2] border border-[#DDD7CC] rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:bg-white focus:outline-none transition-all cursor-pointer [appearance:none] [-webkit-appearance:none]"
                   />
                 </div>
 
                 {/* Check-Out Card with strict iOS overflow protection */}
                 <div className="bg-white rounded-2xl p-3.5 border border-[#E8E1D5] shadow-2xs hover:border-[#B99470]/60 transition-colors overflow-hidden min-w-0">
-                  <label className="block text-[11px] uppercase tracking-wider font-bold text-stone-500 mb-1.5 flex items-center gap-1.5">
+                  <label htmlFor="quote-checkOut" className="block text-[11px] uppercase tracking-wider font-bold text-stone-500 mb-1.5 flex items-center gap-1.5">
                     <Calendar size={13} className="text-[#B99470]" />
                     {t.calculator.checkOutLabel}
                   </label>
                   <input
+                    id="quote-checkOut"
                     type="date"
                     value={formState.checkOut}
                     min={minCheckOutDate}
                     onChange={(e) => handleCheckOutChange(e.target.value)}
+                    onBlur={handleCheckOutBlur}
                     className="block w-full max-w-full min-w-0 box-border bg-[#FAF7F2] border border-[#DDD7CC] rounded-xl px-3.5 py-2.5 text-sm font-semibold text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:bg-white focus:outline-none transition-all cursor-pointer [appearance:none] [-webkit-appearance:none]"
                   />
                 </div>
@@ -293,10 +287,10 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             {/* Step 3: Guests Selection with STRICT CAPACITY LOCK */}
             <div>
               <div className="flex justify-between items-center mb-3">
-                <label className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+                <p className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
                   <Users size={14} className="text-[#B99470]" />
                   3. {lang === 'it' ? 'Ospiti & Posti Letto' : 'Guests & Beds'}
-                </label>
+                </p>
                 <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
                   totalGuests === selectedAccommodation.capacityMax
                     ? 'bg-amber-100 text-amber-800'
@@ -318,7 +312,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-stone-100">
-                    <button
+                    <button aria-label={`${lang === 'it' ? 'Riduci' : 'Decrease'} ${t.calculator.adultsLabel}`}
                       type="button"
                       disabled={formState.adults <= 1}
                       onClick={() =>
@@ -332,9 +326,9 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                       -
                     </button>
                     <span className="font-serif font-bold text-stone-900 text-xl">{formState.adults}</span>
-                    <button
+                    <button aria-label={`${lang === 'it' ? 'Aumenta' : 'Increase'} ${t.calculator.adultsLabel}`}
                       type="button"
-                      disabled={totalGuests >= selectedAccommodation.capacityMax}
+                      disabled={totalGuests >= 13}
                       onClick={() =>
                         setFormState((prev) => ({
                           ...prev,
@@ -359,7 +353,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-stone-100">
-                    <button
+                    <button aria-label={`${lang === 'it' ? 'Riduci' : 'Decrease'} ${t.calculator.childrenLabel}`}
                       type="button"
                       disabled={formState.children <= 0}
                       onClick={() =>
@@ -373,9 +367,9 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                       -
                     </button>
                     <span className="font-serif font-bold text-stone-900 text-xl">{formState.children}</span>
-                    <button
+                    <button aria-label={`${lang === 'it' ? 'Aumenta' : 'Increase'} ${t.calculator.childrenLabel}`}
                       type="button"
-                      disabled={totalGuests >= selectedAccommodation.capacityMax}
+                      disabled={totalGuests >= 13}
                       onClick={() =>
                         setFormState((prev) => ({
                           ...prev,
@@ -400,7 +394,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-stone-100">
-                    <button
+                    <button aria-label={`${lang === 'it' ? 'Riduci' : 'Decrease'} ${t.calculator.cribsLabel}`}
                       type="button"
                       disabled={formState.cribs <= 0}
                       onClick={() =>
@@ -414,7 +408,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                       -
                     </button>
                     <span className="font-serif font-bold text-stone-900 text-xl">{formState.cribs}</span>
-                    <button
+                    <button aria-label={`${lang === 'it' ? 'Aumenta' : 'Increase'} ${t.calculator.cribsLabel}`}
                       type="button"
                       disabled={formState.cribs >= 1}
                       onClick={() =>
@@ -432,21 +426,12 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
               </div>
 
               {/* Helpful notices on guests and capacity */}
-              {totalGuests > selectedAccommodation.capacityStandard && (
+              {!isOverCapacity && totalGuests > selectedAccommodation.capacityStandard && (
                 <div className="mt-3.5 p-3 bg-amber-50 rounded-xl border border-amber-200/60 text-xs text-amber-900 flex items-center gap-2">
                   <Info size={16} className="text-amber-700 shrink-0" />
                   <span>
-                    {selectedAccommodation.id === 'quercia'
-                      ? lang === 'it'
-                        ? `Tariffa standard per 4 persone. Inclusi ${totalGuests - 4} ${
-                            totalGuests - 4 === 1 ? 'letto aggiunto' : 'letti aggiunti'
-                          } (+${(totalGuests - 4) * 35}€ a notte).`
-                        : `Standard rate covers 4 guests. Includes ${totalGuests - 4} ${
-                            totalGuests - 4 === 1 ? 'extra bed' : 'extra beds'
-                          } (+${(totalGuests - 4) * 35}€/night).`
-                      : lang === 'it'
-                      ? `Incluso 1 letto aggiunto (+35€ a notte) per il 3° ospite.`
-                      : `Includes 1 extra bed (+35€/night) for the 3rd guest.`}
+                    {lang === 'it' ? `Tariffa base per ${selectedAccommodation.capacityStandard} ospiti. ${extraBeds} letti aggiunti nella stima (+${extraBeds * 35} € a notte).` : `Base rate for ${selectedAccommodation.capacityStandard} guests. ${extraBeds} extra beds in the estimate (+€${extraBeds * 35}/night).`}
+
                   </span>
                 </div>
               )}
@@ -472,9 +457,9 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             {/* Step 4: Contact Details (for personalizing message/email) */}
             <div className="pt-4 border-t border-[#EAE3D7]">
               <div className="flex justify-between items-baseline mb-3">
-                <label className="text-xs font-bold uppercase tracking-wider text-stone-500">
+                <p className="text-xs font-bold uppercase tracking-wider text-stone-500">
                   4. {lang === 'it' ? 'I Tuoi Dati (opzionale)' : 'Your Details (optional)'}
-                </label>
+                </p>
                 <span className="text-[11px] text-stone-400">
                   {lang === 'it' ? 'Pre-compila la richiesta per Antonella' : 'Pre-fills inquiry for Antonella'}
                 </span>
@@ -483,6 +468,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                 <input
                   type="text"
+                  aria-label={t.calculator.guestNameLabel}
                   placeholder={t.calculator.guestNameLabel}
                   value={formState.guestName}
                   onChange={(e) =>
@@ -492,6 +478,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 />
                 <input
                   type="email"
+                  aria-label={t.calculator.guestEmailLabel}
                   placeholder={t.calculator.guestEmailLabel}
                   value={formState.guestEmail}
                   onChange={(e) =>
@@ -501,6 +488,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 />
                 <input
                   type="tel"
+                  aria-label={t.calculator.guestPhoneLabel}
                   placeholder={t.calculator.guestPhoneLabel}
                   value={formState.guestPhone}
                   onChange={(e) =>
@@ -511,7 +499,8 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
               </div>
 
               <textarea
-                placeholder={t.calculator.notesPlaceholder}
+                aria-label={t.calculator.notesLabel}
+                  placeholder={t.calculator.notesPlaceholder}
                 rows={2}
                 value={formState.notes}
                 onChange={(e) =>
@@ -522,11 +511,11 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             </div>
           </div>
 
-          {/* Right: Booking Summary & Live Suite Preview */}
+          {/* Right: Stay summary & Live Suite Preview */}
           <div className="lg:col-span-5 bg-[#1C1A17] text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-stone-800 sticky top-28">
             {/* Live Preview of Selected Suite */}
             <div className="relative rounded-2xl overflow-hidden mb-5 aspect-[16/9] w-full border border-white/10 shadow-sm bg-stone-900">
-              <img
+              <SmartImage
                 src={selectedAccommodation.coverImage}
                 alt={bookingName(formState.accommodationId, lang)}
                 className="w-full h-full object-cover"
@@ -548,7 +537,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   {bookingName(formState.accommodationId, lang)}
                 </h3>
                 <p className="text-xs text-white/60 mt-1">
-                  max {selectedAccommodation.capacityMax} ospiti • {selectedAccommodation.sqm} mq • {selectedAccommodation.bedroomsCount} {selectedAccommodation.bedroomsCount === 1 ? (lang === 'it' ? 'camera' : 'bedroom') : (lang === 'it' ? 'camere' : 'bedrooms')}
+                  max {selectedAccommodation.capacityMax} {lang === 'it' ? 'ospiti' : 'guests'} • {selectedAccommodation.sqm} m² • {selectedAccommodation.bedroomsCount} {selectedAccommodation.bedroomsCount === 1 ? (lang === 'it' ? 'camera' : 'bedroom') : (lang === 'it' ? 'camere' : 'bedrooms')}
                 </p>
               </div>
               <div className="text-right shrink-0">
@@ -600,13 +589,13 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     <Calendar size={20} className="mx-auto mb-1.5 text-[#B99470]" />
                     <p className="font-semibold text-white">
                       {lang === 'it'
-                        ? 'Inserisci le date a sinistra'
-                        : 'Select your stay dates on the left'}
+                        ? 'Inserisci le date del soggiorno'
+                        : 'Enter your stay dates'}
                     </p>
                     <p className="text-[11px] text-white/60 mt-1 font-light leading-relaxed">
                       {lang === 'it'
-                        ? 'Calcoleremo il preventivo esatto con tariffe stagionali per bloccare il soggiorno.'
-                        : 'We will calculate the quote with seasonal rates to book your stay.'}
+                        ? 'Il totale è una stima. Disponibilità e condizioni saranno confermate da Antonella.'
+                        : 'This is an estimate. Antonella will confirm availability and the final terms.'}
                     </p>
                   </div>
                 )}
@@ -701,7 +690,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     type="button"
                     disabled={isOverCapacity || !quote.meetsMinNights || !quote.isValid || isCheckInPast}
                     onClick={handleWhatsAppInquiry}
-                    className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3.5 px-5 rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2.5 text-sm sm:text-base cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full bg-[#137A42] hover:bg-[#106537] text-white font-semibold py-3.5 px-5 rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2.5 text-sm sm:text-base cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <MessageCircle size={19} />
                     <span>{t.calculator.btnWhatsapp}</span>
@@ -778,7 +767,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md cursor-pointer"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#87613F] hover:bg-[#715033] text-white font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md cursor-pointer"
               >
                 <MessageCircle size={17} />
                 <span>{t.accommodations.estateExclusiveBtn}</span>

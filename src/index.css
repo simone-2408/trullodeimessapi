@@ -119,3 +119,22 @@ input[type="date"]::-webkit-date-and-time-value {
     padding-bottom: 6px !important;
   }
 }
+
+/* Accessible focus and motion without changing the site's typography. */
+:focus-visible { outline: 3px solid #87613F; outline-offset: 4px; }
+button:disabled { cursor: not-allowed; }
+.skip-link { position: fixed; top: -120px; left: 12px; z-index: 20000; background: white; color: #22252A; padding: 12px 20px; }
+.skip-link:focus { top: 12px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+/* Keep the warm sand for ornament; darken text and solid actions for AA. */
+.text-\[\#B99470\] { color: #87613F; }
+.bg-\[\#B99470\].text-white { background-color: #87613F; }
+@media (max-width: 380px) {
+  footer a[href^="mailto:"] { overflow-wrap: anywhere; }
+}
+
+footer .text-\[\#B99470\], #trullo-3d .text-\[\#B99470\], header .bg-\[\#1C1C1C\] .text-\[\#B99470\] { color: #D6B38F; }
+.hover\:bg-\[\#B99470\]:hover { background-color: #87613F; }

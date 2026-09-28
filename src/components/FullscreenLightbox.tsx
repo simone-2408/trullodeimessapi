@@ -1,4 +1,6 @@
+import { SmartImage } from './SmartImage';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useDialog } from '../utils/useDialog';
 import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { Language } from '../types';
@@ -25,6 +27,8 @@ export const FullscreenLightbox: React.FC<FullscreenLightboxProps> = ({
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialog(dialogRef, isOpen && mounted, onClose);
   const thumbnailsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,17 +41,6 @@ export const FullscreenLightbox: React.FC<FullscreenLightboxProps> = ({
       setCurrentIndex(Math.min(Math.max(0, initialIndex), images.length - 1));
     }
   }, [isOpen, initialIndex, images.length]);
-
-  // Lock body scroll when open
-  useEffect(() => {
-    if (isOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    }
-  }, [isOpen]);
 
   const goToPrev = useCallback(() => {
     setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -62,9 +55,7 @@ export const FullscreenLightbox: React.FC<FullscreenLightboxProps> = ({
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      } else if (e.key === 'ArrowLeft') {
+      if (e.key === 'ArrowLeft') {
         goToPrev();
       } else if (e.key === 'ArrowRight') {
         goToNext();
@@ -113,9 +104,11 @@ export const FullscreenLightbox: React.FC<FullscreenLightboxProps> = ({
 
   const content = (
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
-      aria-label={title || 'Galleria a schermo intero'}
+      aria-label={title || (lang === 'it' ? 'Galleria a schermo intero' : 'Fullscreen gallery')}
       className="fixed inset-0 z-[9999] flex flex-col justify-between bg-black/95 backdrop-blur-xl animate-in fade-in duration-300 select-none overflow-hidden w-screen h-screen"
       style={{
         width: '100vw',
@@ -208,10 +201,10 @@ export const FullscreenLightbox: React.FC<FullscreenLightboxProps> = ({
 
         {/* Current Image (Centered, max bounds, high quality, landscape optimized) */}
         <div className="relative max-w-full max-h-full flex items-center justify-center">
-          <img
+          <SmartImage
             key={images[currentIndex]}
-            src={images[currentIndex]}
-            alt={title ? `${title} - foto ${currentIndex + 1}` : `Foto ${currentIndex + 1}`}
+            sizes="100vw" loading="eager" src={images[currentIndex]}
+            alt={title ? `${title} — ${currentIndex + 1}` : `${lang === 'it' ? 'Foto' : 'Photo'} ${currentIndex + 1}`}
             className="max-h-[66vh] sm:max-h-[74vh] lg:max-h-[78vh] max-w-[94vw] lg:max-w-[88vw] object-contain rounded-lg sm:rounded-xl shadow-2xl animate-in fade-in zoom-in-95 duration-250 select-none lightbox-mobile-landscape-img"
           />
         </div>
@@ -251,11 +244,11 @@ export const FullscreenLightbox: React.FC<FullscreenLightboxProps> = ({
                     ? 'border-[#B99470] scale-110 shadow-lg ring-2 ring-[#B99470]/50'
                     : 'border-white/20 opacity-40 hover:opacity-100 hover:scale-105'
                 }`}
-                aria-label={`Vai a foto ${idx + 1}`}
+                aria-label={`${lang === 'it' ? 'Vai alla foto' : 'Go to photo'} ${idx + 1}`}
               >
-                <img
-                  src={img}
-                  alt={`Miniatura ${idx + 1}`}
+                <SmartImage
+                  sizes="80px" src={img}
+                  alt=""
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />

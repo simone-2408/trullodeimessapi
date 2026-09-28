@@ -34,9 +34,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const mailto = `mailto:${CONTACT_INFO.email}?subject=${encodeURIComponent(
-      `Richiesta da sito web: ${name || 'Ospite'}`
+      `${lang === 'it' ? 'Richiesta dal sito' : 'Website inquiry'}: ${name}`
     )}&body=${encodeURIComponent(
-      `Nome: ${name}\nEmail: ${email}\nTelefono: ${phone}\n\nMessaggio:\n${message}`
+      `${lang === 'it' ? 'Nome' : 'Name'}: ${name}\nEmail: ${email}\n${lang === 'it' ? 'Telefono' : 'Phone'}: ${phone}\n\n${message}`
     )}`;
     window.location.href = mailto;
     setIsSent(true);
@@ -115,7 +115,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
           {/* Left Column: Host & Direct Contact Card (5 cols) */}
           <div className="lg:col-span-5 flex flex-col">
             {/* Antonella Host Card */}
-            <div className="h-full bg-[#FAF7F2] p-8 sm:p-10 rounded-3xl border border-[#E8E1D5] shadow-sm flex flex-col justify-between">
+            <div className="h-full bg-[#FAF7F2] p-8 sm:p-10 rounded-xl border border-[#E8E1D5] shadow-none flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-4 mb-5">
                   <div className="w-14 h-14 rounded-2xl bg-[#B99470] text-white flex items-center justify-center shadow-md shrink-0">
@@ -198,7 +198,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 py-3.5 px-5 rounded-2xl bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+                  className="flex-1 py-3.5 px-5 rounded-2xl bg-[#87613F] hover:bg-[#715033] text-white font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-none hover:border-[#B99470]"
                 >
                   <MessageCircle size={18} />
                   <span>WhatsApp</span>
@@ -206,7 +206,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
 
                 <a
                   href={`tel:${CONTACT_INFO.phoneTel}`}
-                  className="flex-1 py-3.5 px-5 rounded-2xl border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
+                  className="flex-1 py-3.5 px-5 rounded-2xl border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-none"
                 >
                   <Phone size={17} />
                   <span>{lang === 'it' ? 'Chiama Antonella' : 'Call Antonella'}</span>
@@ -216,7 +216,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
           </div>
 
           {/* Right Column: Direct Message Form (7 cols) */}
-          <div className="lg:col-span-7 bg-[#FAF7F2] p-8 sm:p-10 rounded-3xl border border-[#E8E1D5] shadow-sm flex flex-col justify-between">
+          <div className="lg:col-span-7 bg-[#FAF7F2] p-8 sm:p-10 rounded-xl border border-[#E8E1D5] shadow-none flex flex-col justify-between">
             <div>
               <h3 className="font-serif text-2xl sm:text-3xl font-semibold text-stone-900 mb-1.5">
                 {lang === 'it' ? 'Inviaci un Messaggio Diretto' : 'Send Us a Direct Message'}
@@ -237,8 +237,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                 </h4>
                 <p className="text-xs sm:text-sm text-emerald-700 max-w-md mx-auto font-light leading-relaxed">
                   {lang === 'it'
-                    ? 'Si è aperto il tuo client email con tutti i dettagli compilati per Antonella a trullodeimessapi@gmail.com.'
-                    : 'Your email client has opened with your inquiry pre-filled for Antonella at trullodeimessapi@gmail.com.'}
+                    ? 'Se hai un programma email configurato, troverai la richiesta pronta per Antonella. Controllala e inviala dal programma: il sito non invia messaggi.'
+                    : 'If an email app is configured, your inquiry is ready there. Review and send it from your email app: this website does not send messages.'}
                 </p>
                 <button
                   type="button"
@@ -252,40 +252,43 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-stone-600 mb-1">
+                    <label htmlFor="contact-name" className="block text-xs font-semibold text-stone-600 mb-1">
                       {lang === 'it' ? 'Nome e Cognome *' : 'Full Name *'}
                     </label>
                     <input
                       type="text"
                       required
+                      id="contact-name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="es. Mario Rossi"
+                      placeholder={lang === 'it' ? 'es. Mario Rossi' : 'e.g. Alex Smith'}
                       className="w-full bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-stone-600 mb-1">
+                    <label htmlFor="contact-email" className="block text-xs font-semibold text-stone-600 mb-1">
                       {lang === 'it' ? 'Email *' : 'Email Address *'}
                     </label>
                     <input
                       type="email"
                       required
+                      id="contact-email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="es. mario@example.com"
+                      placeholder="name@example.com"
                       className="w-full bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-stone-600 mb-1">
+                  <label htmlFor="contact-phone" className="block text-xs font-semibold text-stone-600 mb-1">
                     {lang === 'it' ? 'Numero di Telefono' : 'Phone Number'}
                   </label>
                   <input
                     type="tel"
-                    value={phone}
+                    id="contact-phone"
+                      value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="es. +39 340 1234567"
                     className="w-full bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
@@ -293,13 +296,14 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-stone-600 mb-1">
+                  <label htmlFor="contact-message" className="block text-xs font-semibold text-stone-600 mb-1">
                     {lang === 'it' ? 'Messaggio *' : 'Message *'}
                   </label>
                   <textarea
                     required
                     rows={4}
-                    value={message}
+                    id="contact-message"
+                      value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder={
                       lang === 'it'
@@ -312,10 +316,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium py-3.5 px-6 rounded-xl sm:rounded-2xl transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 cursor-pointer text-sm"
+                  className="w-full bg-[#87613F] hover:bg-[#715033] text-white font-medium py-3.5 px-6 rounded-xl sm:rounded-2xl transition-all shadow-none hover:border-[#B99470] flex items-center justify-center gap-2 cursor-pointer text-sm"
                 >
                   <Send size={16} />
-                  <span>{lang === 'it' ? 'Invia Messaggio ad Antonella' : 'Send Message to Antonella'}</span>
+                  <span>{lang === 'it' ? 'Apri email per Antonella' : 'Open email to Antonella'}</span>
                 </button>
               </form>
             )}
@@ -349,7 +353,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
           {destinations.map((d, idx) => (
             <div
               key={idx}
-              className="bg-[#FAF7F2] p-6 rounded-3xl border border-[#E8E1D5] hover:border-[#B99470] transition-all flex flex-col justify-between shadow-xs hover:shadow-md group"
+              className="bg-[#FAF7F2] p-6 rounded-xl border border-[#E8E1D5] hover:border-[#B99470] transition-all flex flex-col justify-between shadow-xs hover:border-[#B99470] group"
             >
               <div>
                 <div className="flex justify-between items-start mb-2.5">
@@ -381,7 +385,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
       {/* 4. MAPPA & NAVIGAZIONE (FULL-WIDTH LUXURY STRIP) */}
       {/* ==================================================== */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
-        <div className="bg-[#FAF7F2] border border-[#E8E1D5] rounded-3xl sm:rounded-[36px] overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12">
+        <div className="bg-[#FAF7F2] border border-[#E8E1D5] rounded-xl sm:rounded-[36px] overflow-hidden shadow-none grid grid-cols-1 lg:grid-cols-12">
           {/* Map Info & Address (5 cols) */}
           <div className="lg:col-span-5 p-8 sm:p-12 flex flex-col justify-between">
             <div>
@@ -400,7 +404,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
               <div className="space-y-3 text-xs text-stone-600 border-t border-[#EAE3D7] pt-5 mb-8">
                 <p className="flex items-center gap-2">
                   <Navigation size={15} className="text-[#B99470] shrink-0" />
-                  <span>Posizione: Contrada Pisciacalze • Ceglie Messapica (BR)</span>
+                  <span>{lang === 'it' ? 'Posizione' : 'Location'}: Contrada Pisciacalze • Ceglie Messapica (BR)</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <Plane size={15} className="text-[#B99470] shrink-0" />
@@ -408,7 +412,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                 </p>
                 <p className="flex items-center gap-2">
                   <Clock size={15} className="text-[#B99470] shrink-0" />
-                  <span>Check-in: 15:00 - 20:00 • Check-out: entro le 10:30</span>
+                  <span>{lang === 'it' ? 'Check-in: 15:00–20:00 • Check-out: entro le 10:30' : 'Check-in: 15:00–20:00 • Check-out: by 10:30'}</span>
                 </p>
               </div>
             </div>
@@ -419,7 +423,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                 href={googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 bg-[#B99470] hover:bg-[#A37E5A] text-white font-medium py-3.5 px-5 rounded-2xl text-center text-xs sm:text-sm transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                className="flex-1 bg-[#87613F] hover:bg-[#715033] text-white font-medium py-3.5 px-5 rounded-2xl text-center text-xs sm:text-sm transition-all shadow-none hover:border-[#B99470] flex items-center justify-center gap-2"
               >
                 <span>Apri Google Maps</span>
                 <ExternalLink size={14} />
@@ -440,7 +444,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
           {/* Interactive Google Map Embed (7 cols) */}
           <div className="lg:col-span-7 min-h-[380px] lg:min-h-full bg-stone-200 relative border-t lg:border-t-0 lg:border-l border-[#E8E1D5]">
             <iframe
-              title="Mappa Trullo dei Messapi"
+              title={lang === 'it' ? 'Mappa Trullo dei Messapi' : 'Map of Trullo dei Messapi'}
               src="https://maps.google.com/maps?q=Trullo+dei+Messapi+Contrada+Pisciacalze+Ceglie+Messapica&t=&z=15&ie=UTF8&iwloc=&output=embed"
               width="100%"
               height="100%"

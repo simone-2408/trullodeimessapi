@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { SmartImage } from './SmartImage';
+import React, { useState, useRef, useEffect } from 'react';
 import { Accommodation, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import {
@@ -20,6 +21,7 @@ import {
   Shield,
   Coffee,
 } from 'lucide-react';
+import { useDialog } from '../utils/useDialog';
 import { FullscreenLightbox } from './FullscreenLightbox';
 
 interface AccommodationModalProps {
@@ -35,11 +37,15 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
   onClose,
   onSelectForQuote,
 }) => {
-  if (!accommodation) return null;
 
   const t = TRANSLATIONS[lang];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialog(dialogRef, !!accommodation, onClose);
+  useEffect(() => { setCurrentImageIndex(0); setIsLightboxOpen(false); }, [accommodation?.id]);
+  if (!accommodation) return null;
+
 
   const prevImage = () => {
     setCurrentImageIndex((prev) =>
@@ -54,9 +60,9 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={accommodation.name} tabIndex={-1} className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 overflow-y-auto bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative bg-white rounded-3xl max-w-5xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-white/20 flex flex-col my-auto"
+        className="relative bg-white rounded-xl max-w-5xl w-full max-h-[92vh] overflow-y-auto overflow-x-hidden shadow-2xl border border-white/20 flex flex-col my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
@@ -72,7 +78,7 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
           <button
             onClick={onClose}
             className="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
-            aria-label="Close modal"
+            aria-label={lang === 'it' ? 'Chiudi dettagli' : 'Close details'}
           >
             <X size={20} />
           </button>
@@ -83,11 +89,10 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
           {/* Main Photo Gallery Slider */}
           <div
             className="relative rounded-2xl overflow-hidden bg-gray-900 aspect-[16/10] sm:aspect-[16/9] shadow-inner group cursor-pointer"
-            onClick={() => setIsLightboxOpen(true)}
           >
-            <img
+            <SmartImage
               src={accommodation.gallery[currentImageIndex]}
-              alt={`${accommodation.name} photo ${currentImageIndex + 1}`}
+              alt={`${accommodation.name} ${lang === 'it' ? 'foto' : 'photo'} ${currentImageIndex + 1}`}
               className="w-full h-full object-cover transition-all duration-300 group-hover:scale-[1.02]"
             />
 
@@ -120,7 +125,7 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
                 prevImage();
               }}
               className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-all shadow-md z-10 cursor-pointer"
-              aria-label="Previous image"
+              aria-label={lang === 'it' ? 'Foto precedente' : 'Previous photo'}
             >
               <ChevronLeft size={22} />
             </button>
@@ -130,7 +135,7 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
                 nextImage();
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-all shadow-md z-10 cursor-pointer"
-              aria-label="Next image"
+              aria-label={lang === 'it' ? 'Foto successiva' : 'Next photo'}
             >
               <ChevronRight size={22} />
             </button>
@@ -153,9 +158,9 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
                     : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
               >
-                <img
-                  src={img}
-                  alt={`Thumbnail ${idx + 1}`}
+                <SmartImage
+                  sizes="80px" src={img}
+                  alt={`${lang === 'it' ? 'Miniatura' : 'Thumbnail'} ${idx + 1}`}
                   className="w-full h-full object-cover"
                 />
               </button>
@@ -164,45 +169,45 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
 
           {/* Quick Specifications Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#FAF8F5] p-5 rounded-2xl border border-[#E7D7C1]/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-sm">
+            <div className="flex flex-wrap items-center gap-2 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-none">
                 <Maximize2 size={20} />
               </div>
               <div>
-                <span className="text-xs text-gray-500 uppercase block font-medium">Superficie</span>
-                <span className="font-semibold text-gray-800">{accommodation.sqm} mq</span>
+                <span className="text-xs text-gray-500 uppercase block font-medium">{lang === 'it' ? 'Superficie' : 'Area'}</span>
+                <span className="font-semibold text-gray-800">{accommodation.sqm} m²</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-sm">
+            <div className="flex flex-wrap items-center gap-2 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-none">
                 <Users size={20} />
               </div>
               <div>
-                <span className="text-xs text-gray-500 uppercase block font-medium">Capacità</span>
+                <span className="text-xs text-gray-500 uppercase block font-medium">{lang === 'it' ? 'Capacità' : 'Capacity'}</span>
                 <span className="font-semibold text-gray-800">
-                  {accommodation.capacityStandard} - {accommodation.capacityMax} Ospiti
+                  {accommodation.capacityStandard} - {accommodation.capacityMax} {lang === 'it' ? 'ospiti' : 'guests'}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-sm">
+            <div className="flex flex-wrap items-center gap-2 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-none">
                 <Bed size={20} />
               </div>
               <div>
-                <span className="text-xs text-gray-500 uppercase block font-medium">Camere</span>
-                <span className="font-semibold text-gray-800">{accommodation.bedroomsCount} Camere</span>
+                <span className="text-xs text-gray-500 uppercase block font-medium">{lang === 'it' ? 'Camere' : 'Bedrooms'}</span>
+                <span className="font-semibold text-gray-800">{accommodation.bedroomsCount}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-sm">
+            <div className="flex flex-wrap items-center gap-2 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-none">
                 <Bath size={20} />
               </div>
               <div>
-                <span className="text-xs text-gray-500 uppercase block font-medium">Bagni</span>
-                <span className="font-semibold text-gray-800">{accommodation.bathroomsCount} con Doccia</span>
+                <span className="text-xs text-gray-500 uppercase block font-medium">{lang === 'it' ? 'Bagni' : 'Bathrooms'}</span>
+                <span className="font-semibold text-gray-800">{accommodation.bathroomsCount} {lang === 'it' ? 'con doccia' : 'with shower'}</span>
               </div>
             </div>
           </div>
@@ -246,25 +251,25 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
             </h4>
             <div className="flex flex-wrap gap-2.5">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
-                <Wifi size={14} className="text-[#B99470]" /> Wi-Fi Gratuito
+                <Wifi size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Wi-Fi Gratuito' : 'Free Wi-Fi'}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
-                <Waves size={14} className="text-[#B99470]" /> Piscina & Jacuzzi Condivisa
+                <Waves size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Piscina & Jacuzzi Condivisa' : 'Shared pool & jacuzzi'}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
-                <Utensils size={14} className="text-[#B99470]" /> Cucina Attrezzata
+                <Utensils size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Cucina Attrezzata' : 'Equipped kitchen'}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
-                <Coffee size={14} className="text-[#B99470]" /> Macchina Caffè & Bollitore
+                <Coffee size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Macchina Caffè & Bollitore' : 'Coffee machine & kettle'}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
-                <Flame size={14} className="text-[#B99470]" /> Camino in Pietra
+                <Flame size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Camino in Pietra' : 'Stone fireplace'}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
-                <Sun size={14} className="text-[#B99470]" /> Terrazza / Patio Privato
+                <Sun size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Terrazza / Patio Privato' : 'Private terrace / patio'}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
-                <Shield size={14} className="text-[#B99470]" /> Cassaforte & Parcheggio
+                <Shield size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Cassaforte & Parcheggio' : 'Safe & parking'}
               </span>
             </div>
           </div>
@@ -280,10 +285,10 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
             <span className="text-xs text-gray-500"> /{t.accommodations.perNight}</span>
           </div>
 
-          <div className="flex gap-3 w-full sm:w-auto">
+          <div className="flex gap-2 w-full sm:w-auto min-w-0">
             <button
               onClick={onClose}
-              className="py-2.5 px-5 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+              className="py-2.5 px-3 sm:px-5 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
             >
               {t.accommodations.modalClose}
             </button>
@@ -292,10 +297,10 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
                 onClose();
                 onSelectForQuote(accommodation.id);
               }}
-              className="flex-1 sm:flex-initial py-2.5 px-6 rounded-xl bg-[#B99470] hover:bg-[#A37E5A] text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="min-w-0 flex-1 sm:flex-initial py-2.5 px-3 sm:px-6 rounded-xl bg-[#87613F] hover:bg-[#715033] text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Calendar size={16} />
-              <span>{lang === 'it' ? 'Prenota Questa Dimora' : 'Book this Suite'}</span>
+              <span>{lang === 'it' ? 'Richiedi questa dimora' : 'Request this accommodation'}</span>
             </button>
           </div>
         </div>
