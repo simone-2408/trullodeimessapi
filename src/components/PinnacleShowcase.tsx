@@ -1,6 +1,8 @@
+import { SiteLink } from './SiteLink';
+import { SmartImage } from './SmartImage';
 import React, { useEffect, useRef, useState } from 'react';
 import { AppRoute } from '../three/types';
-import { PinnacleScene } from '../three/PinnacleScene';
+import type { PinnacleScene } from '../three/PinnacleScene';
 import { Language } from '../types';
 import { Sparkles, ZoomIn, ZoomOut, RotateCcw, Play, Pause } from 'lucide-react';
 
@@ -21,173 +23,69 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
   const sceneRef = useRef<PinnacleScene | null>(null);
   const [activeDetail, setActiveDetail] = useState<DetailType>('overview');
   const [isTourPlaying, setIsTourPlaying] = useState(false);
-  const tourTimerRef = useRef<number | null>(null);
 
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [visible, setVisible] = useState(false);
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    const scene = new PinnacleScene({
-      container: containerRef.current,
-      initialRoute: currentRoute,
-    });
-    sceneRef.current = scene;
-
-    return () => {
-      if (tourTimerRef.current) clearInterval(tourTimerRef.current);
-      scene.dispose();
-      sceneRef.current = null;
-    };
+    const container = containerRef.current;
+    if (!container) return;
+    let cancelled = false;
+    let inView = false;
+    // Build the scene shortly before it scrolls into view; render only while actually visible.
+    const loader = new IntersectionObserver(async ([entry]) => {
+      if (!entry.isIntersecting) return;
+      loader.disconnect();
+      try {
+        const { PinnacleScene } = await import('../three/PinnacleScene');
+        if (cancelled) return;
+        const scene = new PinnacleScene({ container, onError: () => { setFailed(true); setReady(false); } });
+        sceneRef.current = scene;
+        await scene.ready;
+        if (cancelled) return;
+        scene.setVisible(inView);
+        setReady(true);
+      } catch { if (!cancelled) setFailed(true); }
+    }, { rootMargin: '600px 0px' });
+    const observer = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      setVisible(inView);
+      sceneRef.current?.setVisible(inView);
+    }, { threshold: .01 });
+    loader.observe(container);
+    observer.observe(container);
+    return () => { cancelled = true; loader.disconnect(); observer.disconnect(); sceneRef.current?.dispose(); sceneRef.current = null; };
   }, []);
-
-  // Update route choreography when route changes
+  useEffect(() => { sceneRef.current?.focusDetail(activeDetail); }, [activeDetail]);
   useEffect(() => {
-    if (sceneRef.current) {
-      sceneRef.current.setRoute(currentRoute);
-    }
-  }, [currentRoute]);
-
-  const detailSequence: DetailType[] = ['overview', 'sphere', 'chalice', 'stones'];
-
-  const handleSelectDetail = (detail: DetailType) => {
-    if (isTourPlaying) {
-      setIsTourPlaying(false);
-      if (tourTimerRef.current) clearInterval(tourTimerRef.current);
-    }
-    setActiveDetail(detail);
-    sceneRef.current?.focusDetail(detail);
-  };
-
-  const toggleTour = () => {
-    if (isTourPlaying) {
-      setIsTourPlaying(false);
-      if (tourTimerRef.current) clearInterval(tourTimerRef.current);
-    } else {
-      setIsTourPlaying(true);
-      const currentIndex = detailSequence.indexOf(activeDetail);
-      const nextIndex = (currentIndex + 1) % detailSequence.length;
-      const nextDetail = detailSequence[nextIndex];
-      setActiveDetail(nextDetail);
-      sceneRef.current?.focusDetail(nextDetail);
-
-      tourTimerRef.current = window.setInterval(() => {
-        setActiveDetail((prev) => {
-          const idx = detailSequence.indexOf(prev);
-          const next = detailSequence[(idx + 1) % detailSequence.length];
-          sceneRef.current?.focusDetail(next);
-          return next;
-        });
-      }, 3800);
-    }
-  };
-
-  // Route-specific editorial narratives
+    if (!isTourPlaying || !visible || !ready) return;
+    const sequence: DetailType[] = ['overview', 'sphere', 'chalice', 'stones'];
+    const timer = window.setInterval(() => { if (!document.hidden) setActiveDetail(previous => sequence[(sequence.indexOf(previous) + 1) % sequence.length]); }, 5500);
+    return () => clearInterval(timer);
+  }, [isTourPlaying, visible, ready]);
+  const handleSelectDetail = (detail: DetailType) => { setIsTourPlaying(false); setActiveDetail(detail); };
+  const toggleTour = () => setIsTourPlaying(previous => !previous);
   const narrative = {
-    home: {
-      tag: lang === 'it' ? 'Scultura & Memoria' : 'Sculpture & Memory',
-      title:
-        lang === 'it'
-          ? 'Il pinnacolo: il dialogo tra pietra e cielo'
-          : 'The pinnacle: dialogue between stone and sky',
-      desc1:
-        lang === 'it'
-          ? 'Sulla sommità di ogni cono in pietra a secco svetta il pinnacolo in pietra calcarea, scolpito a mano da generazioni: antico simbolo di equilibrio tra la terra e il cielo.'
-          : 'At the top of each dry-stone cone stands the hand-chiseled limestone pinnacle: a timeless symbol of harmony between earth and sky.',
-      desc2:
-        lang === 'it'
-          ? 'Un’architettura essenziale e silenziosa, plasmata dall’antica sapienza rurale pugliese per fondersi con il paesaggio della Valle d’Itria.'
-          : 'An essential, quiet architecture shaped by ancient rural wisdom to blend seamlessly with the landscape of the Itria Valley.',
-    },
-    suites: {
-      tag: lang === 'it' ? 'Dimore di Pietra' : 'Stone Dwellings',
-      title:
-        lang === 'it'
-          ? 'Il cono maestro del Trullo Quercia'
-          : 'The Master Cone of Trullo Quercia',
-      desc1:
-        lang === 'it'
-          ? 'Il cono centrale originario del XVII secolo conserva il fascino intatto delle antiche corti rurali, restaurato nel rispetto rigoroso della materia d’origine.'
-          : 'The original 17th-century stone cone preserves the untouched charm of rural courtyards, restored in harmony with traditional materials.',
-      desc2:
-        lang === 'it'
-          ? 'Le spesse mura in pietra naturale donano un silenzio profondo e una naturale freschezza, ideale per ritrovare il riposo più autentico.'
-          : 'Thick natural stone walls offer deep silence and natural coolness, ideal for profound and restful sleep.',
-    },
-    piscina: {
-      tag: lang === 'it' ? 'Acqua & Natura' : 'Water & Nature',
-      title:
-        lang === 'it'
-          ? 'La trasparenza dell’acqua tra gli ulivi'
-          : 'Clear waters amidst the olive trees',
-      desc1:
-        lang === 'it'
-          ? 'Uno specchio d’acqua e idromassaggio adagiati tra muretti a secco, prato e ulivi secolari, per vivere il contatto con la natura sotto il cielo aperto.'
-          : 'A serene pool and hydromassage nestled among dry-stone walls, lawns, and olive trees, embracing open-air nature under clear skies.',
-      desc2:
-        lang === 'it'
-          ? 'Uno spazio intimo riservato solo agli ospiti delle tre dimore, dove la quiete della campagna accompagna il riposo.'
-          : 'An intimate space reserved only for guests of our three dwellings, where countryside quiet accompanies true rest.',
-    },
-    esperienza: {
-      tag: lang === 'it' ? 'I Ritmi della Terra' : 'Rhythms of the Earth',
-      title:
-        lang === 'it'
-          ? 'L’accoglienza semplice di Antonella'
-          : 'Antonella’s gentle welcome',
-      desc1:
-        lang === 'it'
-          ? 'Al Trullo dei Messapi l’ospitalità è discreta e autentica. Antonella vi accoglie personalmente, condividendo con cura i luoghi più genuini della Valle d’Itria.'
-          : 'At Trullo dei Messapi, hospitality is discreet and authentic. Antonella welcomes you personally, sharing the most genuine treasures of the Itria Valley.',
-      desc2:
-        lang === 'it'
-          ? 'Dall’olio extravergine dei nostri ulivi alla tranquillità della corte in pietra, un invito a riscoprire la bellezza dei ritmi lenti.'
-          : 'From the extra virgin olive oil of our trees to the calm of stone courtyards, an invitation to rediscover the beauty of slow living.',
-    },
-    preventivo: {
-      tag: lang === 'it' ? 'Contatto Diretto' : 'Direct Contact',
-      title:
-        lang === 'it'
-          ? 'Prenota il tuo soggiorno al Trullo dei Messapi'
-          : 'Book your stay at Trullo dei Messapi',
-      desc1:
-        lang === 'it'
-          ? 'Nessun intermediario o commissione. Seleziona le date desiderate per verificare la stima e inviare la richiesta direttamente ad Antonella su WhatsApp o via Email.'
-          : 'No intermediaries or booking fees. Select your dates to estimate your stay and send your request directly to Antonella via WhatsApp or Email.',
-      desc2:
-        lang === 'it'
-          ? 'Accordi personalizzati e disponibilità concordati direttamente con la proprietaria.'
-          : 'Personalized arrangements and availability agreed directly with the owner.',
-    },
-    contatti: {
-      tag: lang === 'it' ? 'La Posizione' : 'The Location',
-      title:
-        lang === 'it'
-          ? 'Nel cuore quieto della Valle d’Itria'
-          : 'In the quiet heart of Itria Valley',
-      desc1:
-        lang === 'it'
-          ? 'Siamo a Ceglie Messapica, circondati dalla campagna e a pochi chilometri dai borghi bianchi e dalle coste pugliesi.'
-          : 'Located in Ceglie Messapica, surrounded by peaceful countryside and minutes from whitewashed villages and coastal shores.',
-      desc2:
-        lang === 'it'
-          ? 'Contatta direttamente Antonella per qualsiasi informazione o per concordare al meglio il tuo arrivo.'
-          : 'Contact Antonella directly for any inquiries or to prepare your arrival.',
-    },
-  }[currentRoute];
+    tag: lang === 'it' ? 'Architettura di Puglia' : 'Architecture of Puglia',
+    title: lang === 'it' ? 'Il pinnacolo: il dialogo tra pietra e cielo' : 'The pinnacle: dialogue between stone and sky',
+    desc1: lang === 'it' ? 'Le chiancarelle si sovrappongono lungo il cono, fino al pinnacolo scolpito nella pietra calcarea. Una forma semplice, segnata dalla grana e dalle sfumature della materia.' : 'Layers of limestone slabs rise along the cone to a carved stone pinnacle. A simple form, marked by the grain and natural tones of the material.',
+    desc2: lang === 'it' ? 'Esplora questa ricostruzione ispirata al nostro pinnacolo: dal tetto in pietra a secco al calice e alla sfera che lo sormonta.' : 'Explore this reconstruction inspired by our pinnacle, from the dry-stone roof to the cup and the sphere above it.',
+  };
 
   const detailItems: { id: DetailType; labelIt: string; labelEn: string; descIt: string; descEn: string }[] = [
     {
       id: 'overview',
       labelIt: 'Vista d’insieme',
       labelEn: 'Overview',
-      descIt: 'Il cono e il pinnacolo maestri',
-      descEn: 'Master cone & pinnacle',
+      descIt: 'Il trullo, il cono e il pinnacolo',
+      descEn: 'The trullo, its cone and pinnacle',
     },
     {
       id: 'sphere',
       labelIt: 'La Sfera',
       labelEn: 'The Sphere',
-      descIt: 'Simbolo del cosmo e del cielo',
-      descEn: 'Symbol of cosmos and sky',
+      descIt: 'La sommità in pietra calcarea',
+      descEn: 'The limestone crown',
     },
     {
       id: 'chalice',
@@ -233,15 +131,16 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
 
             {/* Interactive Detail Inspection Bar with Cinematic Tour Option */}
             <div className="mb-8">
-              <div className="flex items-center justify-between mb-3.5">
+              <div className="flex flex-wrap gap-3 items-center justify-between mb-3.5">
                 <span className="text-[11px] uppercase tracking-[0.25em] text-[#B99470] font-semibold">
                   {lang === 'it' ? 'Dettagli architettonici' : 'Architectural details'}
                 </span>
                 <button
                   onClick={toggleTour}
+                  disabled={!ready || failed} aria-pressed={isTourPlaying}
                   className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs transition-all cursor-pointer border ${
                     isTourPlaying
-                      ? 'bg-[#B99470] border-[#B99470] text-white shadow-[0_0_20px_rgba(185,148,112,0.45)]'
+                      ? 'bg-[#87613F] border-[#B99470] text-white'
                       : 'bg-white/10 hover:bg-white/15 border-white/20 text-[#EAD8C0]'
                   }`}
                 >
@@ -253,7 +152,7 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
                   <span className="font-serif text-xs tracking-wider font-medium">
                     {isTourPlaying
                       ? (lang === 'it' ? 'Pausa Tour' : 'Pause Tour')
-                      : (lang === 'it' ? 'Tour 3D Cinematico' : 'Cinematic 3D Tour')}
+                      : (lang === 'it' ? 'Esplora i dettagli' : 'Explore details')}
                   </span>
                 </button>
               </div>
@@ -265,8 +164,8 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
                   return (
                     <button
                       key={item.id}
-                      onClick={() => handleSelectDetail(item.id)}
-                      className={`group/btn text-left p-3.5 rounded-xl border transition-all duration-500 cursor-pointer relative overflow-hidden ${
+                      onClick={() => handleSelectDetail(item.id)} disabled={!ready || failed} aria-pressed={isActive}
+                      className={`group/btn text-left p-3.5 rounded-sm border transition-all duration-500 cursor-pointer relative overflow-hidden ${
                         isActive
                           ? 'bg-[#B99470]/25 border-[#B99470] text-white shadow-[0_0_25px_rgba(185,148,112,0.25)] scale-[1.02]'
                           : 'bg-white/5 border-white/10 hover:border-white/25 text-white/75 hover:text-white hover:bg-white/8'
@@ -284,7 +183,7 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
                             }`}
                           />
                           {isActive && (
-                            <span className="absolute w-4 h-4 rounded-full bg-[#B99470]/40 animate-ping" />
+                            <span className="absolute w-4 h-4 rounded-full bg-[#B99470]/40 " />
                           )}
                         </div>
                         <span className="font-serif text-sm font-medium tracking-wide">
@@ -303,45 +202,38 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
             {/* Direct Action Link */}
             {currentRoute !== 'preventivo' && onNavigate && (
               <div>
-                <button
-                  onClick={() => onNavigate('preventivo')}
+                <SiteLink route="preventivo" lang={lang} onNavigate={onNavigate}
                   className="inline-flex items-center gap-2 text-xs uppercase font-bold tracking-[0.2em] text-[#B99470] hover:text-[#EAD8C0] transition-colors cursor-pointer group"
                 >
                   <span>
                     {lang === 'it'
-                      ? 'Verifica disponibilità per il tuo soggiorno'
-                      : 'Check availability for your dates'}
+                      ? 'Richiedi disponibilità per il tuo soggiorno'
+                      : 'Request availability for your dates'}
                   </span>
                   <span className="group-hover:translate-x-1.5 transition-transform">→</span>
-                </button>
+                </SiteLink>
               </div>
             )}
           </div>
         </div>
 
         {/* RIGHT COLUMN: Cinematic Three.js 3D Sculptural Canvas */}
-        <div className="lg:col-span-6 relative w-full h-[520px] sm:h-[620px] lg:h-full min-h-[580px] flex items-center justify-center bg-gradient-to-b from-[#181715] via-[#151413] to-[#121110]">
-          {/* Warm Radial Ambient Glow behind the Sculpture */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(185,148,112,0.18)_0%,_rgba(22,21,20,0)_70%)] pointer-events-none filter blur-3xl" />
-
-          {/* THREE.JS CONTAINER ELEMENT */}
-          <div
-            ref={containerRef}
-            className="w-full h-full cursor-grab active:cursor-grabbing relative z-10"
-            style={{ touchAction: 'none' }}
-          />
+        <div className="lg:col-span-6 relative w-full h-[520px] sm:h-[620px] lg:h-full min-h-[450px] flex items-center justify-center bg-[#EAE4D8]">
+          {!ready && <SmartImage src="./images/pinnacolo.jpg" alt={lang === 'it' ? 'Il pinnacolo in pietra del Trullo dei Messapi' : 'The limestone pinnacle at Trullo dei Messapi'} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />}
+          <div ref={containerRef} className="absolute inset-0 cursor-grab active:cursor-grabbing" />
+          {failed && <p role="status" className="absolute bottom-16 inset-x-6 text-center text-sm bg-white/90 text-stone-800 p-3">{lang === 'it' ? 'Il modello 3D non è disponibile su questo dispositivo. Ecco il pinnacolo originale.' : 'The 3D model is unavailable on this device. This photograph shows the original pinnacle.'}</p>}
 
           {/* Interactive Camera Quick Tools (Top Right) */}
           <div className="absolute top-6 right-6 z-20 flex items-center gap-2">
             <button
-              onClick={() => sceneRef.current?.zoomIn()}
+              disabled={!ready || failed} onClick={() => sceneRef.current?.zoomIn()}
               title={lang === 'it' ? 'Ingrandisci' : 'Zoom in'}
               className="w-9 h-9 rounded-full bg-black/60 hover:bg-[#B99470] backdrop-blur-md border border-white/15 text-white flex items-center justify-center transition-colors cursor-pointer shadow-md"
             >
               <ZoomIn size={15} />
             </button>
             <button
-              onClick={() => sceneRef.current?.zoomOut()}
+              disabled={!ready || failed} onClick={() => sceneRef.current?.zoomOut()}
               title={lang === 'it' ? 'Rimpicciolisci' : 'Zoom out'}
               className="w-9 h-9 rounded-full bg-black/60 hover:bg-[#B99470] backdrop-blur-md border border-white/15 text-white flex items-center justify-center transition-colors cursor-pointer shadow-md"
             >
@@ -349,10 +241,7 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
             </button>
             <button
               onClick={() => {
-                if (isTourPlaying) {
-                  setIsTourPlaying(false);
-                  if (tourTimerRef.current) clearInterval(tourTimerRef.current);
-                }
+                setIsTourPlaying(false);
                 setActiveDetail('overview');
                 sceneRef.current?.resetView();
               }}
@@ -365,11 +254,11 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
 
           {/* Floating Luxury 3D Interaction Pill (Bottom Right) */}
           <div className="absolute bottom-6 right-6 z-20 pointer-events-none bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/15 shadow-xl flex items-center gap-2.5 text-xs text-[#EAD8C0]">
-            <span className="w-2 h-2 rounded-full bg-[#B99470] animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-[#B99470] " />
             <span className="font-light">
               {lang === 'it'
-                ? 'Scultura 3D • Trascina per ruotare a 360°'
-                : '3D Sculpture • Drag to rotate 360°'}
+                ? 'Scultura 3D • Trascina per ruotare'
+                : '3D Sculpture • Drag to rotate'}
             </span>
           </div>
         </div>

@@ -1,1029 +1,540 @@
 import * as THREE from 'three';
-import gsap from 'gsap';
-import { AppRoute } from './types';
 
-export interface PinnacleSceneOptions {
-  container: HTMLElement;
-  initialRoute?: AppRoute;
+export type DetailType = 'overview' | 'sphere' | 'chalice' | 'stones';
+
+// Deterministic variation: every visit shows the same architectural model.
+function random(seed = 19) {
+  return () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+}
+const smooth = (t: number) => t * t * (3 - 2 * t);
+
+// Tileable value-noise fBm in [0, 1]; shared by every procedural surface.
+function tileNoise(size: number, seed: number, octaves: number, base: number) {
+  const rand = random(seed), out = new Float32Array(size * size);
+  let amplitude = 1, total = 0;
+  for (let o = 0, period = base; o < octaves; o++, period *= 2, amplitude *= .5) {
+    const lattice = Float32Array.from({ length: period * period }, rand);
+    for (let y = 0; y < size; y++) {
+      const fy = y / size * period, y0 = Math.floor(fy), ty = smooth(fy - y0), y1 = (y0 + 1) % period;
+      for (let x = 0; x < size; x++) {
+        const fx = x / size * period, x0 = Math.floor(fx), tx = smooth(fx - x0), x1 = (x0 + 1) % period;
+        const a = lattice[y0 * period + x0], b = lattice[y0 * period + x1];
+        const c = lattice[y1 * period + x0], d = lattice[y1 * period + x1];
+        out[y * size + x] += amplitude * ((a + (b - a) * tx) * (1 - ty) + (c + (d - c) * tx) * ty);
+      }
+    }
+    total += amplitude;
+  }
+  for (let i = 0; i < out.length; i++) out[i] /= total;
+  return out;
 }
 
-export class PinnacleScene {
-  private container: HTMLElement;
-  private scene: THREE.Scene;
-  private camera: THREE.PerspectiveCamera;
-  private renderer: THREE.WebGLRenderer;
-  private pinnacleGroup: THREE.Group;
-  private animationFrameId: number | null = null;
-  private isDisposed = false;
-
-  // Mouse hover tracking
-  private mouse = { x: 0, y: 0 };
-  private targetMouse = { x: 0, y: 0 };
-  private isHovered = false;
-
-  // Interactive Drag & Momentum Orbit System (Fluid multi-angle rotation)
-  private isDragging = false;
-  private previousPointer = { x: 0, y: 0 };
-  private dragVelocity = { x: 0, y: 0 };
-  private userRotationY = 0;
-  private userRotationX = 0;
-
-  // Lights for GSAP transitions
-  private sunLight!: THREE.DirectionalLight;
-  private skyLight!: THREE.DirectionalLight;
-  private ambientLight!: THREE.AmbientLight;
-
-  // Cinematic Atmosphere & Focus Choreography
-  private particles!: THREE.Points;
-  private particlePositions!: Float32Array;
-  private currentLookAt = { x: 0, y: 0.25, z: 0 };
-
-  // Camera choreography targets per route
-  private routeConfigs: Record<
-    AppRoute,
-    {
-      camX: number;
-      camY: number;
-      camZ: number;
-      lookAtY: number;
-      sunIntensity: number;
-      sunColor: number;
-      groupOffsetY: number;
-    }
-  > = {
-    home: {
-      camX: 0.5,
-      camY: 0.35,
-      camZ: 4.1,
-      lookAtY: 0.25,
-      sunIntensity: 3.2,
-      sunColor: 0xffe8d1, // Warm morning sun
-      groupOffsetY: 0,
-    },
-    suites: {
-      camX: 0.2,
-      camY: 0.85,
-      camZ: 3.4, // Closer macro view on the pinnacle sphere & chalice
-      lookAtY: 0.65,
-      sunIntensity: 3.5,
-      sunColor: 0xfff2e0,
-      groupOffsetY: -0.2,
-    },
-    piscina: {
-      camX: -0.65,
-      camY: 0.3,
-      camZ: 3.9,
-      lookAtY: 0.25,
-      sunIntensity: 3.7,
-      sunColor: 0xffdcba, // Golden hour warm reflection
-      groupOffsetY: 0,
-    },
-    esperienza: {
-      camX: 0.85,
-      camY: 0.2,
-      camZ: 3.8,
-      lookAtY: 0.3,
-      sunIntensity: 3.1,
-      sunColor: 0xffe2c4,
-      groupOffsetY: -0.1,
-    },
-    preventivo: {
-      camX: 0.4,
-      camY: 0.45,
-      camZ: 4.3,
-      lookAtY: 0.25,
-      sunIntensity: 3.0,
-      sunColor: 0xffecda,
-      groupOffsetY: 0,
-    },
-    contatti: {
-      camX: 0.0,
-      camY: 0.35,
-      camZ: 3.9,
-      lookAtY: 0.25,
-      sunIntensity: 3.2,
-      sunColor: 0xffe6cb,
-      groupOffsetY: 0,
-    },
+type Painter = (x: number, y: number, out: Float32Array) => void;
+// Paints albedo (sRGB) and a packed detail map: R = height for bumpMap, G = roughness for roughnessMap.
+function surface(width: number, height: number, paint: Painter, repeat: [number, number]) {
+  const make = () => { const c = document.createElement('canvas'); c.width = width; c.height = height; return c; };
+  const colorCanvas = make(), detailCanvas = make();
+  const color = new ImageData(width, height), detail = new ImageData(width, height), o = new Float32Array(5);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    paint(x, y, o);
+    const i = (y * width + x) * 4;
+    color.data[i] = o[0] * 255; color.data[i + 1] = o[1] * 255; color.data[i + 2] = o[2] * 255; color.data[i + 3] = 255;
+    detail.data[i] = o[3] * 255; detail.data[i + 1] = o[4] * 255; detail.data[i + 3] = 255;
+  }
+  colorCanvas.getContext('2d')!.putImageData(color, 0, 0);
+  detailCanvas.getContext('2d')!.putImageData(detail, 0, 0);
+  const texture = (canvas: HTMLCanvasElement, space: THREE.ColorSpace) => {
+    const t = new THREE.CanvasTexture(canvas);
+    t.colorSpace = space; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...repeat); t.anisotropy = 4;
+    return t;
   };
+  return { map: texture(colorCanvas, THREE.SRGBColorSpace), detail: texture(detailCanvas, THREE.NoColorSpace) };
+}
 
-  private currentRoute: AppRoute = 'home';
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+const set = (o: Float32Array, r: number, g: number, b: number, h: number, rough: number) => { o[0] = r; o[1] = g; o[2] = b; o[3] = h; o[4] = rough; };
 
-  constructor(options: PinnacleSceneOptions) {
-    this.container = options.container;
-    this.currentRoute = options.initialRoute || 'home';
+// Generated in slices (pause between surfaces) so scrolling stays smooth while the scene loads.
+async function textures(pause: () => Promise<void>, compact: boolean) {
+  const S = 512, fine = tileNoise(S, 3, 6, 8), broad = tileNoise(S, 11, 3, 2), rand = random(5);
+  const at = (n: Float32Array, x: number, y: number) => n[(y & (S - 1)) * S + (x & (S - 1))];
+  const pores = new Uint8Array(S * S).map(() => (rand() < .007 ? 1 : 0));
+  await pause();
 
-    // 1. SCENE
-    this.scene = new THREE.Scene();
+  // Weathered grey-ivory limestone (chiancarelle): 1 m tile, pores, ochre stains and faint lichen.
+  const stone = surface(S, S, (x, y, o) => {
+    const n = at(fine, x, y), m = at(fine, x * 3, y * 3), b = at(broad, x, y), pore = pores[y * S + x];
+    const stain = clamp01((b - .6) * 2.4), lichen = clamp01((.34 - b) * 3) * clamp01((m - .52) * 4);
+    const l = .83 + (n - .5) * .24 + (m - .5) * .07 - pore * .12 - lichen * .2;
+    set(o, clamp01(l * (1 - stain * .06)), clamp01(l * (.97 - stain * .12 + lichen * .02)), clamp01(l * (.91 - stain * .24 - lichen * .02)),
+      clamp01(n * .72 + m * .28 - pore * .45), clamp01(.8 + m * .18 + pore * .08));
+  }, [1, 1]);
+  await pause();
 
-    // 2. CAMERA
-    const width = this.container.clientWidth || 400;
-    const height = this.container.clientHeight || 500;
-    this.camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 50);
-    const initialConfig = this.routeConfigs[this.currentRoute];
-    this.camera.position.set(initialConfig.camX, initialConfig.camY, initialConfig.camZ);
-    this.camera.lookAt(0, initialConfig.lookAtY, 0);
+  // Dressed ashlar walls (2.5 m tile): irregular courses, chipped edges, shadowed dry joints.
+  // Warm Apulian limestone: cream, honey and pale grey, with one brightness factor per block (no hue drift).
+  // Phones get a 512 px wall tile (same layout, scaled) to halve the largest generation slice.
+  const W = compact ? 512 : 1024, q = W / 1024, courseRand = random(23), palette = [[.89, .84, .74], [.86, .8, .69], [.9, .87, .8], [.84, .8, .73], [.88, .81, .68], [.83, .78, .7]];
+  const rowOf = new Int16Array(W), rows: { y0: number; y1: number; x0: Int16Array; x1: Int16Array; block: Uint8Array; tint: number[][] }[] = [];
+  for (let y = 0; y < W;) {
+    const h = y > W - 160 * q ? W - y : Math.round((62 + Math.floor(courseRand() * 70)) * q), x0 = new Int16Array(W), x1 = new Int16Array(W), block = new Uint8Array(W), tint: number[][] = [];
+    for (let x = Math.floor(courseRand() * 120 * q), start = x; x < start + W;) {
+      const w = Math.min(Math.round((70 + Math.floor(courseRand() * 200)) * q), start + W - x), k = .9 + courseRand() * .14;
+      tint.push(palette[Math.floor(courseRand() * palette.length)].map(c => c * k));
+      // Unwrapped block span for every column it covers (blocks may cross the tile edge).
+      for (let i = x; i < x + w; i++) { x0[i % W] = x - (i >= W ? W : 0); x1[i % W] = x + w - (i >= W ? W : 0); block[i % W] = tint.length - 1; }
+      x += w;
+    }
+    const index = rows.length;
+    rows.push({ y0: y, y1: y + h, x0, x1, block, tint });
+    rowOf.fill(index, y, y + h); y += h;
+  }
+  const wall = surface(W, W, (x, y, o) => {
+    const row = rows[rowOf[y]], tint = row.tint[row.block[x]];
+    const X = x / q, Y = y / q, edge = (Math.min(x - row.x0[x], row.x1[x] - x, y - row.y0, row.y1 - y) + (at(fine, X * 2, Y * 2) - .5) * 16 * q) / q;
+    const n = at(fine, X, Y), m = at(fine, X * 3, Y * 3);
+    if (edge < 2.5) { const l = .5 + n * .14; set(o, l, l * .95, l * .88, 0, 1); return; } // shadowed dry joint
+    const b = at(broad, X >> 1, Y >> 1), c = at(broad, (X >> 1) + 200, (Y >> 1) + 90);
+    const bevel = smooth(clamp01(edge / 16)), pore = pores[(Y & 511) * S + (X & 511)];
+    const l = (.93 + (n - .5) * .3 + (m - .5) * .1 - pore * .22) * (.9 + bevel * .1);
+    const ochre = clamp01((b - .58) * 2.6) * .8, grey = clamp01((.36 - c) * 3) * .5;
+    set(o, clamp01(tint[0] * l * (1 - grey * .06)), clamp01(tint[1] * l * (1 - ochre * .1 - grey * .03)), clamp01(tint[2] * l * (1 - ochre * .26)),
+      clamp01(.3 + bevel * .5 + (n - .5) * .35 - pore * .3), clamp01(.82 + m * .16));
+  }, [1 / 2.5, 1 / 2.5]);
+  await pause();
 
-    // 3. RENDERER (Transparent background for seamless side column integration)
-    this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true,
-      powerPreference: 'high-performance',
-    });
-    this.renderer.setSize(width, height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.setClearColor(0x000000, 0); // 100% transparent
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.15;
+  // Coarse lime wash for the pinnacle, like the stippled finish in the estate photograph.
+  const lime = surface(256, 256, (x, y, o) => {
+    const n = at(fine, x * 2, y * 2), m = at(fine, x * 6, y * 6), pore = pores[(y * 2 & 511) * S + (x * 2 & 511)];
+    const l = .95 + (n - .5) * .06 - pore * .1;
+    set(o, l * .985, l * .975, l * .945, clamp01(m * .75 + n * .25 - pore * .5), .93);
+  }, [3, 2]);
+
+  // Warm chianche paving around the trullo (3 m tile), with per-row nearest-joint lookups.
+  const paveRand = random(41), paveOf = new Int16Array(S), pave: { y0: number; y1: number; joint: Float32Array; slab: Int16Array }[] = [];
+  for (let y = 0; y < S;) {
+    const h = y > S - 110 ? S - y : 60 + Math.floor(paveRand() * 50), cuts = [0];
+    for (let x = 0; x < S - 70;) { x += 50 + Math.floor(paveRand() * 110); cuts.push(Math.min(x, S)); }
+    const joint = new Float32Array(S), slab = new Int16Array(S);
+    for (let x = 0; x < S; x++) {
+      joint[x] = cuts.reduce((d, c) => Math.min(d, Math.abs(x - c), S - Math.abs(x - c)), S);
+      slab[x] = cuts.findIndex(c => c > x);
+    }
+    paveOf.fill(pave.length, y, y + h);
+    pave.push({ y0: y, y1: y + h, joint, slab }); y += h;
+  }
+  const ground = surface(S, S, (x, y, o) => {
+    const row = pave[paveOf[y]], joint = Math.min(row.joint[x], y - row.y0, row.y1 - y) + (at(fine, x * 2, y * 2) - .5) * 5;
+    if (joint < 2) { set(o, .74, .69, .61, .2, 1); return; }
+    const n = at(fine, x, y), b = at(broad, x, y), tone = .94 + ((row.y0 * 7 + row.slab[x] * 13) % 9) / 150;
+    const l = tone * (.86 + (n - .5) * .2) * (1 - clamp01((b - .6) * 2) * .08);
+    set(o, l * .98, l * .91, l * .8, .5 + n * .4, .9);
+  }, [1, 1]);
+
+  // Vertical oak planks for the door.
+  const wood = surface(128, 256, (x, y, o) => {
+    const plank = Math.floor(x / 32), gap = x % 32 < 2 ? .55 : 1, grain = Math.sin((x + at(fine, x * 3 + plank * 90, y) * 20) * .9) * .5 + .5;
+    const l = (.85 + plank % 2 * .08 + grain * .12) * gap;
+    set(o, .4 * l, .28 * l, .18 * l, gap < 1 ? 0 : .5 + grain * .3, .72);
+  }, [1, 1]);
+
+  return { stone, wall, lime, ground, wood };
+}
+
+// Rounded rectangle centred at the origin.
+function roundedRect<T extends THREE.Path>(half: number, radius: number, shape: T): T {
+  const e = half - radius;
+  shape.moveTo(-e, -half); shape.lineTo(e, -half); shape.absarc(e, -e, radius, -Math.PI / 2, 0, false);
+  shape.lineTo(half, e); shape.absarc(e, e, radius, 0, Math.PI / 2, false);
+  shape.lineTo(-e, half); shape.absarc(-e, e, radius, Math.PI / 2, Math.PI, false);
+  shape.lineTo(-half, -e); shape.absarc(-e, -e, radius, Math.PI, Math.PI * 1.5, false);
+  return shape;
+}
+// Arched stone surround as one U-shaped contour (outer arch, then inner arch in reverse).
+function archRing(outer: number, inner: number, jamb: number) {
+  const R = outer / 2, r = inner / 2, shape = new THREE.Shape();
+  shape.moveTo(-R, 0); shape.lineTo(-r, 0); shape.lineTo(-r, jamb); shape.absarc(0, jamb, r, Math.PI, 0, true);
+  shape.lineTo(r, 0); shape.lineTo(R, 0); shape.lineTo(R, jamb); shape.absarc(0, jamb, R, 0, Math.PI, false); shape.lineTo(-R, 0);
+  return shape;
+}
+// Round-arched opening: straight jambs then a semicircle.
+function arch<T extends THREE.Path>(width: number, jamb: number, shape: T): T {
+  const r = width / 2;
+  shape.moveTo(-r, 0); shape.lineTo(r, 0); shape.lineTo(r, jamb); shape.absarc(0, jamb, r, 0, Math.PI, false); shape.lineTo(-r, 0);
+  return shape;
+}
+
+// Irregular chiancarella: a rounded slab with chipped, noise-displaced faces.
+function slab(seed: number) {
+  const rand = random(seed), size = new THREE.Vector3(.27, .066, .3), round = .016;
+  const geometry = new THREE.BoxGeometry(size.x, size.y, size.z, 5, 2, 4);
+  const p = geometry.attributes.position, v = new THREE.Vector3(), inner = size.clone().multiplyScalar(.5).subScalar(round);
+  const phase = [rand() * 9, rand() * 9, rand() * 9];
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    const c = v.clone().clamp(inner.clone().negate(), inner), n = v.clone().sub(c).normalize();
+    const chip = .006 * Math.sin(v.x * 43 + phase[0]) * Math.cos(v.z * 37 + phase[1]) + .004 * Math.sin(v.y * 90 + v.x * 20 + phase[2]);
+    v.copy(c).addScaledVector(n, round + chip);
+    if (v.z > 0) v.y += (rand() - .5) * .01; // uneven exposed edge
+    p.setXYZ(i, v.x, v.y, v.z);
+  }
+  // Box-projected UVs in metres with a random offset, so neighbouring slabs never repeat.
+  geometry.computeVertexNormals();
+  const normal = geometry.attributes.normal, uv = geometry.attributes.uv, ou = rand(), ov = rand();
+  for (let i = 0; i < p.count; i++) {
+    const nx = Math.abs(normal.getX(i)), ny = Math.abs(normal.getY(i)), nz = Math.abs(normal.getZ(i));
+    const [a, b] = nz >= nx && nz >= ny ? [p.getX(i), p.getY(i)] : nx >= ny ? [p.getZ(i), p.getY(i)] : [p.getX(i), p.getZ(i)];
+    uv.setXY(i, a + ou, b + ov);
+  }
+  return geometry;
+}
+
+const WALL = 1.35, HALF = 1.9, CORNICE = .085, CONE_BASE = WALL + CORNICE, COURSE = .068, COURSES = 34, R0 = 1.7, R_TOP = .2;
+const CONE_TOP = CONE_BASE + COURSES * COURSE;
+const coneRadius = (t: number) => R_TOP + (R0 - R_TOP) * Math.pow(1 - t, .8); // slightly ogival, as built
+const VIEWS: Record<DetailType, [number, number]> = {
+  overview: [2.15, 12.5], sphere: [CONE_TOP + .72, 2.2], chalice: [CONE_TOP + .42, 2.9], stones: [CONE_BASE + .9, 4.4],
+};
+
+export class PinnacleScene {
+  private scene = new THREE.Scene();
+  private camera = new THREE.PerspectiveCamera(34, 1, .1, 60);
+  private renderer: THREE.WebGLRenderer;
+  private model = new THREE.Group();
+  private target = new THREE.Vector3(0, VIEWS.overview[0], 0);
+  private desiredTarget = this.target.clone();
+  private distance = VIEWS.overview[1];
+  private desiredDistance = VIEWS.overview[1];
+  private yaw = .42;
+  private pitch = .15;
+  private velocity = 0;
+  private pointer: { id: number; x: number; y: number; t: number } | null = null;
+  private lastInteraction = 0;
+  private raf = 0;
+  private lastFrame = 0;
+  private visible = false;
+  private disposed = false;
+  private built = false;
+  private motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  private compact = window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
+  private resize: ResizeObserver;
+  private container: HTMLElement;
+  private onError: () => void;
+  private sun = new THREE.DirectionalLight('#fff0da', 3.5);
+  readonly ready: Promise<void>;
+
+  constructor({ container, onError }: { container: HTMLElement; onError: () => void }) {
+    this.container = container;
+    this.onError = onError;
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, this.compact ? 1.5 : 1.75));
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.NeutralToneMapping;
+    this.renderer.toneMappingExposure = .95;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    this.container.appendChild(this.renderer.domElement);
-
-    // 4. GROUP FOR PINNACLE & CONE
-    this.pinnacleGroup = new THREE.Group();
-    this.scene.add(this.pinnacleGroup);
-
-    // 5. BUILD PINNACLE & LIGHTS
-    this.setupLights();
-    this.setupDustParticles();
-    this.buildSculpturalPinnacle();
-
-    // 6. EVENT LISTENERS
-    this.setupEventListeners();
-
-    // 7. START LOOP
-    this.animate = this.animate.bind(this);
-    this.animate();
-  }
-
-  /**
-   * Warm grazing sunlight setup (Luce radente calda)
-   */
-  private setupLights() {
-    // Soft warm ambient illumination for dark gallery
-    this.ambientLight = new THREE.AmbientLight(0xffedd8, 1.15);
-    this.scene.add(this.ambientLight);
-
-    // Main grazing directional warm spotlight
-    this.sunLight = new THREE.DirectionalLight(0xffeedb, 3.8);
-    this.sunLight.position.set(4.2, 4.5, 3.5);
-    this.sunLight.castShadow = true;
-    this.sunLight.shadow.mapSize.width = 1024;
-    this.sunLight.shadow.mapSize.height = 1024;
-    this.sunLight.shadow.bias = -0.0003;
-    this.scene.add(this.sunLight);
-
-    // Warm subtle fill light from opposite angle
-    this.skyLight = new THREE.DirectionalLight(0xedd9c2, 1.2);
-    this.skyLight.position.set(-3.5, 0.5, 2.0);
-    this.scene.add(this.skyLight);
-
-    // Rim / contour light from behind-left to trace the stone silhouette against dark background
-    const rimLight = new THREE.DirectionalLight(0xd4af80, 2.2);
-    rimLight.position.set(-3.0, 3.0, -3.5);
-    this.scene.add(rimLight);
-
-    // Courtyard stone warm bounce light from below
-    const groundBounce = new THREE.PointLight(0xb8926a, 1.2, 10);
-    groundBounce.position.set(0, -2.5, 2.0);
-    this.scene.add(groundBounce);
-  }
-
-  /**
-   * Floating Golden Summer Sun Motes / Atmospheric Micro-Dust
-   */
-  private setupDustParticles() {
-    const particleCount = 160;
-    this.particlePositions = new Float32Array(particleCount * 3);
-
-    for (let i = 0; i < particleCount; i++) {
-      const i3 = i * 3;
-      const radius = 0.5 + Math.random() * 2.2;
-      const angle = Math.random() * Math.PI * 2;
-      this.particlePositions[i3] = Math.cos(angle) * radius;
-      this.particlePositions[i3 + 1] = -1.3 + Math.random() * 3.4;
-      this.particlePositions[i3 + 2] = Math.sin(angle) * radius;
-    }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(this.particlePositions, 3));
-
-    // Circular soft glowing particle canvas texture
-    const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 64;
-    const ctx = canvas.getContext('2d')!;
-    const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    grad.addColorStop(0, 'rgba(255, 238, 205, 1)');
-    grad.addColorStop(0.25, 'rgba(235, 195, 130, 0.7)');
-    grad.addColorStop(0.65, 'rgba(185, 140, 80, 0.15)');
-    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 64, 64);
-
-    const texture = new THREE.CanvasTexture(canvas);
-
-    const material = new THREE.PointsMaterial({
-      size: 0.045,
-      map: texture,
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      color: 0xffe1b0,
-      opacity: 0.8,
-    });
-
-    this.particles = new THREE.Points(geometry, material);
-    this.scene.add(this.particles);
-  }
-
-  /**
-   * Procedural Limestone Texture for Carved Pinnacle (Smooth limestone)
-   */
-  private createPinnacleLimestoneMaterial(): THREE.MeshStandardMaterial {
-    const size = 1024;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d')!;
-
-    // Warm sun-bleached limestone tone (Pietra di Ostuni / Ceglie)
-    ctx.fillStyle = '#E5DDD0';
-    ctx.fillRect(0, 0, size, size);
-
-    // Calcarenite grains & micro-pores
-    for (let i = 0; i < 30000; i++) {
-      const x = Math.random() * size;
-      const y = Math.random() * size;
-      const radius = Math.random() * 1.5 + 0.3;
-      const shade = Math.random();
-
-      if (shade > 0.6) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)'; // Calcite crystal sparkles
-      } else if (shade > 0.3) {
-        ctx.fillStyle = 'rgba(195, 185, 170, 0.25)'; // Warm sandy grain
-      } else {
-        ctx.fillStyle = 'rgba(140, 130, 115, 0.18)'; // Micro fossil pores
-      }
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Hand-chisel soft marks
-    for (let y = 0; y < size; y += 8) {
-      if (Math.random() > 0.3) {
-        ctx.strokeStyle = `rgba(160, 150, 135, ${Math.random() * 0.08})`;
-        ctx.lineWidth = Math.random() * 2 + 0.5;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(size, y + (Math.random() - 0.5) * 6);
-        ctx.stroke();
-      }
-    }
-
-    const diffTexture = new THREE.CanvasTexture(canvas);
-    diffTexture.wrapS = THREE.RepeatWrapping;
-    diffTexture.wrapT = THREE.RepeatWrapping;
-
-    // Bump Map
-    const bumpCanvas = document.createElement('canvas');
-    bumpCanvas.width = size;
-    bumpCanvas.height = size;
-    const bCtx = bumpCanvas.getContext('2d')!;
-    bCtx.fillStyle = '#808080';
-    bCtx.fillRect(0, 0, size, size);
-
-    for (let i = 0; i < 25000; i++) {
-      const x = Math.random() * size;
-      const y = Math.random() * size;
-      const isPit = Math.random() > 0.5;
-      bCtx.fillStyle = isPit ? 'rgba(0, 0, 0, 0.35)' : 'rgba(255, 255, 255, 0.35)';
-      bCtx.beginPath();
-      bCtx.arc(x, y, Math.random() * 2 + 0.5, 0, Math.PI * 2);
-      bCtx.fill();
-    }
-
-    const bumpTexture = new THREE.CanvasTexture(bumpCanvas);
-    bumpTexture.wrapS = THREE.RepeatWrapping;
-    bumpTexture.wrapT = THREE.RepeatWrapping;
-
-    return new THREE.MeshStandardMaterial({
-      map: diffTexture,
-      bumpMap: bumpTexture,
-      bumpScale: 0.06,
-      roughness: 0.94, // Completely matte & tactile
-      metalness: 0.0,
-      color: 0xeee7dc,
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
+    // Only the camera moves: render the shadow map once instead of every frame.
+    this.renderer.shadowMap.autoUpdate = false;
+    this.renderer.shadowMap.needsUpdate = true;
+    this.renderer.domElement.style.cssText = 'width:100%;height:100%;display:block;touch-action:pan-y';
+    this.renderer.domElement.setAttribute('aria-hidden', 'true');
+    this.resize = new ResizeObserver(this.fit);
+    // The canvas joins the page only once textures are generated and shaders compiled.
+    this.ready = this.build().then(() => {
+      if (this.disposed) return;
+      this.built = true;
+      const canvas = this.renderer.domElement;
+      container.appendChild(canvas);
+      canvas.addEventListener('pointerdown', this.down);
+      canvas.addEventListener('pointermove', this.move);
+      canvas.addEventListener('pointerup', this.up);
+      canvas.addEventListener('pointercancel', this.up);
+      canvas.addEventListener('webglcontextlost', this.contextLost);
+      document.addEventListener('visibilitychange', this.sync);
+      this.motion.addEventListener('change', this.sync);
+      this.resize.observe(container);
+      this.fit();
     });
   }
 
-  /**
-   * Procedural Stacked Stone Blocks Texture (2048x2048)
-   * Authentic warm Apulian limestone chiancarelle palette with feathered apex whitewash
-   */
-  private createSmoothStackedStoneMaterial(): THREE.MeshStandardMaterial {
-    const size = 2048;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d')!;
-
-    // Base warm weathered mortar tone
-    ctx.fillStyle = '#423B33';
-    ctx.fillRect(0, 0, size, size);
-
-    const bumpCanvas = document.createElement('canvas');
-    bumpCanvas.width = size;
-    bumpCanvas.height = size;
-    const bCtx = bumpCanvas.getContext('2d')!;
-    bCtx.fillStyle = '#22201D';
-    bCtx.fillRect(0, 0, size, size);
-
-    // 24 horizontal stone courses matching the 3D physical steps
-    const courseCount = 24;
-    const courseHeight = size / courseCount;
-
-    // Authentic Apulian limestone palette (warm sand, ivory, calcarenite, subtle sun patina)
-    const blockPalette = [
-      '#C8BFB2', // Warm sun-bleached calcarenite
-      '#BDAFA1', // Natural aged limestone
-      '#D5CCC0', // Pale ivory limestone
-      '#AEA496', // Warm weathered stone shade
-      '#CDC4B8', // Authentic dry-stone cream
-      '#9E9385', // Deeper stone grain
-      '#DDD5CA', // Sun-lit limestone highlight
-      '#C2B8AA', // Golden calcarenite
-      '#E6DFD4', // Soft whitewashed limestone
-    ];
-
-    for (let c = 0; c < courseCount; c++) {
-      const yStart = c * courseHeight;
-      const yEnd = yStart + courseHeight;
-      const blockH = courseHeight - 3; // 3px dark shadow seam between courses
-
-      // Courses staggered in organic running bond
-      const blocksInCourse = 36;
-      const avgBlockW = size / blocksInCourse;
-      const xOffset = (c % 2) * (avgBlockW * 0.5) + ((c * 19) % 37);
-
-      for (let b = -1; b < blocksInCourse + 2; b++) {
-        const jitterW = Math.sin(c * 7.1 + b * 13.3) * 7;
-        const blockW = avgBlockW + jitterW;
-        const blockX = b * avgBlockW + xOffset;
-        const blockY = yStart + 1.5;
-
-        // Choose organic stone color
-        const colorIdx = Math.floor(Math.abs(Math.sin(c * 5.3 + b * 7.1)) * blockPalette.length) % blockPalette.length;
-        const baseColor = blockPalette[colorIdx];
-
-        // Draw flat stone face
-        ctx.fillStyle = baseColor;
-        ctx.fillRect(blockX + 1.5, blockY, blockW - 3, blockH);
-
-        // Bump map: Stone face is elevated
-        bCtx.fillStyle = '#C8C8C8';
-        bCtx.fillRect(blockX + 1.5, blockY, blockW - 3, blockH);
-
-        // Top edge catching sunlight
-        const topHighlight = ctx.createLinearGradient(0, blockY, 0, blockY + blockH);
-        topHighlight.addColorStop(0, 'rgba(255, 255, 255, 0.22)');
-        topHighlight.addColorStop(0.35, 'rgba(255, 255, 255, 0.04)');
-        topHighlight.addColorStop(1, 'rgba(0, 0, 0, 0.18)');
-        ctx.fillStyle = topHighlight;
-        ctx.fillRect(blockX + 1.5, blockY, blockW - 3, blockH);
-
-        // Bump map bevel on stone top/bottom
-        const bGrad = bCtx.createLinearGradient(0, blockY, 0, blockY + blockH);
-        bGrad.addColorStop(0, '#EEEEEE');
-        bGrad.addColorStop(0.3, '#C0C0C0');
-        bGrad.addColorStop(1, '#656565');
-        bCtx.fillStyle = bGrad;
-        bCtx.fillRect(blockX + 1.5, blockY, blockW - 3, blockH);
-
-        // Micro stone surface noise (pitted calcarenite texture)
-        for (let p = 0; p < 28; p++) {
-          const px = blockX + Math.random() * blockW;
-          const py = blockY + Math.random() * blockH;
-          const pr = Math.random() * 1.5 + 0.4;
-          ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)';
-          ctx.beginPath();
-          ctx.arc(px, py, pr, 0, Math.PI * 2);
-          ctx.fill();
-
-          bCtx.fillStyle = Math.random() > 0.5 ? '#DCDCDC' : '#2A2A2A';
-          bCtx.beginPath();
-          bCtx.arc(px, py, pr, 0, Math.PI * 2);
-          bCtx.fill();
-        }
-
-        // Traditional white lime wash on top 4 courses near the apex
-        if (c >= courseCount - 4) {
-          const limeFactor = (c - (courseCount - 5)) / 4;
-          ctx.fillStyle = `rgba(248, 246, 241, ${0.4 + limeFactor * 0.52})`;
-          ctx.fillRect(blockX + 1.5, blockY, blockW - 3, blockH);
-        }
-      }
-
-      // Dark horizontal joint line under each course
-      ctx.fillStyle = '#2B2620';
-      ctx.fillRect(0, yEnd - 2.5, size, 2.5);
-      bCtx.fillStyle = '#050505';
-      bCtx.fillRect(0, yEnd - 3, size, 3);
+  private environment() {
+    // Soft Apulian sky: blue zenith, hazy warm horizon, sunlit paving bounce.
+    const pmrem = new THREE.PMREMGenerator(this.renderer), env = new THREE.Scene();
+    const geometry = new THREE.SphereGeometry(10, 32, 16), colors: number[] = [], color = new THREE.Color();
+    const zenith = new THREE.Color('#9dbfdc'), horizon = new THREE.Color('#f1e9dc'), ground = new THREE.Color('#b8a58a');
+    for (let i = 0; i < geometry.attributes.position.count; i++) {
+      const y = geometry.attributes.position.getY(i) / 10;
+      color.copy(horizon).lerp(y > 0 ? zenith : ground, Math.pow(Math.abs(y), y > 0 ? .7 : .4));
+      colors.push(color.r, color.g, color.b);
     }
-
-    const diffTexture = new THREE.CanvasTexture(canvas);
-    diffTexture.wrapS = THREE.RepeatWrapping;
-    diffTexture.wrapT = THREE.RepeatWrapping;
-
-    const bumpTexture = new THREE.CanvasTexture(bumpCanvas);
-    bumpTexture.wrapS = THREE.RepeatWrapping;
-    bumpTexture.wrapT = THREE.RepeatWrapping;
-
-    return new THREE.MeshStandardMaterial({
-      map: diffTexture,
-      bumpMap: bumpTexture,
-      bumpScale: 0.065, // Tactile stone relief
-      roughness: 0.95, // Truly matte dry stone
-      metalness: 0.0,
-      color: 0xf2ece4,
-    });
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    const material = new THREE.MeshBasicMaterial({ side: THREE.BackSide, vertexColors: true });
+    const sky = new THREE.Mesh(geometry, material), sunDisc = new THREE.Mesh(new THREE.SphereGeometry(.9, 12, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(9, 8.2, 7) }));
+    sunDisc.position.copy(this.sun.position).normalize().multiplyScalar(8.5);
+    env.add(sky, sunDisc);
+    const texture = pmrem.fromScene(env, .035).texture;
+    pmrem.dispose(); geometry.dispose(); material.dispose(); sunDisc.geometry.dispose(); (sunDisc.material as THREE.Material).dispose();
+    return texture;
   }
 
-  /**
-   * Build Sculptural Pinnacle & Stepped Stone Trullo Cone
-   */
-  private buildSculpturalPinnacle() {
-    const pinnacleMaterial = this.createPinnacleLimestoneMaterial();
-    const stoneConeMaterial = this.createSmoothStackedStoneMaterial();
+  private async build() {
+    const pause = () => new Promise<void>(resolve => setTimeout(resolve, 0));
+    const t = await textures(pause, this.compact), rand = random(7);
+    if (this.disposed) return;
+    this.sun.position.set(-5.5, 7.5, 6.5);
+    this.sun.target.position.set(0, 1.4, 0);
+    this.sun.castShadow = true;
+    this.sun.shadow.mapSize.setScalar(this.compact ? 1024 : 2048);
+    Object.assign(this.sun.shadow.camera, { left: -4.2, right: 4.2, top: 4.6, bottom: -3.6, near: 3, far: 22 });
+    this.sun.shadow.normalBias = .02;
+    this.sun.shadow.bias = -.0004;
+    this.sun.shadow.radius = 3;
+    await pause();
+    if (this.disposed) return;
+    this.scene.environment = this.environment();
+    this.scene.environmentIntensity = .62;
+    this.scene.add(this.sun, this.sun.target, this.model, new THREE.HemisphereLight('#dfe9f2', '#a08c70', .35));
 
-    // =========================================================================
-    // 1. STEPPED CHIANCARELLE CONE (Muratura a secco a gradoni sovrapposti)
-    // Modeled with LatheGeometry to give real 3D physical steps and shadow relief
-    // =========================================================================
-    const baseRadius = 1.48;
-    const topRadius = 0.28;
-    const startY = -1.22;
-    const topY = 0.78;
-    const totalHeight = topY - startY; // 2.0
-    const courseCount = 24;
-    const courseHeight = totalHeight / courseCount;
+    const material = (maps: { map: THREE.Texture; detail: THREE.Texture }, bumpScale: number, extra: THREE.MeshStandardMaterialParameters = {}) =>
+      new THREE.MeshStandardMaterial({ map: maps.map, bumpMap: maps.detail, roughnessMap: maps.detail, bumpScale, roughness: 1, metalness: 0, ...extra });
+    const stone = material(t.stone, 1.4);
+    const wall = material(t.wall, 2.2, { vertexColors: true });
+    const cornice = material(t.stone, 1.2, { color: '#e6dfd2' });
+    const lime = material(t.lime, 2.6);
+    const wood = material(t.wood, .8);
+    const add = (geometry: THREE.BufferGeometry, mat: THREE.Material | THREE.Material[], position: [number, number, number] = [0, 0, 0], parent: THREE.Object3D = this.model) => {
+      const mesh = new THREE.Mesh(geometry, mat);
+      mesh.position.set(...position);
+      mesh.castShadow = mesh.receiveShadow = true;
+      parent.add(mesh);
+      return mesh;
+    };
 
-    const points: THREE.Vector2[] = [];
+    // Square base with softened corners and a slight batter; darker where it meets ground and cornice.
+    const walls = new THREE.ExtrudeGeometry(roundedRect(HALF, .42, new THREE.Shape()), { depth: WALL, bevelEnabled: false, steps: 14, curveSegments: 8 });
+    walls.rotateX(-Math.PI / 2);
+    const wp = walls.attributes.position, occlusion: number[] = [];
+    for (let i = 0; i < wp.count; i++) {
+      const y = wp.getY(i), batter = 1 - .026 * y / WALL;
+      wp.setXYZ(i, wp.getX(i) * batter, y, wp.getZ(i) * batter);
+      const ao = 1 - .3 * (1 - smooth(clamp01(y / .32))) - .22 * smooth(clamp01((y - WALL + .16) / .16));
+      occlusion.push(ao, ao, ao);
+    }
+    walls.setAttribute('color', new THREE.Float32BufferAttribute(occlusion, 3));
+    walls.computeVertexNormals();
+    add(walls, wall);
 
-    // Bottom seal
-    points.push(new THREE.Vector2(0, startY));
-    points.push(new THREE.Vector2(baseRadius + 0.04, startY));
+    // Projecting cornice slab (gronda) on which the cone springs.
+    const ledge = new THREE.ExtrudeGeometry(roundedRect(HALF + .07, .5, new THREE.Shape()), { depth: CORNICE - .02, bevelEnabled: true, bevelSize: .012, bevelThickness: .01, bevelSegments: 2, curveSegments: 10 });
+    ledge.rotateX(-Math.PI / 2);
+    add(ledge, cornice, [0, WALL + .01, 0]);
 
-    // Generate authentic stepped courses
-    for (let c = 0; c < courseCount; c++) {
-      const t0 = c / courseCount;
-      const t1 = (c + 1) / courseCount;
-      const y0 = startY + c * courseHeight;
-      const y1 = startY + (c + 1) * courseHeight;
+    // Openings sit on the battered wall face: groups are tilted by the batter angle.
+    const batter = Math.atan(.026 * HALF / WALL);
+    const onWall = (side: number, y: number, along = 0) => {
+      const group = new THREE.Group();
+      group.rotation.set(-batter, side, 0, 'YXZ');
+      group.position.set(Math.sin(side) * HALF + Math.cos(side) * along, y, Math.cos(side) * HALF - Math.sin(side) * along);
+      this.model.add(group);
+      return group;
+    };
+    const plainWall = wall.clone();
+    plainWall.vertexColors = false;
+    const gableTop = material(t.stone, 1.4, { color: '#cdc5b8' });
 
-      // Gentle bell curve entasis of traditional Apulian trullo cone
-      const r0 = topRadius + (baseRadius - topRadius) * Math.pow(1 - t0, 1.05);
-      const r1 = topRadius + (baseRadius - topRadius) * Math.pow(1 - t1, 1.05);
-
-      // Overhang of the stone slab ledge (catching physical grazing shadows)
-      const overhang = 0.020 * (1 - t0 * 0.45);
-
-      // Point 1: Overhanging lower rim of the chiancarella slab
-      points.push(new THREE.Vector2(r0 + overhang, y0));
-      // Point 2: Sloped outer face of the stone slab
-      points.push(new THREE.Vector2(r0 + overhang * 0.35, y0 + courseHeight * 0.75));
-      // Point 3: Step inward where this stone slab meets the course above
-      points.push(new THREE.Vector2(r1, y1));
+    // Entrance: arched stone surround, dark reveal, oak door, threshold and the triangular pediment (timpano) above.
+    const entrance = onWall(0, 0);
+    add(new THREE.ExtrudeGeometry(archRing(.86, .6, .74), { depth: .07, bevelEnabled: true, bevelSize: .012, bevelThickness: .012, bevelSegments: 2, curveSegments: 20 }), cornice, [0, 0, -.005], entrance);
+    add(new THREE.BoxGeometry(.13, .12, .1), cornice, [0, 1.15, .04], entrance); // keystone
+    add(new THREE.ExtrudeGeometry(arch(.6, .74, new THREE.Shape()), { depth: .01, bevelEnabled: false, curveSegments: 20 }), new THREE.MeshStandardMaterial({ color: '#2a2521', roughness: 1 }), [0, 0, -.004], entrance);
+    t.wood.map.repeat.set(1 / .6, 1 / 1.05); t.wood.map.offset.set(.5, 0);
+    t.wood.detail.repeat.copy(t.wood.map.repeat); t.wood.detail.offset.copy(t.wood.map.offset);
+    add(new THREE.ExtrudeGeometry(arch(.56, .72, new THREE.Shape()), { depth: .018, bevelEnabled: false, curveSegments: 20 }), wood, [0, .01, 0], entrance);
+    add(new THREE.BoxGeometry(.92, .06, .26), cornice, [0, .03, .1], entrance);
+    const pediment = new THREE.Shape();
+    pediment.moveTo(-.72, 0); pediment.lineTo(.72, 0); pediment.lineTo(0, .78); pediment.lineTo(-.72, 0);
+    const front = HALF + .05;
+    add(new THREE.ExtrudeGeometry(pediment, { depth: 1.1, bevelEnabled: false }), [plainWall, gableTop], [0, CONE_BASE - .01, front - 1.1]);
+    for (const side of [-1, 1]) {
+      const coping = add(new THREE.BoxGeometry(1.08, .045, .12), cornice, [side * .36, CONE_BASE + .405, front - .05]);
+      coping.rotation.z = -side * Math.atan2(.78, .72);
     }
 
-    // Top seal point under apex cap
-    points.push(new THREE.Vector2(topRadius, topY));
+    // Small square window on the east wall.
+    const windowFrame = new THREE.Shape();
+    roundedRect(.25, .02, windowFrame);
+    windowFrame.holes.push(roundedRect(.17, .01, new THREE.Path()));
+    const opening = onWall(Math.PI / 2, .82, .35);
+    add(new THREE.ExtrudeGeometry(windowFrame, { depth: .06, bevelEnabled: true, bevelSize: .01, bevelThickness: .01, bevelSegments: 1 }), cornice, [0, 0, -.005], opening);
+    add(new THREE.BoxGeometry(.34, .34, .02), wood, [0, 0, 0], opening);
 
-    const coneGeo = new THREE.LatheGeometry(points, 64);
-    coneGeo.computeVertexNormals();
-
-    const coneMesh = new THREE.Mesh(coneGeo, stoneConeMaterial);
-    coneMesh.castShadow = true;
-    coneMesh.receiveShadow = true;
-    this.pinnacleGroup.add(coneMesh);
-
-    // =========================================================================
-    // 2. APEX MORTAR CAP (Calotta Sommitale in Malta a Calce Sbiancata)
-    // Smooth lime mortar capping the apex of the cone, exactly as in Photo 3
-    // =========================================================================
-    const mortarMaterial = pinnacleMaterial.clone();
-    mortarMaterial.color = new THREE.Color(0xf3ede3);
-    mortarMaterial.bumpScale = 0.035;
-    mortarMaterial.roughness = 0.95;
-
-    const capBottomR = topRadius * 1.025;
-    const capTopR = 0.138;
-    const capHeight = 0.32;
-    const capY = topY + capHeight / 2 - 0.01;
-
-    const capGeo = new THREE.CylinderGeometry(capTopR, capBottomR, capHeight, 64);
-    const capMesh = new THREE.Mesh(capGeo, mortarMaterial);
-    capMesh.position.y = capY;
-    capMesh.castShadow = true;
-    capMesh.receiveShadow = true;
-    this.pinnacleGroup.add(capMesh);
-
-    // =========================================================================
-    // 3. THE SCULPTED LIMESTONE PINNACLE (Directly faithful to pinnacolo.jpg)
-    // Structure: Plinth Collar -> Flared Chalice -> Cylindrical Neck -> SPHERE (TOP)
-    // STRICTLY NO TRIANGLE OR CUSP ON TOP!
-    // =========================================================================
-
-    // A. Plinth Base Collar (Basamento a collare)
-    const plinthY = capY + capHeight / 2 + 0.035;
-    const plinthGeo = new THREE.CylinderGeometry(0.128, 0.152, 0.08, 64);
-    const plinthMesh = new THREE.Mesh(plinthGeo, pinnacleMaterial);
-    plinthMesh.position.y = plinthY;
-    plinthMesh.castShadow = true;
-    plinthMesh.receiveShadow = true;
-    this.pinnacleGroup.add(plinthMesh);
-
-    // Subtle stone molding ring at the plinth base
-    const plinthRingGeo = new THREE.TorusGeometry(0.142, 0.015, 16, 64);
-    plinthRingGeo.rotateX(Math.PI / 2);
-    const plinthRing = new THREE.Mesh(plinthRingGeo, pinnacleMaterial);
-    plinthRing.position.y = plinthY - 0.02;
-    this.pinnacleGroup.add(plinthRing);
-
-    // B. Flared Chalice / Goblet Pedestal (Il Calice / Tronco di cono svasato)
-    const chaliceHeight = 0.30;
-    const chaliceBottomR = 0.086;
-    const chaliceTopR = 0.180;
-    const chaliceY = plinthY + 0.04 + chaliceHeight / 2;
-
-    const chaliceGeo = new THREE.CylinderGeometry(chaliceTopR, chaliceBottomR, chaliceHeight, 64);
-    const chaliceMesh = new THREE.Mesh(chaliceGeo, pinnacleMaterial);
-    chaliceMesh.position.y = chaliceY;
-    chaliceMesh.castShadow = true;
-    chaliceMesh.receiveShadow = true;
-    this.pinnacleGroup.add(chaliceMesh);
-
-    // Soft rounded lip on the upper rim of the chalice
-    const chaliceRimGeo = new THREE.TorusGeometry(chaliceTopR * 0.98, 0.016, 16, 64);
-    chaliceRimGeo.rotateX(Math.PI / 2);
-    const chaliceRim = new THREE.Mesh(chaliceRimGeo, pinnacleMaterial);
-    chaliceRim.position.y = chaliceY + chaliceHeight / 2;
-    this.pinnacleGroup.add(chaliceRim);
-
-    // C. Slender Stone Neck (Colletto cilindrico di raccordo)
-    const neckHeight = 0.12;
-    const neckR = 0.076;
-    const neckY = chaliceY + chaliceHeight / 2 + neckHeight / 2;
-
-    const neckGeo = new THREE.CylinderGeometry(neckR, neckR, neckHeight, 64);
-    const neckMesh = new THREE.Mesh(neckGeo, pinnacleMaterial);
-    neckMesh.position.y = neckY;
-    neckMesh.castShadow = true;
-    neckMesh.receiveShadow = true;
-    this.pinnacleGroup.add(neckMesh);
-
-    // D. THE ICONIC CROWNING LIMESTONE SPHERE (La Palla Lapidea del Trullo)
-    // Ovoid / egg-shaped limestone ball faithful to the authentic Trullo dei Messapi photo
-    const sphereRadius = 0.245;
-    const sphereY = neckY + neckHeight / 2 + sphereRadius * 0.92;
-
-    const sphereGeo = new THREE.SphereGeometry(sphereRadius, 64, 64);
-    const sphereMesh = new THREE.Mesh(sphereGeo, pinnacleMaterial);
-    sphereMesh.position.y = sphereY;
-    // Ovoid ratio matching authentic Apulian spherical pinnacle in photo 3
-    sphereMesh.scale.set(0.98, 1.06, 0.98);
-    sphereMesh.castShadow = true;
-    sphereMesh.receiveShadow = true;
-    this.pinnacleGroup.add(sphereMesh);
-
-    // Center whole sculpture harmoniously in viewport
-    this.pinnacleGroup.position.y = -0.22;
-  }
-
-  /**
-   * Ultra-Fluid Multi-Angle Interaction System
-   * - Drag / Swipe: Full 360-degree rotation horizontally + broad vertical tilt (-38 deg to +26 deg)
-   * - Inertial Momentum Gliding: smooth physical deceleration when released
-   * - Responsive Hover Tilt: wide angular freedom when moving mouse near canvas
-   */
-  private setupEventListeners() {
-    // --- POINTER / MOUSE DRAG ---
-    const onPointerDown = (clientX: number, clientY: number) => {
-      this.isDragging = true;
-      this.previousPointer.x = clientX;
-      this.previousPointer.y = clientY;
-      this.dragVelocity.x = 0;
-      this.dragVelocity.y = 0;
-    };
-
-    const onPointerMove = (clientX: number, clientY: number) => {
-      if (this.isDragging) {
-        const deltaX = clientX - this.previousPointer.x;
-        const deltaY = clientY - this.previousPointer.y;
-
-        const rotSpeedX = 0.0075;
-        const rotSpeedY = 0.0055;
-
-        this.userRotationY += deltaX * rotSpeedX;
-        this.userRotationX = THREE.MathUtils.clamp(
-          this.userRotationX + deltaY * rotSpeedY,
-          -0.65, // Look down at cone (~ -38 deg)
-          0.45   // Look up at pinnacle sphere (~ +26 deg)
-        );
-
-        this.dragVelocity.x = deltaX * rotSpeedX;
-        this.dragVelocity.y = deltaY * rotSpeedY;
-
-        this.previousPointer.x = clientX;
-        this.previousPointer.y = clientY;
-      }
-
-      // Track hover coordinates relative to container
-      const rect = this.container.getBoundingClientRect();
-      const buffer = 180;
-      const isInsideOrNear =
-        clientX >= rect.left - buffer &&
-        clientX <= rect.right + buffer &&
-        clientY >= rect.top - buffer &&
-        clientY <= rect.bottom + buffer;
-
-      if (isInsideOrNear) {
-        this.isHovered = true;
-        const relX = (clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
-        const relY = (clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
-        this.targetMouse.x = THREE.MathUtils.clamp(relX, -1.5, 1.5);
-        this.targetMouse.y = THREE.MathUtils.clamp(relY, -1.5, 1.5);
-      } else {
-        this.isHovered = false;
-        this.targetMouse.x = 0;
-        this.targetMouse.y = 0;
-      }
-    };
-
-    const onPointerUp = () => {
-      this.isDragging = false;
-    };
-
-    // DOM Event Listeners for Mouse
-    const handleMouseDown = (e: MouseEvent) => {
-      e.preventDefault();
-      onPointerDown(e.clientX, e.clientY);
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      onPointerMove(e.clientX, e.clientY);
-    };
-
-    const handleMouseUp = () => {
-      onPointerUp();
-    };
-
-    // DOM Event Listeners for Touch (Mobile / Tablet)
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    };
-
-    const handleTouchEnd = () => {
-      onPointerUp();
-    };
-
-    this.container.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('mouseup', handleMouseUp);
-
-    this.container.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd);
-
-    const handleResize = () => {
-      if (this.isDisposed || !this.container) return;
-      const width = this.container.clientWidth;
-      const height = this.container.clientHeight;
-      if (width === 0 || height === 0) return;
-
-      this.camera.aspect = width / height;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(width, height);
-    };
-
-    window.addEventListener('resize', handleResize);
-  }
-
-  /**
-   * GSAP Camera and Lighting Choreography on Route Changes
-   */
-  public setRoute(route: AppRoute) {
-    if (this.currentRoute === route) return;
-    this.currentRoute = route;
-
-    const config = this.routeConfigs[route] || this.routeConfigs.home;
-
-    // 1. Smooth Camera Move with GSAP
-    gsap.to(this.camera.position, {
-      x: config.camX,
-      y: config.camY,
-      z: config.camZ,
-      duration: 1.4,
-      ease: 'power2.out',
-      onUpdate: () => {
-        this.camera.lookAt(0, config.lookAtY, 0);
-      },
-    });
-
-    // 2. Smooth reset / rotation flourish on route change
-    gsap.to(this, {
-      userRotationY: this.userRotationY + Math.PI * 0.45,
-      userRotationX: 0,
-      duration: 1.6,
-      ease: 'power2.out',
-    });
-
-    gsap.to(this.pinnacleGroup.position, {
-      y: -0.22 + config.groupOffsetY,
-      duration: 1.2,
-      ease: 'power2.out',
-    });
-
-    // 3. Gentle Scale Breathe
-    gsap.timeline()
-      .to(this.pinnacleGroup.scale, {
-        x: 1.04,
-        y: 1.04,
-        z: 1.04,
-        duration: 0.5,
-        ease: 'power1.out',
-      })
-      .to(this.pinnacleGroup.scale, {
-        x: 1.0,
-        y: 1.0,
-        z: 1.0,
-        duration: 0.9,
-        ease: 'power2.inOut',
-      });
-
-    // 4. Warm Sun Intensity Shift
-    gsap.to(this.sunLight, {
-      intensity: config.sunIntensity,
-      duration: 1.2,
-      ease: 'power1.out',
-    });
-
-    // Color transition
-    const targetColor = new THREE.Color(config.sunColor);
-    gsap.to(this.sunLight.color, {
-      r: targetColor.r,
-      g: targetColor.g,
-      b: targetColor.b,
-      duration: 1.2,
-    });
-  }
-
-  /**
-   * Render Loop: Silky-Smooth Inertial Drag Orbit + Responsive Hover Lerp
-   */
-  /**
-   * Render Loop: Silky-Smooth Inertial Drag Orbit + Particles + Responsive Hover Lerp
-   */
-  private animate() {
-    if (this.isDisposed) return;
-    this.animationFrameId = requestAnimationFrame(this.animate);
-
-    // 1. Inertial Glide & Auto-Rotation Physics
-    if (!this.isDragging) {
-      // Apply momentum decay
-      this.userRotationY += this.dragVelocity.x;
-      this.userRotationX = THREE.MathUtils.clamp(
-        this.userRotationX + this.dragVelocity.y,
-        -0.65,
-        0.45
-      );
-      this.dragVelocity.x *= 0.92; // silky smooth friction
-      this.dragVelocity.y *= 0.92;
-
-      // When stopped dragging and no hover, resume slow ambient rotation
-      if (!this.isHovered && Math.abs(this.dragVelocity.x) < 0.0003) {
-        this.userRotationY += 0.0028;
+    // Cone of overlapping dry-stone chiancarelle, each course stepped inwards and tilted to shed rain.
+    const variants = Array.from({ length: 6 }, (_, i) => slab(101 + i * 17));
+    const placements: THREE.Matrix4[][] = variants.map(() => []), tints: THREE.Color[][] = variants.map(() => []);
+    const dummy = new THREE.Object3D();
+    dummy.rotation.order = 'YXZ';
+    for (let row = 0; row < COURSES; row++) {
+      const r = coneRadius(row / COURSES), count = Math.max(11, Math.round(Math.PI * 2 * r / .26)), step = Math.PI * 2 / count;
+      const offset = (row % 2) * step / 2 + rand() * step * .3, height = row / COURSES;
+      for (let j = 0; j < count; j++) {
+        const angle = offset + j * step + (rand() - .5) * step * .08, outer = r + (rand() - .5) * .018 * Math.min(1, r);
+        const variant = Math.floor(rand() * variants.length), scaleX = (Math.PI * 2 * outer / count) * 1.1 / .27;
+        dummy.position.set(Math.sin(angle) * (outer - .14), CONE_BASE + row * COURSE + .032 + (rand() - .5) * .008, Math.cos(angle) * (outer - .14));
+        dummy.rotation.set(.05 + rand() * .05, angle + (rand() - .5) * .03, (rand() - .5) * .035);
+        dummy.scale.set(scaleX, .95 + rand() * .2, .92 + rand() * .16);
+        dummy.updateMatrix();
+        placements[variant].push(dummy.matrix.clone());
+        // Sun-bleached upper courses, darker splash zone near the cornice, occasional weathered slab.
+        const weathered = rand() < .08;
+        tints[variant].push(new THREE.Color().setHSL(.1 + rand() * .025, weathered ? .025 : .04 + rand() * .05, (weathered ? .64 : .73) + height * .09 + rand() * .14 - (row < 3 ? .06 : 0), THREE.SRGBColorSpace));
       }
     }
+    variants.forEach((geometry, i) => {
+      const mesh = new THREE.InstancedMesh(geometry, stone, placements[i].length);
+      placements[i].forEach((matrix, j) => { mesh.setMatrixAt(j, matrix); mesh.setColorAt(j, tints[i][j]); });
+      mesh.castShadow = mesh.receiveShadow = true;
+      mesh.computeBoundingSphere();
+      this.model.add(mesh);
+    });
 
-    // 2. High-Fluidity Mouse Hover Lerp (Faster & Broader range)
-    const lerpFactor = 0.085;
-    this.mouse.x += (this.targetMouse.x - this.mouse.x) * lerpFactor;
-    this.mouse.y += (this.targetMouse.y - this.mouse.y) * lerpFactor;
-
-    // 3. Combined Rotations (Drag + Hover bias)
-    const hoverBiasY = this.isDragging ? 0 : this.mouse.x * 0.45;
-    const hoverBiasX = this.isDragging ? 0 : this.mouse.y * 0.32;
-
-    this.pinnacleGroup.rotation.y = this.userRotationY + hoverBiasY;
-    this.pinnacleGroup.rotation.x = this.userRotationX + hoverBiasX;
-    this.pinnacleGroup.rotation.z = -this.mouse.x * 0.08;
-
-    // 4. Floating Sun Motes Animation (Puglia Summer Evening atmosphere)
-    if (this.particles && this.particlePositions) {
-      const time = Date.now() * 0.0007;
-      const pos = this.particles.geometry.attributes.position.array as Float32Array;
-      const count = pos.length / 3;
-      for (let i = 0; i < count; i++) {
-        const i3 = i * 3;
-        // Slow gentle upward drift
-        pos[i3 + 1] += 0.0012;
-        if (pos[i3 + 1] > 2.2) {
-          pos[i3 + 1] = -1.3;
-        }
-        // Subtle organic horizontal sway
-        pos[i3] += Math.sin(time + i * 0.5) * 0.0006;
-        pos[i3 + 2] += Math.cos(time + i * 0.7) * 0.0006;
-      }
-      this.particles.geometry.attributes.position.needsUpdate = true;
+    // Lime-washed collar closing the cone, then the flared cup and egg-shaped crown proportioned on the estate's pinnacle.
+    const collarBase = coneRadius((COURSES - 3.5) / COURSES) + .06;
+    add(new THREE.CylinderGeometry(R_TOP + .045, collarBase, 3.5 * COURSE + .1, 48, 1), lime, [0, CONE_TOP - 1.75 * COURSE + .06, 0]);
+    const cupProfile = [[0, 0], [.13, 0], [.14, .02], [.11, .05], [.085, .09], [.09, .16], [.115, .25], [.155, .34], [.2, .41], [.215, .43], [.212, .46], [0, .46]];
+    const cup = new THREE.LatheGeometry(cupProfile.map(([x, y]) => new THREE.Vector2(x, y)), 72);
+    const egg: THREE.Vector2[] = [];
+    for (let i = 0; i <= 28; i++) {
+      const a = i / 28 * Math.PI;
+      egg.push(new THREE.Vector2(Math.max(0, .15 * Math.sin(a) * (1 + .07 * Math.cos(a))), .2 * (1 - Math.cos(a))));
     }
+    const crown = new THREE.LatheGeometry(egg, 64);
+    for (const geometry of [cup, crown]) {
+      const p = geometry.attributes.position;
+      for (let i = 0; i < p.count; i++) {
+        const x = p.getX(i), y = p.getY(i), z = p.getZ(i), k = 1 + .012 * Math.sin(x * 47 + y * 31) * Math.cos(z * 53 - y * 17);
+        p.setXYZ(i, x * k, y, z * k);
+      }
+      geometry.computeVertexNormals();
+    }
+    add(cup, lime, [0, CONE_TOP + .08, 0]);
+    add(crown, lime, [0, CONE_TOP + .535, 0]);
 
-    // 5. Subtle Sun Position Shift to follow rotation angle
-    this.sunLight.position.x = 4.2 + Math.cos(this.userRotationY) * 1.1;
-    this.sunLight.position.z = 3.5 + Math.sin(this.userRotationY) * 1.1;
-    this.sunLight.position.y = 4.5 - this.mouse.y * 0.5;
+    // Paving that fades into the page, plus a soft contact shadow under the base.
+    const radius = 6.5, groundGeometry = new THREE.RingGeometry(.001, radius, 72, 10), alpha: number[] = [];
+    const gp = groundGeometry.attributes.position;
+    for (let i = 0; i < gp.count; i++) {
+      const d = Math.hypot(gp.getX(i), gp.getY(i)) / radius;
+      alpha.push(1, 1, 1, 1 - smooth(clamp01((d - .38) / .6)));
+    }
+    groundGeometry.setAttribute('color', new THREE.Float32BufferAttribute(alpha, 4));
+    groundGeometry.rotateX(-Math.PI / 2);
+    t.ground.map.repeat.set(radius * 2 / 3, radius * 2 / 3); t.ground.detail.repeat.copy(t.ground.map.repeat);
+    const ground = new THREE.Mesh(groundGeometry, material(t.ground, 1, { vertexColors: true, transparent: true, depthWrite: false }));
+    ground.receiveShadow = true;
+    ground.renderOrder = -1;
+    this.scene.add(ground);
+    const blob = document.createElement('canvas');
+    blob.width = blob.height = 128;
+    const ctx = blob.getContext('2d')!, gradient = ctx.createRadialGradient(64, 64, 30, 64, 64, 64);
+    gradient.addColorStop(0, 'rgba(0,0,0,1)'); gradient.addColorStop(.6, 'rgba(0,0,0,.55)'); gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gradient; ctx.fillRect(0, 0, 128, 128);
+    const contact = new THREE.Mesh(new THREE.PlaneGeometry(HALF * 2.7, HALF * 2.7), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(blob), transparent: true, opacity: .32, depthWrite: false, color: '#3b3025' }));
+    contact.rotation.x = -Math.PI / 2;
+    contact.position.y = .004;
+    contact.renderOrder = 0;
+    this.scene.add(contact);
+    const { width, height } = this.container.getBoundingClientRect();
+    if (width && height) { this.camera.aspect = width / height; this.camera.updateProjectionMatrix(); }
+    await this.renderer.compileAsync(this.scene, this.camera);
+  }
 
+  private fit = () => {
+    if (this.disposed) return;
+    const { width, height } = this.container.getBoundingClientRect();
+    if (!width || !height) return;
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(width, height, false);
+    this.requestFrame();
+  };
+  private down = (e: PointerEvent) => {
+    this.pointer = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp };
+    this.velocity = 0;
+    this.renderer.domElement.setPointerCapture(e.pointerId);
+    this.lastInteraction = performance.now();
+  };
+  private move = (e: PointerEvent) => {
+    if (!this.pointer || this.pointer.id !== e.pointerId) return;
+    const delta = (e.clientX - this.pointer.x) * .006, dt = Math.max(8, e.timeStamp - this.pointer.t);
+    this.yaw -= delta;
+    this.velocity = THREE.MathUtils.clamp(this.velocity * .6 + (-delta / dt * 16.7) * .4, -.07, .07); // radians per 60 Hz frame
+    if (e.pointerType === 'mouse') this.pitch = THREE.MathUtils.clamp(this.pitch + (e.clientY - this.pointer.y) * .003, -.02, .55);
+    this.pointer = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp };
+    this.lastInteraction = performance.now();
+    this.requestFrame();
+  };
+  private up = () => {
+    if (this.pointer && performance.now() - this.lastInteraction > 90) this.velocity = 0;
+    if (this.motion.matches) this.velocity = 0;
+    this.pointer = null; this.lastInteraction = performance.now(); this.requestFrame();
+  };
+  private contextLost = (e: Event) => { e.preventDefault(); this.setVisible(false); this.onError(); };
+  setVisible(visible: boolean) { this.visible = visible; this.sync(); }
+  private sync = () => {
+    cancelAnimationFrame(this.raf); this.raf = 0; this.lastFrame = 0;
+    this.container.dataset.renderState = this.visible && !document.hidden ? (this.motion.matches ? 'reduced-motion' : 'running') : 'paused';
+    this.requestFrame();
+  };
+  private requestFrame() {
+    if (!this.raf && this.built && this.visible && !document.hidden && !this.disposed) this.raf = requestAnimationFrame(this.frame);
+  }
+  private frame = (now: number) => {
+    this.raf = 0;
+    if (!this.visible || document.hidden || this.disposed) return;
+    const settling = Math.abs(this.distance - this.desiredDistance) > .002 || this.target.distanceTo(this.desiredTarget) > .002;
+    const active = this.pointer !== null || Math.abs(this.velocity) > .0002 || settling;
+    const elapsed = this.lastFrame ? now - this.lastFrame : 100;
+    // Full frame rate while the visitor interacts; ~30 fps for the slow idle turn.
+    if (!active && elapsed < 32) { this.requestFrame(); return; }
+    this.lastFrame = now;
+    const dt = Math.min(elapsed / 1000, .1);
+    if (!this.pointer && Math.abs(this.velocity) > .0002) { this.yaw += this.velocity * dt * 60; this.velocity *= Math.exp(-dt * 4.5); }
+    else if (!this.pointer && !this.motion.matches && now - this.lastInteraction > 6000) this.yaw += dt * .03;
+    const easing = this.motion.matches ? 1 : 1 - Math.exp(-dt * 4.5);
+    this.distance = THREE.MathUtils.lerp(this.distance, this.desiredDistance, easing);
+    this.target.lerp(this.desiredTarget, easing);
+    const responsiveDistance = this.distance * Math.max(1, .82 / this.camera.aspect);
+    this.camera.position.set(Math.sin(this.yaw) * responsiveDistance, this.target.y + responsiveDistance * this.pitch, Math.cos(this.yaw) * responsiveDistance);
+    this.camera.lookAt(this.target);
     this.renderer.render(this.scene, this.camera);
+    if (!this.motion.matches || active) this.requestFrame();
+  };
+  focusDetail(detail: DetailType) {
+    const [y, distance] = VIEWS[detail];
+    this.desiredTarget.set(0, y, 0); this.desiredDistance = distance; this.requestFrame();
   }
-
-  /**
-   * Ultra-Cinematic Detail Inspection Choreography
-   * - Dynamic FOV Warp & Hyper-Focus Snap
-   * - Orbital Camera Flight with Smooth Spatial Arc
-   * - Dynamic LookAt Retargeting
-   * - Sculptural Pirouette & Tilt
-   * - Dynamic Sun Spotlight Flight & Intensity Morph
-   */
-  public focusDetail(detail: 'overview' | 'sphere' | 'chalice' | 'stones') {
-    let targetCam = { x: 0.42, y: 0.38, z: 4.0, lookAtX: 0, lookAtY: 0.25 };
-    let targetSun = { x: 4.2, y: 4.5, z: 3.5, intensity: 3.8 };
-    let rotFlourish = Math.PI * 0.35;
-    let tiltTarget = 0;
-
-    if (detail === 'sphere') {
-      // Cinematic low-angle macro shot looking up at the sphere and apex rim
-      targetCam = { x: -0.35, y: 1.55, z: 1.85, lookAtX: 0, lookAtY: 1.4 };
-      targetSun = { x: 3.2, y: 5.5, z: 2.5, intensity: 4.4 };
-      rotFlourish = Math.PI * 0.45;
-      tiltTarget = -0.05;
-    } else if (detail === 'chalice') {
-      // 3/4 hero perspective admiring the sculpted flared goblet and collar
-      targetCam = { x: 0.55, y: 0.78, z: 2.1, lookAtX: 0.05, lookAtY: 0.88 };
-      targetSun = { x: 4.0, y: 2.8, z: 3.8, intensity: 4.0 };
-      rotFlourish = -Math.PI * 0.4;
-      tiltTarget = 0.04;
-    } else if (detail === 'stones') {
-      // Dramatic raking angle to highlight the 24 stepped courses and deep shadows
-      targetCam = { x: 1.15, y: -0.15, z: 2.35, lookAtX: 0.1, lookAtY: -0.22 };
-      targetSun = { x: 5.2, y: 1.8, z: 2.8, intensity: 4.6 };
-      rotFlourish = Math.PI * 0.55;
-      tiltTarget = 0.08;
-    }
-
-    // Kill any conflicting in-flight tweens
-    gsap.killTweensOf(this.camera);
-    gsap.killTweensOf(this.camera.position);
-    gsap.killTweensOf(this.currentLookAt);
-    gsap.killTweensOf(this);
-    gsap.killTweensOf(this.sunLight);
-    gsap.killTweensOf(this.sunLight.position);
-
-    // 1. Dynamic FOV Warp & Hyper-Focus Snap
-    gsap.timeline()
-      .to(this.camera, {
-        fov: 43,
-        duration: 0.38,
-        ease: 'power2.out',
-        onUpdate: () => this.camera.updateProjectionMatrix(),
-      })
-      .to(this.camera, {
-        fov: 37,
-        duration: 0.95,
-        ease: 'expo.out',
-        onUpdate: () => this.camera.updateProjectionMatrix(),
-      });
-
-    // 2. Orbital Camera Position Flight with Smooth Arc
-    gsap.to(this.camera.position, {
-      x: targetCam.x,
-      y: targetCam.y,
-      z: targetCam.z,
-      duration: 1.35,
-      ease: 'power3.inOut',
-    });
-
-    // 3. Dynamic LookAt Retargeting
-    gsap.to(this.currentLookAt, {
-      x: targetCam.lookAtX,
-      y: targetCam.lookAtY,
-      duration: 1.35,
-      ease: 'power3.inOut',
-      onUpdate: () => {
-        this.camera.lookAt(this.currentLookAt.x, this.currentLookAt.y, 0);
-      },
-    });
-
-    // 4. Sculptural Pirouette & Tilt
-    gsap.to(this, {
-      userRotationY: this.userRotationY + rotFlourish,
-      userRotationX: tiltTarget,
-      duration: 1.5,
-      ease: 'expo.out',
-    });
-
-    // 5. Sun Spotlight Flight & Intensity Morph
-    gsap.to(this.sunLight.position, {
-      x: targetSun.x,
-      y: targetSun.y,
-      z: targetSun.z,
-      duration: 1.35,
-      ease: 'power2.inOut',
-    });
-
-    gsap.to(this.sunLight, {
-      intensity: targetSun.intensity,
-      duration: 1.2,
-      ease: 'power1.out',
-    });
-  }
-
-  public zoomIn() {
-    const currentZ = this.camera.position.z;
-    if (currentZ > 1.6) {
-      gsap.to(this.camera.position, {
-        z: currentZ - 0.65,
-        duration: 0.6,
-        ease: 'power2.out',
-      });
-    }
-  }
-
-  public zoomOut() {
-    const currentZ = this.camera.position.z;
-    if (currentZ < 6.0) {
-      gsap.to(this.camera.position, {
-        z: currentZ + 0.65,
-        duration: 0.6,
-        ease: 'power2.out',
-      });
-    }
-  }
-
-  public resetView() {
-    this.focusDetail('overview');
-  }
-
-  /**
-   * Cleanup Memory & VRAM
-   */
-  public dispose() {
-    this.isDisposed = true;
-    if (this.animationFrameId !== null) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
-
-    // Dispose particles
-    if (this.particles) {
-      this.particles.geometry.dispose();
-      if (Array.isArray(this.particles.material)) {
-        this.particles.material.forEach((m) => m.dispose());
-      } else {
-        this.particles.material.dispose();
-      }
-      this.scene.remove(this.particles);
-    }
-
-    // Dispose geometries, materials, and textures
-    this.pinnacleGroup.traverse((obj) => {
-      if (obj instanceof THREE.Mesh) {
-        obj.geometry.dispose();
-        if (Array.isArray(obj.material)) {
-          obj.material.forEach((m) => {
-            if (m.map) m.map.dispose();
-            if (m.bumpMap) m.bumpMap.dispose();
-            m.dispose();
-          });
-        } else if (obj.material) {
-          if (obj.material.map) obj.material.map.dispose();
-          if (obj.material.bumpMap) obj.material.bumpMap.dispose();
-          obj.material.dispose();
-        }
+  zoomIn() { this.desiredDistance = Math.max(2, this.desiredDistance * .83); this.requestFrame(); }
+  zoomOut() { this.desiredDistance = Math.min(15, this.desiredDistance * 1.2); this.requestFrame(); }
+  resetView() { this.yaw = .42; this.pitch = .15; this.velocity = 0; this.focusDetail('overview'); }
+  dispose() {
+    this.disposed = true; cancelAnimationFrame(this.raf); this.resize.disconnect();
+    document.removeEventListener('visibilitychange', this.sync);
+    this.motion.removeEventListener('change', this.sync);
+    const canvas = this.renderer.domElement;
+    canvas.removeEventListener('pointerdown', this.down); canvas.removeEventListener('pointermove', this.move);
+    canvas.removeEventListener('pointerup', this.up); canvas.removeEventListener('pointercancel', this.up);
+    canvas.removeEventListener('webglcontextlost', this.contextLost);
+    const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(), textures = new Set<THREE.Texture>();
+    this.scene.traverse(object => {
+      if (object instanceof THREE.Mesh) {
+        geometries.add(object.geometry);
+        for (const m of Array.isArray(object.material) ? object.material : [object.material]) materials.add(m);
       }
     });
-
-    this.renderer.dispose();
-    if (this.container.contains(this.renderer.domElement)) {
-      this.container.removeChild(this.renderer.domElement);
-    }
+    materials.forEach(material => { Object.values(material).forEach(value => { if (value instanceof THREE.Texture) textures.add(value); }); material.dispose(); });
+    textures.forEach(texture => texture.dispose()); geometries.forEach(geometry => geometry.dispose());
+    this.scene.environment?.dispose();
+    this.sun.shadow.dispose(); this.renderer.dispose(); this.renderer.forceContextLoss(); canvas.remove();
+    this.container.dataset.renderState = 'disposed';
   }
 }
