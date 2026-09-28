@@ -28,7 +28,7 @@ export const TRANSLATIONS = {
     accommodations: {
       sectionTag: 'Architettura in pietra',
       eyebrow: 'TENUTA TRULLO DEI MESSAPI • CEGLIE MESSAPICA',
-      title: 'Trulli storici e lamie in pietra viva',
+      title: 'Il lusso di un trullo autentico',
       subtitle: 'Tre rifugi indipendenti immersi nella pace della campagna pugliese. Mura spesse di pietra calcarea che trattengono il fresco, tetti conici secolari, corti riservate e l’accesso esclusivo all’oasi della piscina tra gli ulivi.',
       fromPrice: 'A partire da',
       perNight: 'a notte',
@@ -222,7 +222,7 @@ export const TRANSLATIONS = {
     accommodations: {
       sectionTag: 'Stone Architecture',
       eyebrow: 'TRULLO DEI MESSAPI ESTATE • CEGLIE MESSAPICA',
-      title: 'Historic Trulli & Living Stone Suites',
+      title: 'The luxury of an authentic trullo',
       subtitle: 'Three independent stone sanctuaries immersed in the peaceful Apulian countryside. Thick limestone walls preserving cool comfort, ancient conical roofs, secluded courtyards, and exclusive access to the swimming pool amidst olive groves.',
       fromPrice: 'Starting from',
       perNight: 'per night',

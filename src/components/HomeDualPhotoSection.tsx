@@ -98,12 +98,12 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
                   {lang === 'it' ? 'Acqua & Silenzio' : 'Water & Silence'}
                 </span>
                 <h3 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal text-white leading-tight mb-3">
-                  {lang === 'it' ? 'La piscina tra gli ulivi' : 'The pool among the olives'}
+                  {lang === 'it' ? 'Uno specchio d’acqua tra ulivi e piante mediterranee' : 'A mirror of water among olive trees and Mediterranean plants'}
                 </h3>
                 <p className="text-white/85 text-sm sm:text-base md:text-lg font-light leading-relaxed max-w-xl">
                   {lang === 'it'
-                    ? 'Acqua limpida, idromassaggio all’aperto e gazebi ombreggiati riservati solo alle tre dimore della tenuta.'
-                    : 'Clear waters, outdoor hydromassage and shaded gazebos reserved exclusively for the estate’s three suites.'}
+                    ? 'Un’oasi di puro benessere con idromassaggio e spazi dedicati in esclusiva agli ospiti delle dimore.'
+                    : 'An oasis of pure wellbeing, with hydromassage and spaces reserved exclusively for guests of the residences.'}
                 </p>
               </div>
 

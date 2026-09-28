@@ -222,7 +222,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
             </blockquote>
 
             {/* Architectural Description */}
-            <p className="mt-4 text-sm sm:text-base text-stone-600 font-light leading-relaxed">
+            <p className="mt-4 text-sm sm:text-base text-stone-600 font-light leading-relaxed whitespace-pre-line">
               {accommodation.description[lang]}
             </p>
 

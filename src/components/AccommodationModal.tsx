@@ -218,7 +218,7 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
               <Sparkles size={18} className="text-[#B99470]" />
               {lang === 'it' ? 'Descrizione dell’Alloggio' : 'Suite Overview'}
             </h3>
-            <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+            <p className="text-gray-600 leading-relaxed text-sm sm:text-base whitespace-pre-line">
               {accommodation.description[lang]}
             </p>
             <div className="mt-3 p-3 bg-amber-50/60 rounded-xl text-xs sm:text-sm text-amber-900 border border-amber-200/50">

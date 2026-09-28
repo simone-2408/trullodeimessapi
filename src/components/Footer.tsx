@@ -27,24 +27,12 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-white/10">
           {/* Brand & Mission */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="flex items-center gap-3.5">
-              <SmartImage
-                src="./favicon.png"
-                alt="Trullo dei Messapi"
-                className="w-9 h-9 object-contain brightness-125 drop-shadow-sm"
-                onError={(e) => {
-                  (e.currentTarget as HTMLElement).style.display = 'none';
-                }}
-              />
-              <div>
-                <span className="font-serif text-2xl font-bold tracking-wide text-white block leading-tight">
-                  Trullo dei Messapi
-                </span>
-                <span className="text-[11px] text-white/50 tracking-[0.2em] uppercase block">
-                  Boutique Relais • Puglia
-                </span>
-              </div>
-            </div>
+            {/* Same logo as the header, rendered light on the dark footer. */}
+            <SmartImage
+              src="./images/logo.png"
+              alt="Trullo dei Messapi - Relais di Puglia"
+              className="h-16 sm:h-[4.5rem] w-auto object-contain brightness-0 invert opacity-90"
+            />
             <p className="text-white/70 text-sm leading-relaxed max-w-sm font-light">
               {t.footer.desc}
             </p>
