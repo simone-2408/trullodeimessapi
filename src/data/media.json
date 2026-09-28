@@ -1,0 +1,892 @@
+{
+  "images/corbezzolo/106730542.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/corbezzolo/106730542-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/corbezzolo/106730542-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/corbezzolo/106730542-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/corbezzolo/106730543.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/corbezzolo/106730543-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/corbezzolo/106730543-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/corbezzolo/106730543-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/corbezzolo/106730545.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/corbezzolo/106730545-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/corbezzolo/106730545-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/corbezzolo/106730545-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/corbezzolo/106730547.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/corbezzolo/106730547-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/corbezzolo/106730547-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/corbezzolo/106730547-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/corbezzolo/106730552.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/corbezzolo/106730552-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/corbezzolo/106730552-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/corbezzolo/106730552-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/corbezzolo/106730558.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/corbezzolo/106730558-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/corbezzolo/106730558-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/corbezzolo/106730558-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/corbezzolo/106730560.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/corbezzolo/106730560-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/corbezzolo/106730560-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/corbezzolo/106730560-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/corbezzolo/106730563.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/corbezzolo/106730563-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/corbezzolo/106730563-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/corbezzolo/106730563-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/corbezzolo/106730565.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/corbezzolo/106730565-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/corbezzolo/106730565-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/corbezzolo/106730565-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/giardino/106725339.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/giardino/106725339-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/giardino/106725339-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/giardino/106725339-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/giardino/106725343.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/giardino/106725343-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/giardino/106725343-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/giardino/106725343-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/giardino/106730569.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/giardino/106730569-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/giardino/106730569-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/giardino/106730569-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/melograno/106725293.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/melograno/106725293-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/melograno/106725293-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/melograno/106725293-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/melograno/106725296.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/melograno/106725296-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/melograno/106725296-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/melograno/106725296-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/melograno/106725299.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/melograno/106725299-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/melograno/106725299-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/melograno/106725299-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/melograno/106725309.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/melograno/106725309-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/melograno/106725309-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/melograno/106725309-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/melograno/106725317.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/melograno/106725317-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/melograno/106725317-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/melograno/106725317-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/melograno/106725326.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/melograno/106725326-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/melograno/106725326-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/melograno/106725326-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/melograno/106725328.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/melograno/106725328-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/melograno/106725328-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/melograno/106725328-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/melograno/106725330.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/melograno/106725330-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/melograno/106725330-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/melograno/106725330-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/melograno/106725335.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/melograno/106725335-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/melograno/106725335-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/melograno/106725335-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/pinnacolo.jpg": {
+    "width": 800,
+    "height": 600,
+    "variants": [
+      {
+        "src": "media/pinnacolo-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/pinnacolo-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/pinnacolo-800.webp",
+        "width": 800
+      }
+    ]
+  },
+  "images/piscina/106724768.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/piscina/106724768-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/piscina/106724768-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/piscina/106724768-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/piscina/106724775.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/piscina/106724775-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/piscina/106724775-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/piscina/106724775-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/piscina/106724784.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/piscina/106724784-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/piscina/106724784-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/piscina/106724784-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/piscina/106724792.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/piscina/106724792-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/piscina/106724792-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/piscina/106724792-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/piscina/106724798.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/piscina/106724798-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/piscina/106724798-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/piscina/106724798-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/piscina/106724803.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/piscina/106724803-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/piscina/106724803-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/piscina/106724803-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/piscina/106724810.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/piscina/106724810-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/piscina/106724810-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/piscina/106724810-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/piscina/106724816.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/piscina/106724816-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/piscina/106724816-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/piscina/106724816-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724828.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724828-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724828-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724828-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724829.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724829-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724829-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724829-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724833.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724833-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724833-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724833-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724835.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724835-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724835-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724835-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724837.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724837-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724837-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724837-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724841.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724841-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724841-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724841-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724842.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724842-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724842-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724842-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724844.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724844-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724844-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724844-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724845.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724845-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724845-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724845-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724849.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724849-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724849-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724849-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724851.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724851-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724851-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724851-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724854.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724854-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724854-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724854-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724860.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724860-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724860-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724860-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724866.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724866-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724866-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724866-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/106724872.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/quercia/106724872-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/106724872-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/106724872-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/quercia/IMG_3145.JPG": {
+    "width": 5184,
+    "height": 3456,
+    "variants": [
+      {
+        "src": "media/quercia/IMG_3145-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/quercia/IMG_3145-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/quercia/IMG_3145-1024.webp",
+        "width": 1024
+      },
+      {
+        "src": "media/quercia/IMG_3145-1600.webp",
+        "width": 1600
+      },
+      {
+        "src": "media/quercia/IMG_3145-2400.webp",
+        "width": 2400
+      }
+    ]
+  },
+  "images/trulli/106724828.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/trulli/106724828-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/trulli/106724828-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/trulli/106724828-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/trulli/106725293.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/trulli/106725293-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/trulli/106725293-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/trulli/106725293-1024.webp",
+        "width": 1024
+      }
+    ]
+  },
+  "images/trulli/106730545.jpg": {
+    "width": 1024,
+    "height": 683,
+    "variants": [
+      {
+        "src": "media/trulli/106730545-320.webp",
+        "width": 320
+      },
+      {
+        "src": "media/trulli/106730545-640.webp",
+        "width": 640
+      },
+      {
+        "src": "media/trulli/106730545-1024.webp",
+        "width": 1024
+      }
+    ]
+  }
+}

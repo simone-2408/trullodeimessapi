@@ -1,37 +1,40 @@
-import React, { useEffect, useRef } from 'react';
+import { asset } from '../utils/assets';
+import { Pause, Play } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 
 interface HeroProps {
   lang: Language;
-  onQuickSearch?: (params: {
-    checkIn?: string;
-    checkOut?: string;
-    accommodationId?: 'quercia' | 'corbezzolo' | 'melograno';
-  }) => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({ lang }) => {
   const t = TRANSLATIONS[lang];
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Video plays continuously, always muted, in loop (like Masseria Torre Coccaro)
+  const [paused, setPaused] = useState(false);
+  // Landscape desktops only ever show the central band of the portrait clip: serve a full-resolution
+  // 4:3 crop there and the lighter 720p portrait encode everywhere else. Chosen client-side (SSR-safe).
+  const [source, setSource] = useState<string>();
+  useEffect(() => {
+    const wide = window.matchMedia('(min-aspect-ratio: 4/3) and (min-width: 1024px)');
+    const pick = () => setSource(asset(wide.matches ? 'media/pool-hero-wide.mp4' : 'media/pool-hero.mp4'));
+    pick();
+    wide.addEventListener('change', pick);
+    return () => wide.removeEventListener('change', pick);
+  }, []);
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
-
-    video.muted = true;
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Retry muted playback if browser policy initially intercepted
-        if (videoRef.current) {
-          videoRef.current.muted = true;
-          videoRef.current.play().catch(() => {});
-        }
-      });
-    }
-  }, []);
+    if (!video || !source) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let visible = false;
+    const sync = () => { if (visible && !document.hidden && !paused && !reduced.matches) video.play().catch(() => {}); else video.pause(); };
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); });
+    observer.observe(video);
+    document.addEventListener('visibilitychange', sync);
+    reduced.addEventListener('change', sync);
+    return () => { observer.disconnect(); document.removeEventListener('visibilitychange', sync); reduced.removeEventListener('change', sync); video.pause(); };
+  }, [paused, source]);
 
   return (
     <div className="relative min-h-[90vh] lg:min-h-[95vh] flex items-center justify-center pt-32 sm:pt-36 lg:pt-40 pb-20 overflow-hidden">
@@ -39,20 +42,20 @@ export const Hero: React.FC<HeroProps> = ({ lang }) => {
       <div className="absolute inset-0 z-0 bg-stone-950">
         <video
           ref={videoRef}
-          src="./videopiscina.mp4"
-          poster="./images/piscina/106724803.jpg"
-          autoPlay
+          src={source}
+          poster={asset('media/piscina/106724803-1024.webp')}
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata" aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
 
         {/* Elegant Vignette Overlay for Contrast & Typography Legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-black/40" />
       </div>
 
+      <button type="button" onClick={() => setPaused(value => !value)} aria-label={lang === 'it' ? (paused ? 'Riprendi video' : 'Pausa video') : (paused ? 'Resume video' : 'Pause video')} className="absolute bottom-6 left-6 z-20 p-3 rounded-full bg-black/60 text-white">{paused ? <Play size={16} /> : <Pause size={16} />}</button>
       {/* 2. HERO EDITORIAL CONTENT (Minimal & Clean) */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white mt-4">
 
