@@ -13,6 +13,7 @@ interface PinnacleShowcaseProps {
 }
 
 type DetailType = 'overview' | 'sphere' | 'chalice' | 'stones';
+const TOUR: DetailType[] = ['overview', 'sphere', 'chalice', 'stones'];
 
 export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
   currentRoute,
@@ -58,13 +59,18 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
   }, []);
   useEffect(() => { sceneRef.current?.focusDetail(activeDetail); }, [activeDetail]);
   useEffect(() => {
+    sceneRef.current?.setTour(isTourPlaying && visible && ready);
     if (!isTourPlaying || !visible || !ready) return;
-    const sequence: DetailType[] = ['overview', 'sphere', 'chalice', 'stones'];
-    const timer = window.setInterval(() => { if (!document.hidden) setActiveDetail(previous => sequence[(sequence.indexOf(previous) + 1) % sequence.length]); }, 5500);
+    const timer = window.setInterval(() => { if (!document.hidden) setActiveDetail(previous => TOUR[(TOUR.indexOf(previous) + 1) % TOUR.length]); }, 5000);
     return () => clearInterval(timer);
   }, [isTourPlaying, visible, ready]);
   const handleSelectDetail = (detail: DetailType) => { setIsTourPlaying(false); setActiveDetail(detail); };
-  const toggleTour = () => setIsTourPlaying(previous => !previous);
+  // Starting the tour moves the camera at once, then keeps orbiting and stepping through the details.
+  const toggleTour = () => {
+    if (isTourPlaying) { setIsTourPlaying(false); return; }
+    setActiveDetail(previous => TOUR[(TOUR.indexOf(previous) + 1) % TOUR.length]);
+    setIsTourPlaying(true);
+  };
   const narrative = {
     tag: lang === 'it' ? 'Architettura di Puglia' : 'Architecture of Puglia',
     title: lang === 'it' ? 'Il pinnacolo: il dialogo tra pietra e cielo' : 'The pinnacle: dialogue between stone and sky',

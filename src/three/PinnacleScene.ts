@@ -157,13 +157,6 @@ function archRing(outer: number, inner: number, jamb: number) {
   shape.lineTo(r, 0); shape.lineTo(R, 0); shape.lineTo(R, jamb); shape.absarc(0, jamb, R, 0, Math.PI, false); shape.lineTo(-R, 0);
   return shape;
 }
-// Round-arched opening: straight jambs then a semicircle.
-function arch<T extends THREE.Path>(width: number, jamb: number, shape: T): T {
-  const r = width / 2;
-  shape.moveTo(-r, 0); shape.lineTo(r, 0); shape.lineTo(r, jamb); shape.absarc(0, jamb, r, 0, Math.PI, false); shape.lineTo(-r, 0);
-  return shape;
-}
-
 // Irregular chiancarella: a rounded slab with chipped, noise-displaced faces.
 function slab(seed: number) {
   const rand = random(seed), size = new THREE.Vector3(.27, .066, .3), round = .016;
@@ -190,10 +183,10 @@ function slab(seed: number) {
 }
 
 const WALL = 1.35, HALF = 1.9, CORNICE = .085, CONE_BASE = WALL + CORNICE, COURSE = .068, COURSES = 34, R0 = 1.7, R_TOP = .2;
-const CONE_TOP = CONE_BASE + COURSES * COURSE;
+const CONE_TOP = CONE_BASE + COURSES * COURSE, LIME_FROM = 27; // top ~20% of the cone is whitewashed
 const coneRadius = (t: number) => R_TOP + (R0 - R_TOP) * Math.pow(1 - t, .8); // slightly ogival, as built
 const VIEWS: Record<DetailType, [number, number]> = {
-  overview: [2.15, 12.5], sphere: [CONE_TOP + .72, 2.2], chalice: [CONE_TOP + .42, 2.9], stones: [CONE_BASE + .9, 4.4],
+  overview: [2.15, 12.5], sphere: [CONE_TOP + .62, 1.9], chalice: [CONE_TOP + .32, 2.7], stones: [CONE_BASE + .9, 4.4],
 };
 
 export class PinnacleScene {
@@ -215,6 +208,7 @@ export class PinnacleScene {
   private visible = false;
   private disposed = false;
   private built = false;
+  private touring = false;
   private motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   private compact = window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
   private resize: ResizeObserver;
@@ -342,23 +336,30 @@ export class PinnacleScene {
     plainWall.vertexColors = false;
     const gableTop = material(t.stone, 1.4, { color: '#cdc5b8' });
 
-    // Entrance: arched stone surround, dark reveal, oak door, threshold and the triangular pediment (timpano) above.
-    const entrance = onWall(0, 0);
-    add(new THREE.ExtrudeGeometry(archRing(.86, .6, .74), { depth: .07, bevelEnabled: true, bevelSize: .012, bevelThickness: .012, bevelSegments: 2, curveSegments: 20 }), cornice, [0, 0, -.005], entrance);
-    add(new THREE.BoxGeometry(.13, .12, .1), cornice, [0, 1.15, .04], entrance); // keystone
-    add(new THREE.ExtrudeGeometry(arch(.6, .74, new THREE.Shape()), { depth: .01, bevelEnabled: false, curveSegments: 20 }), new THREE.MeshStandardMaterial({ color: '#2a2521', roughness: 1 }), [0, 0, -.004], entrance);
-    t.wood.map.repeat.set(1 / .6, 1 / 1.05); t.wood.map.offset.set(.5, 0);
-    t.wood.detail.repeat.copy(t.wood.map.repeat); t.wood.detail.offset.copy(t.wood.map.offset);
-    add(new THREE.ExtrudeGeometry(arch(.56, .72, new THREE.Shape()), { depth: .018, bevelEnabled: false, curveSegments: 20 }), wood, [0, .01, 0], entrance);
-    add(new THREE.BoxGeometry(.92, .06, .26), cornice, [0, .03, .1], entrance);
-    const pediment = new THREE.Shape();
-    pediment.moveTo(-.72, 0); pediment.lineTo(.72, 0); pediment.lineTo(0, .78); pediment.lineTo(-.72, 0);
-    const front = HALF + .05;
-    add(new THREE.ExtrudeGeometry(pediment, { depth: 1.1, bevelEnabled: false }), [plainWall, gableTop], [0, CONE_BASE - .01, front - 1.1]);
+    // Entrance as on the estate's trullo: a projecting gabled facade in ashlar, a broad stone arch over a
+    // white lime lunette, a rectangular oak door with a glazed panel, a small lamp and a stone threshold.
+    const FW = 1.05, GH = 1.35, FZ = HALF + .13, FACADE_BACK = .85;
+    const facade = new THREE.Shape();
+    facade.moveTo(-FW, 0); facade.lineTo(FW, 0); facade.lineTo(FW, WALL); facade.lineTo(0, WALL + GH); facade.lineTo(-FW, WALL); facade.lineTo(-FW, 0);
+    add(new THREE.ExtrudeGeometry(facade, { depth: FZ - FACADE_BACK, bevelEnabled: false }), [plainWall, gableTop], [0, 0, FACADE_BACK]);
+    const rake = Math.hypot(FW, GH), rakeAngle = Math.atan2(GH, FW);
     for (const side of [-1, 1]) {
-      const coping = add(new THREE.BoxGeometry(1.08, .045, .12), cornice, [side * .36, CONE_BASE + .405, front - .05]);
-      coping.rotation.z = -side * Math.atan2(.78, .72);
+      const coping = add(new THREE.BoxGeometry(rake + .06, .05, .17), cornice, [side * (FW / 2 + Math.sin(rakeAngle) * .03), WALL + GH / 2 + Math.cos(rakeAngle) * .03, FZ - .07]);
+      coping.rotation.z = -side * rakeAngle;
     }
+    const doorTop = 1.15;
+    add(new THREE.ExtrudeGeometry(archRing(.98, .7, doorTop), { depth: .06, bevelEnabled: true, bevelSize: .012, bevelThickness: .012, bevelSegments: 2, curveSegments: 24 }), cornice, [0, 0, FZ - .005]);
+    const lunette = new THREE.Shape();
+    lunette.moveTo(-.35, 0); lunette.absarc(0, 0, .35, Math.PI, 0, true); lunette.lineTo(-.35, 0);
+    add(new THREE.ExtrudeGeometry(lunette, { depth: .012, bevelEnabled: false, curveSegments: 24 }), lime, [0, doorTop, FZ]);
+    add(new THREE.BoxGeometry(.72, .06, .05), cornice, [0, doorTop, FZ + .02]); // lintel under the lunette
+    t.wood.map.repeat.set(1, 1); t.wood.detail.repeat.set(1, 1);
+    add(new THREE.BoxGeometry(.66, doorTop - .02, .035), wood, [0, (doorTop - .02) / 2, FZ + .008]);
+    add(new THREE.BoxGeometry(.42, .46, .012), new THREE.MeshStandardMaterial({ color: '#2a2724', roughness: .35, metalness: 0 }), [0, .8, FZ + .03]);
+    const iron = new THREE.MeshStandardMaterial({ color: '#2b2622', roughness: .6, metalness: .3 });
+    add(new THREE.BoxGeometry(.018, .018, .1), iron, [0, doorTop + .27, FZ + .06]);
+    add(new THREE.CylinderGeometry(.028, .036, .07, 12), iron, [0, doorTop + .23, FZ + .1]);
+    add(new THREE.BoxGeometry(.96, .05, .22), cornice, [0, .025, FZ + .09]);
 
     // Small square window on the east wall.
     const windowFrame = new THREE.Shape();
@@ -373,7 +374,7 @@ export class PinnacleScene {
     const placements: THREE.Matrix4[][] = variants.map(() => []), tints: THREE.Color[][] = variants.map(() => []);
     const dummy = new THREE.Object3D();
     dummy.rotation.order = 'YXZ';
-    for (let row = 0; row < COURSES; row++) {
+    for (let row = 0; row < LIME_FROM; row++) {
       const r = coneRadius(row / COURSES), count = Math.max(11, Math.round(Math.PI * 2 * r / .26)), step = Math.PI * 2 / count;
       const offset = (row % 2) * step / 2 + rand() * step * .3, height = row / COURSES;
       for (let j = 0; j < count; j++) {
@@ -386,7 +387,22 @@ export class PinnacleScene {
         placements[variant].push(dummy.matrix.clone());
         // Sun-bleached upper courses, darker splash zone near the cornice, occasional weathered slab.
         const weathered = rand() < .08;
-        tints[variant].push(new THREE.Color().setHSL(.1 + rand() * .025, weathered ? .025 : .04 + rand() * .05, (weathered ? .64 : .73) + height * .09 + rand() * .14 - (row < 3 ? .06 : 0), THREE.SRGBColorSpace));
+        tints[variant].push(new THREE.Color().setHSL(.1 + rand() * .025, weathered ? .02 : .03 + rand() * .045, (weathered ? .72 : .81) + height * .06 + rand() * .1 - (row < 3 ? .06 : 0), THREE.SRGBColorSpace));
+      }
+    }
+    // The gable's sloping tops carry the same slabs, stepping with the cone courses.
+    for (let row = 0; row < COURSES; row++) {
+      const rise = CONE_BASE - WALL + row * COURSE, half = FW * (1 - rise / GH), r = coneRadius(row / COURSES);
+      if (half < .06) break;
+      const start = Math.sqrt(Math.max(0, r * r - half * half)) - .05, span = FZ - .04 - start, count = Math.max(1, Math.ceil(span / .26)), length = span / count;
+      for (const side of [-1, 1]) for (let j = 0; j < count; j++) {
+        const variant = Math.floor(rand() * variants.length);
+        dummy.position.set(side * (half - .11), CONE_BASE + row * COURSE + .032 + (rand() - .5) * .008, start + (j + .5) * length);
+        dummy.rotation.set(.05 + rand() * .05, side * Math.PI / 2 + (rand() - .5) * .03, (rand() - .5) * .035);
+        dummy.scale.set(length * 1.1 / .27, .95 + rand() * .2, .92 + rand() * .16);
+        dummy.updateMatrix();
+        placements[variant].push(dummy.matrix.clone());
+        tints[variant].push(new THREE.Color().setHSL(.1 + rand() * .025, .03 + rand() * .04, .8 + rand() * .1, THREE.SRGBColorSpace));
       }
     }
     variants.forEach((geometry, i) => {
@@ -397,27 +413,30 @@ export class PinnacleScene {
       this.model.add(mesh);
     });
 
-    // Lime-washed collar closing the cone, then the flared cup and egg-shaped crown proportioned on the estate's pinnacle.
-    const collarBase = coneRadius((COURSES - 3.5) / COURSES) + .06;
-    add(new THREE.CylinderGeometry(R_TOP + .045, collarBase, 3.5 * COURSE + .1, 48, 1), lime, [0, CONE_TOP - 1.75 * COURSE + .06, 0]);
-    const cupProfile = [[0, 0], [.13, 0], [.14, .02], [.11, .05], [.085, .09], [.09, .16], [.115, .25], [.155, .34], [.2, .41], [.215, .43], [.212, .46], [0, .46]];
-    const cup = new THREE.LatheGeometry(cupProfile.map(([x, y]) => new THREE.Vector2(x, y)), 72);
-    const egg: THREE.Vector2[] = [];
-    for (let i = 0; i <= 28; i++) {
-      const a = i / 28 * Math.PI;
-      egg.push(new THREE.Vector2(Math.max(0, .15 * Math.sin(a) * (1 + .07 * Math.cos(a))), .2 * (1 - Math.cos(a))));
+    // Whitewashed crown over the top of the cone, following its ogival profile, as on the estate's trullo.
+    const cap: THREE.Vector2[] = [new THREE.Vector2(coneRadius(LIME_FROM / COURSES) + .02, CONE_BASE + LIME_FROM * COURSE - .02)];
+    for (let i = 0; i <= 12; i++) {
+      const t = (LIME_FROM + (COURSES - LIME_FROM) * i / 12) / COURSES;
+      cap.push(new THREE.Vector2(coneRadius(t) + .035, CONE_BASE + t * COURSES * COURSE));
     }
-    const crown = new THREE.LatheGeometry(egg, 64);
-    for (const geometry of [cup, crown]) {
+    cap.push(new THREE.Vector2(0, CONE_TOP + .02));
+    const crownCap = new THREE.LatheGeometry(cap, 72);
+    // Pinnacle: flared lime stem and capital, a thin disc and a rough stone sphere.
+    const stemProfile = [[0, 0], [.17, 0], [.15, .03], [.1, .07], [.075, .12], [.07, .2], [.085, .26], [.13, .31], [.165, .34], [.165, .37], [0, .37]];
+    const stem = new THREE.LatheGeometry(stemProfile.map(([x, y]) => new THREE.Vector2(x, y * 1.25)), 64);
+    const ball = new THREE.SphereGeometry(.13, 48, 32);
+    for (const geometry of [crownCap, stem, ball]) {
       const p = geometry.attributes.position;
       for (let i = 0; i < p.count; i++) {
-        const x = p.getX(i), y = p.getY(i), z = p.getZ(i), k = 1 + .012 * Math.sin(x * 47 + y * 31) * Math.cos(z * 53 - y * 17);
+        const x = p.getX(i), y = p.getY(i), z = p.getZ(i), k = 1 + .01 * Math.sin(x * 47 + y * 31) * Math.cos(z * 53 - y * 17);
         p.setXYZ(i, x * k, y, z * k);
       }
       geometry.computeVertexNormals();
     }
-    add(cup, lime, [0, CONE_TOP + .08, 0]);
-    add(crown, lime, [0, CONE_TOP + .535, 0]);
+    add(crownCap, lime);
+    add(stem, lime, [0, CONE_TOP + .02, 0]);
+    add(new THREE.CylinderGeometry(.12, .12, .03, 40), lime, [0, CONE_TOP + .5, 0]);
+    add(ball, material(t.stone, 3, { color: '#c4bfb5' }), [0, CONE_TOP + .645, 0]);
 
     // Paving that fades into the page, plus a soft contact shadow under the base.
     const radius = 6.5, groundGeometry = new THREE.RingGeometry(.001, radius, 72, 10), alpha: number[] = [];
@@ -492,13 +511,15 @@ export class PinnacleScene {
     this.raf = 0;
     if (!this.visible || document.hidden || this.disposed) return;
     const settling = Math.abs(this.distance - this.desiredDistance) > .002 || this.target.distanceTo(this.desiredTarget) > .002;
-    const active = this.pointer !== null || Math.abs(this.velocity) > .0002 || settling;
+    const orbiting = this.touring && !this.motion.matches;
+    const active = this.pointer !== null || Math.abs(this.velocity) > .0002 || settling || orbiting;
     const elapsed = this.lastFrame ? now - this.lastFrame : 100;
     // Full frame rate while the visitor interacts; ~30 fps for the slow idle turn.
     if (!active && elapsed < 32) { this.requestFrame(); return; }
     this.lastFrame = now;
     const dt = Math.min(elapsed / 1000, .1);
     if (!this.pointer && Math.abs(this.velocity) > .0002) { this.yaw += this.velocity * dt * 60; this.velocity *= Math.exp(-dt * 4.5); }
+    else if (!this.pointer && orbiting) this.yaw += dt * .16; // guided tour: steady cinematic orbit
     else if (!this.pointer && !this.motion.matches && now - this.lastInteraction > 6000) this.yaw += dt * .03;
     const easing = this.motion.matches ? 1 : 1 - Math.exp(-dt * 4.5);
     this.distance = THREE.MathUtils.lerp(this.distance, this.desiredDistance, easing);
@@ -513,6 +534,7 @@ export class PinnacleScene {
     const [y, distance] = VIEWS[detail];
     this.desiredTarget.set(0, y, 0); this.desiredDistance = distance; this.requestFrame();
   }
+  setTour(active: boolean) { this.touring = active; this.requestFrame(); }
   zoomIn() { this.desiredDistance = Math.max(2, this.desiredDistance * .83); this.requestFrame(); }
   zoomOut() { this.desiredDistance = Math.min(15, this.desiredDistance * 1.2); this.requestFrame(); }
   resetView() { this.yaw = .42; this.pitch = .15; this.velocity = 0; this.focusDetail('overview'); }
