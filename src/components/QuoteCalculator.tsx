@@ -153,7 +153,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             {/* Step 1: Accommodation Visual Switcher with Generous Photography */}
             <div>
               <div className="flex justify-between items-baseline mb-3.5">
-                <p className="text-xs font-bold uppercase tracking-wider text-stone-500">
+                <p className="text-sm font-semibold text-stone-700">
                   1. {t.calculator.accommodationLabel}
                 </p>
                 <span className="text-xs text-stone-500">
@@ -189,13 +189,13 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
                         
                         {isSelected && (
-                          <span className="absolute top-2.5 right-2.5 bg-[#B99470] text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1">
+                          <span className="absolute top-2.5 right-2.5 bg-[#B99470] text-white text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1">
                             <Check size={11} strokeWidth={3} />
                             <span>{lang === 'it' ? 'Scelta' : 'Chosen'}</span>
                           </span>
                         )}
                         
-                        <span className="absolute bottom-2.5 left-2.5 bg-black/60 backdrop-blur-xs text-white text-[11px] font-medium px-2 py-0.5 rounded-md">
+                        <span className="absolute bottom-2.5 left-2.5 bg-black/60 backdrop-blur-xs text-white text-xs font-medium px-2 py-0.5 rounded-md">
                           max {acc.capacityMax} pax • {acc.sqm} m²
                         </span>
                       </div>
@@ -209,7 +209,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                         </div>
                         <div className="flex justify-between items-center text-xs font-semibold text-[#B99470] pt-2.5 mt-2.5 border-t border-stone-100">
                           <span>{lang === 'it' ? 'da' : 'from'} {acc.startingPrice}€ / nt</span>
-                          <span className="text-[11px] text-stone-400 font-normal">
+                          <span className="text-xs text-stone-600 font-normal">
                             {acc.bedroomsCount} {lang === 'it' ? (acc.bedroomsCount === 1 ? 'camera' : 'camere') : (acc.bedroomsCount === 1 ? 'bedroom' : 'bedrooms')}
                           </span>
                         </div>
@@ -225,7 +225,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             {/* Step 2: Date Pickers */}
             <div>
               <div className="flex justify-between items-baseline mb-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-stone-500">
+                <p className="text-sm font-semibold text-stone-700">
                   2. {lang === 'it' ? 'Date del Soggiorno' : 'Stay Dates'}
                 </p>
                 {quote.isValid && !isCheckInPast && (
@@ -238,7 +238,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 min-w-0">
                 {/* Check-In Card with strict iOS overflow protection */}
                 <div className="bg-white rounded-2xl p-3.5 border border-[#E8E1D5] shadow-2xs hover:border-[#B99470]/60 transition-colors overflow-hidden min-w-0">
-                  <label htmlFor="quote-checkIn" className="block text-[11px] uppercase tracking-wider font-bold text-stone-500 mb-1.5 flex items-center gap-1.5">
+                  <label htmlFor="quote-checkIn" className="block text-xs font-semibold text-stone-600 mb-1.5 flex items-center gap-1.5">
                     <Calendar size={13} className="text-[#B99470]" />
                     {t.calculator.checkInLabel}
                   </label>
@@ -255,7 +255,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
                 {/* Check-Out Card with strict iOS overflow protection */}
                 <div className="bg-white rounded-2xl p-3.5 border border-[#E8E1D5] shadow-2xs hover:border-[#B99470]/60 transition-colors overflow-hidden min-w-0">
-                  <label htmlFor="quote-checkOut" className="block text-[11px] uppercase tracking-wider font-bold text-stone-500 mb-1.5 flex items-center gap-1.5">
+                  <label htmlFor="quote-checkOut" className="block text-xs font-semibold text-stone-600 mb-1.5 flex items-center gap-1.5">
                     <Calendar size={13} className="text-[#B99470]" />
                     {t.calculator.checkOutLabel}
                   </label>
@@ -287,7 +287,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             {/* Step 3: Guests Selection with STRICT CAPACITY LOCK */}
             <div>
               <div className="flex justify-between items-center mb-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+                <p className="text-sm font-semibold text-stone-700 flex items-center gap-1.5">
                   <Users size={14} className="text-[#B99470]" />
                   3. {lang === 'it' ? 'Ospiti & Posti Letto' : 'Guests & Beds'}
                 </p>
@@ -307,7 +307,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     <span className="text-xs text-stone-800 font-bold block">
                       {t.calculator.adultsLabel}
                     </span>
-                    <span className="text-[11px] text-stone-400 block mt-0.5">
+                    <span className="text-xs text-stone-600 block mt-0.5">
                       {lang === 'it' ? 'Da 13 anni in su' : 'Age 13+'}
                     </span>
                   </div>
@@ -348,7 +348,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     <span className="text-xs text-stone-800 font-bold block truncate">
                       {t.calculator.childrenLabel}
                     </span>
-                    <span className="text-[11px] text-stone-400 block mt-0.5">
+                    <span className="text-xs text-stone-600 block mt-0.5">
                       {lang === 'it' ? 'Età 3 - 12 anni' : 'Age 3 - 12'}
                     </span>
                   </div>
@@ -389,7 +389,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     <span className="text-xs text-stone-800 font-bold block truncate">
                       {lang === 'it' ? 'Culla neonati' : 'Baby Crib'}
                     </span>
-                    <span className="text-[11px] text-[#B99470] font-medium block mt-0.5">
+                    <span className="text-xs text-[#B99470] font-medium block mt-0.5">
                       {lang === 'it' ? '+15€ al giorno' : '+15€ / day'}
                     </span>
                   </div>
@@ -457,10 +457,10 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             {/* Step 4: Contact Details (for personalizing message/email) */}
             <div className="pt-4 border-t border-[#EAE3D7]">
               <div className="flex justify-between items-baseline mb-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-stone-500">
+                <p className="text-sm font-semibold text-stone-700">
                   4. {lang === 'it' ? 'I Tuoi Dati (opzionale)' : 'Your Details (optional)'}
                 </p>
-                <span className="text-[11px] text-stone-400">
+                <span className="text-xs text-stone-600">
                   {lang === 'it' ? 'Pre-compila la richiesta per Antonella' : 'Pre-fills inquiry for Antonella'}
                 </span>
               </div>
@@ -474,7 +474,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   onChange={(e) =>
                     setFormState((prev) => ({ ...prev, guestName: e.target.value }))
                   }
-                  className="bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-xs sm:text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:border-[#B99470] focus:outline-none transition-all shadow-2xs"
+                  className="bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:border-[#B99470] focus:outline-none transition-all shadow-2xs"
                 />
                 <input
                   type="email"
@@ -484,7 +484,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   onChange={(e) =>
                     setFormState((prev) => ({ ...prev, guestEmail: e.target.value }))
                   }
-                  className="bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-xs sm:text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:border-[#B99470] focus:outline-none transition-all shadow-2xs"
+                  className="bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:border-[#B99470] focus:outline-none transition-all shadow-2xs"
                 />
                 <input
                   type="tel"
@@ -494,7 +494,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   onChange={(e) =>
                     setFormState((prev) => ({ ...prev, guestPhone: e.target.value }))
                   }
-                  className="bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-xs sm:text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:border-[#B99470] focus:outline-none transition-all shadow-2xs"
+                  className="bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:border-[#B99470] focus:outline-none transition-all shadow-2xs"
                 />
               </div>
 
@@ -506,7 +506,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 onChange={(e) =>
                   setFormState((prev) => ({ ...prev, notes: e.target.value }))
                 }
-                className="w-full bg-white border border-[#DDD7CC] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:border-[#B99470] focus:outline-none transition-all shadow-2xs"
+                className="w-full bg-white border border-[#DDD7CC] rounded-xl px-4 py-2.5 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:border-[#B99470] focus:outline-none transition-all shadow-2xs"
               />
             </div>
           </div>
@@ -521,7 +521,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#1C1A17] via-transparent to-transparent pointer-events-none" />
-              <span className="absolute bottom-3 left-3 bg-black/50 backdrop-blur-md text-white border border-white/20 text-[11px] font-medium px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+              <span className="absolute bottom-3 left-3 bg-black/50 backdrop-blur-md text-white border border-white/20 text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
                 <Waves size={12} className="text-[#DFD0B8]" />
                 <span>{lang === 'it' ? 'Piscina & idromassaggio inclusi' : 'Pool & jacuzzi included'}</span>
               </span>
@@ -530,7 +530,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             {/* Suite Header */}
             <div className="flex items-start justify-between gap-3 pb-4 border-b border-white/10">
               <div>
-                <span className="text-[11px] uppercase tracking-widest text-[#B99470] font-bold block mb-1">
+                <span className="text-xs uppercase tracking-widest text-[#D6B38F] font-bold block mb-1">
                   {lang === 'it' ? 'Dimora Selezionata' : 'Selected Suite'}
                 </span>
                 <h3 className="font-serif text-2xl font-bold text-white leading-tight">
@@ -541,9 +541,9 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <span className="text-[10px] uppercase tracking-wider text-white/40 block">{lang === 'it' ? 'A partire da' : 'Starting from'}</span>
+                <span className="text-xs uppercase tracking-wider text-white/70 block">{lang === 'it' ? 'A partire da' : 'Starting from'}</span>
                 <span className="font-serif text-xl font-bold text-[#DFD0B8]">{selectedAccommodation.startingPrice}€</span>
-                <span className="text-[10px] text-white/50 block">/ nt</span>
+                <span className="text-xs text-white/70 block">/ nt</span>
               </div>
             </div>
 
@@ -551,7 +551,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             {!quote.isValid ? (
               <div className="py-6 space-y-4">
                 {/* Suite Perks Checklist */}
-                <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-2.5">
+                <div className="py-4 border-y border-white/20 space-y-2.5">
                   <div className="flex items-center gap-2 text-[#DFD0B8] font-semibold text-xs">
                     <Sparkles size={14} />
                     <span>{lang === 'it' ? 'Incluso in questa dimora:' : 'Included with this suite:'}</span>
@@ -586,13 +586,13 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                   </div>
                 ) : (
                   <div className="p-4 rounded-2xl bg-[#B99470]/15 border border-[#B99470]/30 text-center text-xs text-[#DFD0B8]">
-                    <Calendar size={20} className="mx-auto mb-1.5 text-[#B99470]" />
+                    <Calendar size={20} className="mx-auto mb-1.5 text-[#D6B38F]" />
                     <p className="font-semibold text-white">
                       {lang === 'it'
                         ? 'Inserisci le date del soggiorno'
                         : 'Enter your stay dates'}
                     </p>
-                    <p className="text-[11px] text-white/60 mt-1 font-light leading-relaxed">
+                    <p className="text-xs text-white/60 mt-1 font-light leading-relaxed">
                       {lang === 'it'
                         ? 'Il totale è una stima. Disponibilità e condizioni saranno confermate da Antonella.'
                         : 'This is an estimate. Antonella will confirm availability and the final terms.'}
@@ -634,7 +634,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
 
                 {/* Dates & Guests preview chip */}
                 <div className="flex justify-between items-center text-xs text-white/80 bg-white/5 p-3 rounded-xl border border-white/10">
-                  <span className="font-mono text-[11px]">{formatDateDisplay(formState.checkIn)} → {formatDateDisplay(formState.checkOut)}</span>
+                  <span className="font-mono text-xs">{formatDateDisplay(formState.checkIn)} → {formatDateDisplay(formState.checkOut)}</span>
                   <span className="font-semibold text-[#DFD0B8]">
                     {quote.totalNights} {t.calculator.nights} • {totalGuests} {lang === 'it' ? 'ospiti' : 'guests'}
                   </span>
@@ -661,7 +661,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     </div>
                   )}
 
-                  <div className="flex justify-between items-center text-xs text-[#B99470] pt-1">
+                  <div className="flex justify-between items-center text-xs text-[#D6B38F] pt-1">
                     <span>{t.calculator.averageNight}</span>
                     <span className="font-mono">{quote.averagePerNight}€ / nt</span>
                   </div>
@@ -673,7 +673,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     <span className="text-xs text-white/60 uppercase tracking-wider block">
                       {t.calculator.grandTotal}
                     </span>
-                    <span className="text-[11px] text-emerald-400 font-medium">
+                    <span className="text-xs text-emerald-400 font-medium">
                       {lang === 'it' ? 'Tariffa diretta senza intermediari' : 'Direct host rate without fees'}
                     </span>
                   </div>
@@ -690,7 +690,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     type="button"
                     disabled={isOverCapacity || !quote.meetsMinNights || !quote.isValid || isCheckInPast}
                     onClick={handleWhatsAppInquiry}
-                    className="w-full bg-[#137A42] hover:bg-[#106537] text-white font-semibold py-3.5 px-5 rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2.5 text-sm sm:text-base cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="stay-action w-full bg-[#137A42] hover:bg-[#106537] text-white font-semibold py-3.5 px-5 transition-all flex items-center justify-center gap-2.5 text-sm sm:text-base cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <MessageCircle size={19} />
                     <span>{t.calculator.btnWhatsapp}</span>
@@ -700,9 +700,9 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                     type="button"
                     disabled={isOverCapacity || !quote.meetsMinNights || !quote.isValid || isCheckInPast}
                     onClick={handleEmailInquiry}
-                    className="w-full bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-5 rounded-2xl transition-colors border border-white/20 flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="stay-action w-full bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-5 transition-colors border border-white/20 flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    <Mail size={17} className="text-[#B99470]" />
+                    <Mail size={17} className="text-[#D6B38F]" />
                     <span>{t.calculator.btnEmail}</span>
                   </button>
                 </div>
@@ -710,14 +710,14 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
             )}
 
             {/* Reassurance Notice */}
-            <div className="mt-5 pt-4 border-t border-white/10 text-xs text-white/50 space-y-2">
+            <div className="mt-5 pt-4 border-t border-white/10 text-xs text-white/70 space-y-2">
               <div className="flex items-start gap-2">
                 <ShieldCheck size={16} className="text-emerald-400 shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
                   {t.calculator.noPaymentNotice}
                 </p>
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-[#DFD0B8]">
+              <div className="flex items-center gap-2 text-xs text-[#DFD0B8]">
                 <Info size={14} className="shrink-0" />
                 <span>CIN: IT074003C100028899 • CIS: BR07400361000008508</span>
               </div>
@@ -767,14 +767,14 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#87613F] hover:bg-[#715033] text-white font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md cursor-pointer"
+                className="stay-action w-full sm:w-auto px-8 py-4 bg-[#87613F] hover:bg-[#715033] text-white font-medium text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <MessageCircle size={17} />
                 <span>{t.accommodations.estateExclusiveBtn}</span>
               </a>
               <a
                 href={`tel:${CONTACT_INFO.phoneTel}`}
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl border border-[#C5BBAE] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
+                className="stay-action w-full sm:w-auto px-8 py-4 border border-[#C5BBAE] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Phone size={16} />
                 <span>{lang === 'it' ? 'Chiama Antonella' : 'Call Antonella'}</span>

@@ -138,3 +138,33 @@ button:disabled { cursor: not-allowed; }
 
 footer .text-\[\#B99470\], #trullo-3d .text-\[\#B99470\], header .bg-\[\#1C1C1C\] .text-\[\#B99470\] { color: #D6B38F; }
 .hover\:bg-\[\#B99470\]:hover { background-color: #87613F; }
+
+/* Shared editorial treatments for content facts and text actions. */
+.stay-action {
+  min-height: 44px;
+  border-radius: 6px;
+  box-shadow: none;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: 0.025em;
+  text-transform: none;
+  text-align: center;
+}
+.stay-action:hover { box-shadow: none; }
+.stay-action svg { flex-shrink: 0; }
+.stay-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 0;
+  padding: 1.25rem 0;
+  border-block: 1px solid #DDD7CC;
+  text-align: center;
+}
+.stay-facts > * { min-width: 0; padding-inline: 0.5rem; }
+.stay-facts > :nth-child(even) { border-left: 1px solid #DDD7CC; }
+@media (min-width: 480px) {
+  .stay-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .stay-facts > * + * { border-left: 1px solid #DDD7CC; }
+}

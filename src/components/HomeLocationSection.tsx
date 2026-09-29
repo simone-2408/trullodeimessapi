@@ -84,7 +84,7 @@ export const HomeLocationSection: React.FC<HomeLocationSectionProps> = ({
             {/* Bronze CTA Button */}
             <div>
               <SiteLink route="contatti" lang={lang} onNavigate={onNavigate}
-                className="bg-[#87613F] hover:bg-[#715033] text-white px-8 py-3.5 font-serif text-sm tracking-wider transition-all inline-flex items-center gap-2 shadow-sm hover:shadow-md cursor-pointer"
+                className="stay-action bg-[#87613F] hover:bg-[#715033] text-white px-8 py-3.5 font-serif text-sm tracking-wider transition-all inline-flex items-center gap-2 cursor-pointer"
               >
                 <span>{lang === 'it' ? 'Dove siamo & Contatti' : 'Location & Contacts'}</span>
                 <ChevronRight size={16} />

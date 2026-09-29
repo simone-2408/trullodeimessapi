@@ -144,7 +144,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                   <div className="flex items-start gap-3.5">
                     <Phone size={19} className="text-[#B99470] shrink-0 mt-1" />
                     <div>
-                      <span className="text-[11px] uppercase tracking-wider text-stone-400 block font-semibold mb-0.5">
+                      <span className="text-xs uppercase tracking-wider text-stone-600 block font-semibold mb-0.5">
                         {t.contact.phone}
                       </span>
                       <a
@@ -160,7 +160,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                   <div className="flex items-start gap-3.5">
                     <Mail size={19} className="text-[#B99470] shrink-0 mt-1" />
                     <div>
-                      <span className="text-[11px] uppercase tracking-wider text-stone-400 block font-semibold mb-0.5">
+                      <span className="text-xs uppercase tracking-wider text-stone-600 block font-semibold mb-0.5">
                         {t.contact.email}
                       </span>
                       <a
@@ -176,7 +176,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                   <div className="flex items-start gap-3.5">
                     <MapPin size={19} className="text-[#B99470] shrink-0 mt-1" />
                     <div>
-                      <span className="text-[11px] uppercase tracking-wider text-stone-400 block font-semibold mb-0.5">
+                      <span className="text-xs uppercase tracking-wider text-stone-600 block font-semibold mb-0.5">
                         {t.contact.address}
                       </span>
                       <p className="font-light text-stone-700 leading-relaxed">
@@ -198,7 +198,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 py-3.5 px-5 rounded-2xl bg-[#87613F] hover:bg-[#715033] text-white font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-none hover:border-[#B99470]"
+                  className="stay-action flex-1 py-3.5 px-5 bg-[#87613F] hover:bg-[#715033] text-white font-medium text-sm transition-all flex items-center justify-center gap-2 hover:border-[#B99470]"
                 >
                   <MessageCircle size={18} />
                   <span>WhatsApp</span>
@@ -206,7 +206,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
 
                 <a
                   href={`tel:${CONTACT_INFO.phoneTel}`}
-                  className="flex-1 py-3.5 px-5 rounded-2xl border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-none"
+                  className="stay-action flex-1 py-3.5 px-5 border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-sm transition-all flex items-center justify-center gap-2"
                 >
                   <Phone size={17} />
                   <span>{lang === 'it' ? 'Chiama Antonella' : 'Call Antonella'}</span>
@@ -316,7 +316,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#87613F] hover:bg-[#715033] text-white font-medium py-3.5 px-6 rounded-xl sm:rounded-2xl transition-all shadow-none hover:border-[#B99470] flex items-center justify-center gap-2 cursor-pointer text-sm"
+                  className="stay-action w-full bg-[#87613F] hover:bg-[#715033] text-white font-medium py-3.5 px-6 transition-all hover:border-[#B99470] flex items-center justify-center gap-2 cursor-pointer text-sm"
                 >
                   <Send size={16} />
                   <span>{lang === 'it' ? 'Apri email per Antonella' : 'Open email to Antonella'}</span>
@@ -353,14 +353,14 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
           {destinations.map((d, idx) => (
             <div
               key={idx}
-              className="bg-[#FAF7F2] p-6 rounded-xl border border-[#E8E1D5] hover:border-[#B99470] transition-all flex flex-col justify-between shadow-xs hover:border-[#B99470] group"
+              className="py-6 border-t border-[#DDD7CC] flex flex-col justify-between group"
             >
               <div>
                 <div className="flex justify-between items-start mb-2.5">
                   <h3 className="font-serif font-bold text-lg text-stone-900 leading-snug group-hover:text-[#B99470] transition-colors">
                     {d.title}
                   </h3>
-                  <span className="text-[11px] font-semibold bg-white px-2.5 py-1 rounded-full text-[#B99470] border border-[#B99470]/25 shrink-0 shadow-2xs">
+                  <span className="text-xs font-semibold text-[#87613F] shrink-0">
                     {d.time}
                   </span>
                 </div>
@@ -385,7 +385,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
       {/* 4. MAPPA & NAVIGAZIONE (FULL-WIDTH LUXURY STRIP) */}
       {/* ==================================================== */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
-        <div className="bg-[#FAF7F2] border border-[#E8E1D5] rounded-xl sm:rounded-[36px] overflow-hidden shadow-none grid grid-cols-1 lg:grid-cols-12">
+        <div className="bg-[#FAF7F2] border border-[#E8E1D5] rounded-md overflow-hidden shadow-none grid grid-cols-1 lg:grid-cols-12">
           {/* Map Info & Address (5 cols) */}
           <div className="lg:col-span-5 p-8 sm:p-12 flex flex-col justify-between">
             <div>
@@ -423,7 +423,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                 href={googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 bg-[#87613F] hover:bg-[#715033] text-white font-medium py-3.5 px-5 rounded-2xl text-center text-xs sm:text-sm transition-all shadow-none hover:border-[#B99470] flex items-center justify-center gap-2"
+                className="stay-action flex-1 bg-[#87613F] hover:bg-[#715033] text-white font-medium py-3.5 px-5 text-center text-xs sm:text-sm transition-all hover:border-[#B99470] flex items-center justify-center gap-2"
               >
                 <span>Apri Google Maps</span>
                 <ExternalLink size={14} />
@@ -433,7 +433,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                 href={appleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium py-3.5 px-5 rounded-2xl text-center text-xs sm:text-sm transition-all flex items-center justify-center gap-2"
+                className="stay-action flex-1 border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium py-3.5 px-5 text-center text-xs sm:text-sm transition-all flex items-center justify-center gap-2"
               >
                 <span>Apple Maps</span>
                 <ExternalLink size={14} />

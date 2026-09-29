@@ -118,7 +118,7 @@ export const Footer: React.FC<FooterProps> = ({ lang, onNavigate }) => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-white/50">
+        <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-white/70">
           <div>
             © {new Date().getFullYear()} Trullo dei Messapi • {t.footer.allRights}
           </div>

@@ -163,23 +163,23 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
           </div>
 
           {/* Quick Specifications Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#FAF8F5] p-5 rounded-2xl border border-[#E7D7C1]/50">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-5 gap-y-6 py-5 border-y border-[#DDD7CC]">
             <div className="flex flex-wrap items-center gap-2 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-none">
+              <div className="text-[#87613F]">
                 <Maximize2 size={20} />
               </div>
               <div>
-                <span className="text-xs text-gray-500 uppercase block font-medium">{lang === 'it' ? 'Superficie' : 'Area'}</span>
+                <span className="text-xs text-gray-600 block font-medium">{lang === 'it' ? 'Superficie' : 'Area'}</span>
                 <span className="font-semibold text-gray-800">{accommodation.sqm} m²</span>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-none">
+              <div className="text-[#87613F]">
                 <Users size={20} />
               </div>
               <div>
-                <span className="text-xs text-gray-500 uppercase block font-medium">{lang === 'it' ? 'Capacità' : 'Capacity'}</span>
+                <span className="text-xs text-gray-600 block font-medium">{lang === 'it' ? 'Capacità' : 'Capacity'}</span>
                 <span className="font-semibold text-gray-800">
                   {accommodation.capacityStandard} - {accommodation.capacityMax} {lang === 'it' ? 'ospiti' : 'guests'}
                 </span>
@@ -187,21 +187,21 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-2 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-none">
+              <div className="text-[#87613F]">
                 <Bed size={20} />
               </div>
               <div>
-                <span className="text-xs text-gray-500 uppercase block font-medium">{lang === 'it' ? 'Camere' : 'Bedrooms'}</span>
+                <span className="text-xs text-gray-600 block font-medium">{lang === 'it' ? 'Camere' : 'Bedrooms'}</span>
                 <span className="font-semibold text-gray-800">{accommodation.bedroomsCount}</span>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#B99470] shadow-none">
+              <div className="text-[#87613F]">
                 <Bath size={20} />
               </div>
               <div>
-                <span className="text-xs text-gray-500 uppercase block font-medium">{lang === 'it' ? 'Bagni' : 'Bathrooms'}</span>
+                <span className="text-xs text-gray-600 block font-medium">{lang === 'it' ? 'Bagni' : 'Bathrooms'}</span>
                 <span className="font-semibold text-gray-800">{accommodation.bathroomsCount} {lang === 'it' ? 'con doccia' : 'with shower'}</span>
               </div>
             </div>
@@ -241,29 +241,29 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
 
           {/* Included Amenities Badges */}
           <div className="pt-4 border-t border-gray-100">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-600 mb-3">
               {lang === 'it' ? 'Servizi & Comfort Inclusi' : 'Included Amenities'}
             </h4>
             <div className="flex flex-wrap gap-2.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
+              <span className="inline-flex items-center gap-2 py-1.5 pr-5 text-sm text-gray-700">
                 <Wifi size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Wi-Fi Gratuito' : 'Free Wi-Fi'}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
+              <span className="inline-flex items-center gap-2 py-1.5 pr-5 text-sm text-gray-700">
                 <Waves size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Piscina & Jacuzzi Condivisa' : 'Shared pool & jacuzzi'}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
+              <span className="inline-flex items-center gap-2 py-1.5 pr-5 text-sm text-gray-700">
                 <Utensils size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Cucina Attrezzata' : 'Equipped kitchen'}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
+              <span className="inline-flex items-center gap-2 py-1.5 pr-5 text-sm text-gray-700">
                 <Coffee size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Macchina Caffè & Bollitore' : 'Coffee machine & kettle'}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
+              <span className="inline-flex items-center gap-2 py-1.5 pr-5 text-sm text-gray-700">
                 <Flame size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Camino in Pietra' : 'Stone fireplace'}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
+              <span className="inline-flex items-center gap-2 py-1.5 pr-5 text-sm text-gray-700">
                 <Sun size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Terrazza / Patio Privato' : 'Private terrace / patio'}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-xs font-medium text-gray-700">
+              <span className="inline-flex items-center gap-2 py-1.5 pr-5 text-sm text-gray-700">
                 <Shield size={14} className="text-[#B99470]" /> {lang === 'it' ? 'Cassaforte & Parcheggio' : 'Safe & parking'}
               </span>
             </div>
@@ -283,7 +283,7 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
           <div className="flex gap-2 w-full sm:w-auto min-w-0">
             <button
               onClick={onClose}
-              className="py-2.5 px-3 sm:px-5 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+              className="stay-action py-2.5 px-3 sm:px-5 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
             >
               {t.accommodations.modalClose}
             </button>
@@ -292,7 +292,7 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
                 onClose();
                 onSelectForQuote(accommodation.id);
               }}
-              className="min-w-0 flex-1 sm:flex-initial py-2.5 px-3 sm:px-6 rounded-xl bg-[#87613F] hover:bg-[#715033] text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="stay-action min-w-0 flex-1 sm:flex-initial py-2.5 px-3 sm:px-6 bg-[#87613F] hover:bg-[#715033] text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Calendar size={16} />
               <span>{lang === 'it' ? 'Richiedi questa dimora' : 'Request this accommodation'}</span>

@@ -48,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
       {/* 1. Luxury Top Micro-Bar (inspired by Masseria Torre Coccaro & San Paolo Grande) */}
-      <div className="bg-[#1C1C1C] text-white/80 text-[11px] font-sans tracking-wider py-1.5 px-4 sm:px-8 border-b border-white/10 hidden md:block">
+      <div className="bg-[#1C1C1C] text-white/80 text-xs font-sans tracking-wider py-1.5 px-4 sm:px-8 border-b border-white/10 hidden md:block">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <span className="flex items-center gap-1.5 text-white/70">
@@ -120,9 +120,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           </a>
 
           {/* Desktop Navigation Links (Understated, Editorial Typography) */}
-          <div className="hidden lg:flex items-center space-x-7 xl:space-x-8">
+          <div className="hidden lg:flex items-center space-x-4 xl:space-x-8">
             <SiteLink route="home" lang={lang} onNavigate={handleNavClick}
-              className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
+              className={`text-xs uppercase tracking-[0.12em] xl:tracking-[0.2em] whitespace-nowrap font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'home'
                   ? 'text-[#B99470] border-b-2 border-[#B99470]'
                   : 'text-[#2C2926] hover:text-[#B99470]'
@@ -131,7 +131,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               Home
             </SiteLink>
             <SiteLink route="suites" lang={lang} onNavigate={handleNavClick}
-              className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
+              className={`text-xs uppercase tracking-[0.12em] xl:tracking-[0.2em] whitespace-nowrap font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'suites'
                   ? 'text-[#B99470] border-b-2 border-[#B99470]'
                   : 'text-[#2C2926] hover:text-[#B99470]'
@@ -140,7 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {t.nav.accommodations}
             </SiteLink>
             <SiteLink route="piscina" lang={lang} onNavigate={handleNavClick}
-              className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
+              className={`text-xs uppercase tracking-[0.12em] xl:tracking-[0.2em] whitespace-nowrap font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'piscina'
                   ? 'text-[#B99470] border-b-2 border-[#B99470]'
                   : 'text-[#2C2926] hover:text-[#B99470]'
@@ -149,7 +149,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {t.nav.pool}
             </SiteLink>
             <SiteLink route="preventivo" lang={lang} onNavigate={handleNavClick}
-              className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
+              className={`text-xs uppercase tracking-[0.12em] xl:tracking-[0.2em] whitespace-nowrap font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'preventivo'
                   ? 'text-[#B99470] border-b-2 border-[#B99470]'
                   : 'text-[#2C2926] hover:text-[#B99470]'
@@ -158,7 +158,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {t.nav.calculator}
             </SiteLink>
             <SiteLink route="contatti" lang={lang} onNavigate={handleNavClick}
-              className={`text-xs uppercase tracking-[0.2em] font-semibold transition-colors cursor-pointer py-1 ${
+              className={`text-xs uppercase tracking-[0.12em] xl:tracking-[0.2em] whitespace-nowrap font-semibold transition-colors cursor-pointer py-1 ${
                 currentRoute === 'contatti'
                   ? 'text-[#B99470] border-b-2 border-[#B99470]'
                   : 'text-[#2C2926] hover:text-[#B99470]'
@@ -171,7 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right actions: Direct Booking Button */}
           <div className="hidden lg:flex items-center space-x-4">
             <SiteLink route="preventivo" lang={lang} onNavigate={handleNavClick}
-              className="bg-[#87613F] hover:bg-[#715033] text-white px-5 py-2.5 rounded-full text-xs font-semibold tracking-[0.18em] uppercase transition-all shadow-xs hover:shadow-md flex items-center gap-2 cursor-pointer"
+              className="stay-action whitespace-nowrap bg-[#87613F] hover:bg-[#715033] text-white px-5 py-2.5 text-xs font-semibold tracking-[0.18em] uppercase transition-all flex items-center gap-2 cursor-pointer"
             >
               <Calendar size={13} />
               <span>{t.nav.bookNow}</span>
@@ -183,14 +183,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center space-x-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-[#EFECE5] border border-[#DDD7CC] text-[#34302B] mr-1">
               <button
                 onClick={() => onLanguageChange('it')}
-                className={`px-1.5 py-0.5 ${lang === 'it' ? 'text-[#B99470] font-bold' : 'text-stone-400'}`}
+                className={`px-1.5 py-0.5 ${lang === 'it' ? 'text-[#B99470] font-bold' : 'text-stone-600'}`}
               >
                 IT
               </button>
               <span className="text-stone-300">/</span>
               <button
                 onClick={() => onLanguageChange('en')}
-                className={`px-1.5 py-0.5 ${lang === 'en' ? 'text-[#B99470] font-bold' : 'text-stone-400'}`}
+                className={`px-1.5 py-0.5 ${lang === 'en' ? 'text-[#B99470] font-bold' : 'text-stone-600'}`}
               >
                 EN
               </button>
@@ -237,7 +237,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </SiteLink>
 
               <SiteLink route="preventivo" lang={lang} onNavigate={handleNavClick}
-                className="w-full mt-3 bg-[#87613F] hover:bg-[#715033] text-white py-3 rounded-xl text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 shadow-sm"
+                className="stay-action w-full mt-3 bg-[#87613F] hover:bg-[#715033] text-white py-3 text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2"
               >
                 <Calendar size={16} />
                 <span>{t.nav.bookNow}</span>

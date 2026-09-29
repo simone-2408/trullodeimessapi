@@ -22,13 +22,13 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
           {lang === 'it' ? 'Benvenuti in Valle d’Itria' : 'Welcome to the Itria Valley'}
         </span>
         <h2 className="font-serif text-3xl sm:text-5xl font-normal text-stone-900 leading-tight">
-          {lang === 'it' ? 'Una vacanza tra trulli e ulivi' : 'A holiday among trulli and olive trees'}
+          {lang === 'it' ? 'Storia & natura' : 'History & nature'}
         </h2>
         <div className="w-12 h-[1.5px] bg-[#B99470]/60 mx-auto my-5" />
         <p className="text-sm sm:text-base text-stone-600 font-light max-w-xl mx-auto leading-relaxed">
           {lang === 'it'
-            ? 'Scegli la tua dimora e scopri la Puglia, con uno spazio tutto tuo a cui tornare.'
-            : 'Choose your residence and explore Puglia, with a place of your own to return to.'}
+            ? 'Scegli la tua dimora e scopri la Puglia'
+            : 'Choose your residence and explore Puglia'}
         </p>
       </div>
 

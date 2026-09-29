@@ -16,7 +16,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ lang }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B99470]/15 text-[#8A6743] text-xs font-bold uppercase tracking-widest mb-3">
+          <div className="inline-flex items-center gap-2 py-1.5 text-[#8A6743] text-xs font-bold uppercase tracking-widest mb-3">
             <MessageSquareQuote size={14} />
             <span>{t.reviews.sectionTag}</span>
           </div>
@@ -40,7 +40,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ lang }) => {
           {TESTIMONIALS.map((item) => (
             <div
               key={item.id}
-              className="bg-[#FAF7F2] rounded-xl p-7 sm:p-8 shadow-none border border-[#E2DDD3] flex flex-col justify-between hover:border-[#B99470] transition-all"
+              className="bg-[#FAF7F2] p-7 sm:p-8 border-t border-[#D5CCC0] flex flex-col justify-between"
             >
               <div>
                 {/* Rating Stars & Room Badge */}
@@ -50,7 +50,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ lang }) => {
                       <Star key={i} size={16} fill="currentColor" strokeWidth={0} />
                     ))}
                   </div>
-                  <span className="text-xs font-medium px-3 py-1 bg-[#F2EDE4] text-[#8A6743] rounded-full border border-[#DDD7CB]">
+                  <span className="text-xs font-medium text-[#87613F]">
                     {item.room}
                   </span>
                 </div>
@@ -74,13 +74,13 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ lang }) => {
                     <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
                       {item.guest}
                     </h4>
-                    <span className="text-[11px] text-gray-400">
+                    <span className="text-xs text-gray-600">
                       {lang === 'en' && item.country === 'Italia' ? 'Italy' : item.country} • {lang === 'en' ? ({ Agosto: 'August', Luglio: 'July', Settembre: 'September', Giugno: 'June' } as Record<string, string>)[item.stayDate] || item.stayDate : item.stayDate}
                     </span>
                   </div>
                 </div>
 
-                <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
+                <span className="flex items-center gap-1 text-xs text-emerald-700 font-medium">
                   <CheckCircle size={12} />
                   {lang === 'it' ? 'Soggiorno verificato' : 'Verified stay'}
                 </span>

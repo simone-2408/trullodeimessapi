@@ -42,7 +42,7 @@ export const CtaBanner: React.FC<CtaBannerProps> = ({ lang, onNavigate }) => {
         {/* CTA Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-4">
           <SiteLink route="preventivo" lang={lang} onNavigate={onNavigate}
-            className="bg-[#87613F] hover:bg-[#715033] text-white px-8 py-3.5 rounded-full text-xs uppercase tracking-widest font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 cursor-pointer"
+            className="stay-action bg-[#87613F] hover:bg-[#715033] text-white px-8 py-3.5 text-xs uppercase tracking-widest font-semibold transition-all flex items-center gap-2 cursor-pointer"
           >
             <Calendar size={16} />
             <span>{lang === 'it' ? 'Calcola il soggiorno' : 'Estimate your stay'}</span>
@@ -56,7 +56,7 @@ export const CtaBanner: React.FC<CtaBannerProps> = ({ lang, onNavigate }) => {
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/25 px-7 py-3.5 rounded-full text-xs uppercase tracking-widest font-semibold transition-all flex items-center gap-2"
+            className="stay-action bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/25 px-7 py-3.5 text-xs uppercase tracking-widest font-semibold transition-all flex items-center gap-2"
           >
             <MessageCircle size={16} className="text-[#25D366]" />
             <span>WhatsApp</span>

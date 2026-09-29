@@ -171,7 +171,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
                       className="w-full h-full object-cover"
                     />
                     {isLastThumbnail && (
-                      <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center text-white text-[10px] font-bold">
+                      <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center text-white text-xs font-bold">
                         +{accommodation.gallery.length - 4}
                       </div>
                     )}
@@ -180,7 +180,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
               })}
             </div>
 
-            <span className="bg-black/60 backdrop-blur-md text-white text-[11px] font-mono px-3 py-1.5 rounded-full shrink-0 shadow-md">
+            <span className="bg-black/60 backdrop-blur-md text-white text-xs font-mono px-3 py-1.5 rounded-full shrink-0 shadow-md">
               {activePhotoIndex + 1} / {accommodation.gallery.length}
             </span>
           </div>
@@ -223,40 +223,40 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
             </p>
 
             {/* Architectural Specifications Ribbon */}
-            <div className="mt-6 bg-[#F2EDE4]/75 border border-[#E5E0D5] rounded-2xl p-3.5 sm:p-4 grid grid-cols-4 gap-2 text-center divide-x divide-[#E5E0D5]">
+            <div className="stay-facts mt-6">
               <div className="px-1">
                 <Maximize2 size={16} className="mx-auto text-[#B99470] mb-1" />
-                <span className="block text-xs sm:text-sm font-bold text-stone-800 font-serif">
+                <span className="block text-base font-semibold text-stone-800 font-serif">
                   {accommodation.sqm} m²
                 </span>
-                <span className="text-[10px] text-stone-500 uppercase tracking-wider block">
+                <span className="text-xs text-stone-600 block leading-relaxed">
                   {t.accommodations.sqm}
                 </span>
               </div>
               <div className="px-1">
                 <Users size={16} className="mx-auto text-[#B99470] mb-1" />
-                <span className="block text-xs sm:text-sm font-bold text-stone-800 font-serif">
+                <span className="block text-base font-semibold text-stone-800 font-serif">
                   {accommodation.capacityStandard} - {accommodation.capacityMax}
                 </span>
-                <span className="text-[10px] text-stone-500 uppercase tracking-wider block">
+                <span className="text-xs text-stone-600 block leading-relaxed">
                   {t.accommodations.guests}
                 </span>
               </div>
               <div className="px-1">
                 <Bed size={16} className="mx-auto text-[#B99470] mb-1" />
-                <span className="block text-xs sm:text-sm font-bold text-stone-800 font-serif">
+                <span className="block text-base font-semibold text-stone-800 font-serif">
                   {accommodation.bedroomsCount}
                 </span>
-                <span className="text-[10px] text-stone-500 uppercase tracking-wider block">
+                <span className="text-xs text-stone-600 block leading-relaxed">
                   {t.accommodations.bedrooms}
                 </span>
               </div>
               <div className="px-1">
                 <Bath size={16} className="mx-auto text-[#B99470] mb-1" />
-                <span className="block text-xs sm:text-sm font-bold text-stone-800 font-serif">
+                <span className="block text-base font-semibold text-stone-800 font-serif">
                   {accommodation.bathroomsCount}
                 </span>
-                <span className="text-[10px] text-stone-500 uppercase tracking-wider block">
+                <span className="text-xs text-stone-600 block leading-relaxed">
                   {t.accommodations.bathrooms}
                 </span>
               </div>
@@ -286,9 +286,9 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
             </div>
 
             {/* Pricing & CTAs */}
-            <div className="mt-8 pt-6 border-t border-[#EAE3D7] flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="mt-8 pt-6 border-t border-[#EAE3D7] flex flex-col gap-5">
               <div>
-                <span className="text-[11px] uppercase tracking-wider text-stone-500 block font-medium">
+                <span className="text-xs uppercase tracking-wider text-stone-500 block font-medium">
                   {t.accommodations.fromPrice}
                 </span>
                 <div className="flex items-baseline gap-1.5">
@@ -299,15 +299,15 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
                     / {t.accommodations.perNight}
                   </span>
                 </div>
-                <span className="text-[10px] text-stone-400 block mt-0.5">
+                <span className="text-xs text-stone-600 block mt-0.5">
                   {t.accommodations.directBooking}
                 </span>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <button
                   onClick={() => onOpenDetails(accommodation)}
-                  className="px-4 py-3 rounded-xl sm:rounded-2xl border border-[#D5CCC0] bg-white hover:bg-[#F3EDE4] text-stone-800 font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer hover:border-[#B99470]"
+                  className="stay-action px-4 py-3 border border-[#D5CCC0] bg-white hover:bg-[#F3EDE4] text-stone-800 font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:border-[#B99470]"
                 >
                   <Images size={15} className="text-[#B99470]" />
                   <span>
@@ -317,7 +317,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
 
                 <button
                   onClick={() => onSelectForQuote(accommodation.id)}
-                  className="px-5 py-3 rounded-xl sm:rounded-2xl bg-[#87613F] hover:bg-[#715033] text-white font-medium text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group/btn"
+                  className="stay-action px-5 py-3 bg-[#87613F] hover:bg-[#715033] text-white font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer group/btn"
                 >
                   <Calendar size={15} />
                   <span>{t.accommodations.selectForQuote}</span>

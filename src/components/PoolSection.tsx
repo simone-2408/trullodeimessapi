@@ -196,7 +196,7 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
                         className="w-full h-full object-cover"
                       />
                       {isLastThumbnail && (
-                        <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center text-white text-[10px] font-bold">
+                        <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center text-white text-xs font-bold">
                           +{pool.gallery.length - 4}
                         </div>
                       )}
@@ -205,7 +205,7 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
                 })}
               </div>
 
-              <span className="bg-black/60 backdrop-blur-md text-white text-[11px] font-mono px-3 py-1.5 rounded-full shrink-0 shadow-md">
+              <span className="bg-black/60 backdrop-blur-md text-white text-xs font-mono px-3 py-1.5 rounded-full shrink-0 shadow-md">
                 {activePhotoIdx + 1} / {pool.gallery.length}
               </span>
             </div>
@@ -242,40 +242,40 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
               </p>
 
               {/* Specifications Ribbon */}
-              <div className="mt-6 bg-[#F2EDE4]/75 border border-[#E5E0D5] rounded-2xl p-3.5 sm:p-4 grid grid-cols-4 gap-2 text-center divide-x divide-[#E5E0D5]">
+              <div className="stay-facts mt-6">
                 <div className="px-1">
                   <Waves size={16} className="mx-auto text-[#B99470] mb-1" />
-                  <span className="block text-xs sm:text-sm font-bold text-stone-800 font-serif">
+                  <span className="block text-base font-semibold text-stone-800 font-serif">
                     12 × 6 m
                   </span>
-                  <span className="text-[10px] text-stone-500 uppercase tracking-wider block">
+                  <span className="text-xs text-stone-600 block leading-relaxed">
                     {lang === 'it' ? 'Piscina' : 'Pool'}
                   </span>
                 </div>
                 <div className="px-1">
                   <Sun size={16} className="mx-auto text-[#B99470] mb-1" />
-                  <span className="block text-xs sm:text-sm font-bold text-stone-800 font-serif">
+                  <span className="block text-base font-semibold text-stone-800 font-serif">
                     Jacuzzi
                   </span>
-                  <span className="text-[10px] text-stone-500 uppercase tracking-wider block">
+                  <span className="text-xs text-stone-600 block leading-relaxed">
                     {lang === 'it' ? 'Idromassaggio' : 'Hydromassage'}
                   </span>
                 </div>
                 <div className="px-1">
                   <ShieldCheck size={16} className="mx-auto text-[#B99470] mb-1" />
-                  <span className="block text-xs sm:text-sm font-bold text-stone-800 font-serif">
+                  <span className="block text-base font-semibold text-stone-800 font-serif">
                     {lang === 'it' ? '3 Dimore' : '3 Suites'}
                   </span>
-                  <span className="text-[10px] text-stone-500 uppercase tracking-wider block">
+                  <span className="text-xs text-stone-600 block leading-relaxed">
                     {lang === 'it' ? 'Solo Ospiti' : 'Private'}
                   </span>
                 </div>
                 <div className="px-1">
                   <Sparkles size={16} className="mx-auto text-[#B99470] mb-1" />
-                  <span className="block text-xs sm:text-sm font-bold text-stone-800 font-serif">
+                  <span className="block text-base font-semibold text-stone-800 font-serif">
                     {lang === 'it' ? 'Inclusi' : 'Included'}
                   </span>
-                  <span className="text-[10px] text-stone-500 uppercase tracking-wider block">
+                  <span className="text-xs text-stone-600 block leading-relaxed">
                     {lang === 'it' ? 'Teli Spugna' : 'Towels'}
                   </span>
                 </div>
@@ -300,7 +300,7 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
               <div className="mt-8 pt-6 border-t border-[#EAE3D7] flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <button
                   onClick={() => openLightbox(0)}
-                  className="px-5 py-3.5 rounded-xl sm:rounded-2xl border border-[#D5CCC0] bg-white hover:bg-[#F3EDE4] text-stone-800 font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer hover:border-[#B99470]"
+                  className="stay-action px-5 py-3.5 border border-[#D5CCC0] bg-white hover:bg-[#F3EDE4] text-stone-800 font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer hover:border-[#B99470]"
                 >
                   <Images size={15} className="text-[#B99470]" />
                   <span>
@@ -312,7 +312,7 @@ export const PoolSection: React.FC<PoolSectionProps> = ({
 
                 {onNavigate && (
                   <SiteLink route="suites" lang={lang} onNavigate={onNavigate}
-                    className="px-5 py-3.5 rounded-xl sm:rounded-2xl bg-[#87613F] hover:bg-[#715033] text-white font-medium text-xs sm:text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group/btn"
+                    className="stay-action px-5 py-3.5 bg-[#87613F] hover:bg-[#715033] text-white font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer group/btn"
                   >
                     <span>
                       {lang === 'it' ? 'Scopri le 3 Dimore' : 'Explore the 3 Suites'}

@@ -165,8 +165,8 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
 
                 {/* 4 Pillars of the Estate */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-10 pt-8 border-t border-[#E8E1D5] text-left">
-                  <div className="flex items-start gap-3 bg-[#FAF7F2] p-3.5 rounded-2xl border border-[#EBE4D8]/80">
-                    <div className="w-9 h-9 rounded-xl bg-[#F0EAE1] flex items-center justify-center text-[#B99470] shrink-0 mt-0.5">
+                  <div className="flex items-start gap-3 py-3 border-b border-[#EBE4D8]">
+                    <div className="text-[#87613F] shrink-0 mt-0.5">
                       <ShieldCheck size={18} />
                     </div>
                     <div>
@@ -179,8 +179,8 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 bg-[#FAF7F2] p-3.5 rounded-2xl border border-[#EBE4D8]/80">
-                    <div className="w-9 h-9 rounded-xl bg-[#F0EAE1] flex items-center justify-center text-[#B99470] shrink-0 mt-0.5">
+                  <div className="flex items-start gap-3 py-3 border-b border-[#EBE4D8]">
+                    <div className="text-[#87613F] shrink-0 mt-0.5">
                       <Waves size={18} />
                     </div>
                     <div>
@@ -193,8 +193,8 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 bg-[#FAF7F2] p-3.5 rounded-2xl border border-[#EBE4D8]/80">
-                    <div className="w-9 h-9 rounded-xl bg-[#F0EAE1] flex items-center justify-center text-[#B99470] shrink-0 mt-0.5">
+                  <div className="flex items-start gap-3 py-3 border-b border-[#EBE4D8]">
+                    <div className="text-[#87613F] shrink-0 mt-0.5">
                       <Sun size={18} />
                     </div>
                     <div>
@@ -207,8 +207,8 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 bg-[#FAF7F2] p-3.5 rounded-2xl border border-[#EBE4D8]/80">
-                    <div className="w-9 h-9 rounded-xl bg-[#F0EAE1] flex items-center justify-center text-[#B99470] shrink-0 mt-0.5">
+                  <div className="flex items-start gap-3 py-3 border-b border-[#EBE4D8]">
+                    <div className="text-[#87613F] shrink-0 mt-0.5">
                       <Utensils size={18} />
                     </div>
                     <div>
@@ -250,7 +250,7 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
 
             {/* Exclusive Estate Booking Pavilion (Sophisticated & Harmonious) */}
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
-              <div className="bg-[#FAF7F2] border border-[#E8E1D5] rounded-3xl sm:rounded-[36px] p-8 sm:p-14 lg:p-16 text-center relative overflow-hidden shadow-sm">
+              <div className="bg-[#FAF7F2] border-y border-[#E8E1D5] p-8 sm:p-14 lg:p-16 text-center relative overflow-hidden">
                 <span className="text-xs uppercase tracking-[0.25em] text-[#B99470] font-bold block mb-3">
                   {t.accommodations.estateExclusiveTag}
                 </span>
@@ -303,7 +303,7 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-[#87613F] hover:bg-[#715033] text-white font-medium text-xs sm:text-sm transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                    className="stay-action w-full sm:w-auto px-7 py-3.5 bg-[#87613F] hover:bg-[#715033] text-white font-medium text-xs sm:text-sm transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <MessageCircle size={17} />
                     <span>
@@ -314,7 +314,7 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
                   </a>
 
                   <SiteLink route="preventivo" lang={lang} query="?alloggio=tenuta" onNavigate={() => { setCalculatorSuite('tenuta'); navigate('preventivo', 'tenuta'); }}
-                    className="w-full sm:w-auto px-7 py-3.5 rounded-2xl border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer hover:border-[#B99470]"
+                    className="stay-action w-full sm:w-auto px-7 py-3.5 border border-[#D5CCC0] bg-white hover:bg-[#FAF7F2] text-stone-800 font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer hover:border-[#B99470]"
                   >
                     <span>{t.accommodations.estateExclusiveBtn}</span>
                   </SiteLink>
