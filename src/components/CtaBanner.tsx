@@ -13,7 +13,7 @@ interface CtaBannerProps {
 
 export const CtaBanner: React.FC<CtaBannerProps> = ({ lang, onNavigate }) => {
   return (
-    <section className="relative py-16 sm:py-20 overflow-hidden bg-stone-900 text-white">
+    <section className="editorial-space relative overflow-hidden bg-stone-900 text-white">
       {/* Background Image with Dark Atmospheric Overlay */}
       <div className="absolute inset-0 z-0">
         <SmartImage
@@ -26,14 +26,14 @@ export const CtaBanner: React.FC<CtaBannerProps> = ({ lang, onNavigate }) => {
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Title */}
-        <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal text-white mb-4 leading-tight">
+        <h2 className="editorial-title text-white mb-5">
           {lang === 'it'
             ? 'Il tuo prossimo soggiorno tra i trulli'
             : 'Your next stay among the trulli'}
         </h2>
 
         {/* Contact info subtitle */}
-        <p className="text-sm sm:text-base text-white/80 font-light max-w-2xl mx-auto mb-8 leading-relaxed">
+        <p className="editorial-copy text-white/80 mx-auto mb-8">
           {lang === 'it'
             ? `Chiamaci al ${CONTACT_INFO.phoneDisplay} o scrivici a ${CONTACT_INFO.email}`
             : `Call us at ${CONTACT_INFO.phoneDisplay} or email us at ${CONTACT_INFO.email}`}

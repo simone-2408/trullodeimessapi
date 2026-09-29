@@ -45,13 +45,13 @@ export const HomeLocationSection: React.FC<HomeLocationSectionProps> = ({
         </div>
 
         {/* Right Column: Sleek Charcoal Dark Box Full-Bleed */}
-        <div className="bg-[#1C1C1C] text-white p-8 sm:p-14 lg:p-16 xl:p-24 flex flex-col justify-center">
-          <div className="max-w-xl">
+        <div className="editorial-inset bg-[#1C1C1C] text-white flex flex-col justify-center">
+          <div className="max-w-[38rem]">
             {/* Minimal Eyebrow & Heading */}
             <span className="text-xs uppercase tracking-[0.25em] text-[#D6B38F] font-semibold block mb-3">
               {lang === 'it' ? 'La Terra e i Trulli' : 'Earth & Trulli'}
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-wide text-white leading-tight">
+            <h2 className="editorial-title text-white">
               {lang === 'it' ? 'Nel paesaggio di Ceglie Messapica' : 'In the countryside of Ceglie Messapica'}
             </h2>
 
@@ -59,7 +59,7 @@ export const HomeLocationSection: React.FC<HomeLocationSectionProps> = ({
             <div className="w-16 h-[2px] bg-[#B99470] my-6" />
 
             {/* Minimal & Evocative Body Copy */}
-            <div className="space-y-4 text-white/80 font-light text-sm sm:text-base leading-relaxed mb-8">
+            <div className="editorial-copy space-y-5 text-white/80 mb-8">
               {lang === 'it' ? (
                 <>
                   <p>

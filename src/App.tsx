@@ -112,7 +112,7 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
             />
 
             {/* Spazio bianco di respiro tra i blocchi */}
-            <div className="w-full h-14 sm:h-20 bg-white" />
+            <div className="editorial-gap w-full bg-white" />
 
             {/* 3. "La nostra Location" 2-Column Section (dallo screenshot) */}
             <HomeLocationSection
@@ -122,7 +122,7 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
             />
 
             {/* Spazio bianco di respiro tra Location e 3D */}
-            <div className="w-full h-14 sm:h-20 bg-white" />
+            <div className="editorial-gap w-full bg-white" />
 
             {/* 4. Dedicated 3D Interactive Trullo & Pinnacle Section */}
             <PinnacleShowcase
@@ -132,7 +132,7 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
             />
 
             {/* Spazio bianco di respiro tra 3D e Recensioni */}
-            <div className="w-full h-14 sm:h-20 bg-white" />
+            <div className="editorial-gap w-full bg-white" />
 
             {/* 5. Testimonianze (Reviews) */}
             <ReviewsSection lang={lang} />
@@ -246,7 +246,7 @@ export const App: React.FC<{ initialRoute?: AppRoute; initialLang?: Language }> 
             </div>
 
             {/* Spazio bianco di respiro */}
-            <div className="w-full h-14 sm:h-20 bg-white" />
+            <div className="editorial-gap w-full bg-white" />
 
             {/* Exclusive Estate Booking Pavilion (Sophisticated & Harmonious) */}
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">

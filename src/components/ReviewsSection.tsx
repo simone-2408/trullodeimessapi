@@ -12,15 +12,15 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ lang }) => {
   const t = TRANSLATIONS[lang];
 
   return (
-    <section id="recensioni" className="py-20 sm:py-28 bg-[#F3EDE3]/50 relative overflow-hidden">
+    <section id="recensioni" className="editorial-space bg-[#F3EDE3]/50 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-2 py-1.5 text-[#8A6743] text-xs font-bold uppercase tracking-widest mb-3">
             <MessageSquareQuote size={14} />
             <span>{t.reviews.sectionTag}</span>
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+          <h2 className="editorial-title text-gray-900">
             {t.reviews.title}
           </h2>
           <div className="flex items-center justify-center gap-2 mt-4">

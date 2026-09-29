@@ -17,15 +17,15 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
   return (
     <section className="w-full bg-white">
       {/* 1. Minimal Editorial Intro Header */}
-      <div className="py-20 sm:py-28 text-center px-4 max-w-3xl mx-auto">
+      <div className="editorial-space text-center px-6 max-w-3xl mx-auto">
         <span className="text-xs uppercase tracking-[0.25em] text-[#B99470] font-semibold block mb-3">
           {lang === 'it' ? 'Benvenuti in Valle d’Itria' : 'Welcome to the Itria Valley'}
         </span>
-        <h2 className="font-serif text-3xl sm:text-5xl font-normal text-stone-900 leading-tight">
+        <h2 className="editorial-title text-stone-900">
           {lang === 'it' ? 'Storia & natura' : 'History & nature'}
         </h2>
         <div className="w-12 h-[1.5px] bg-[#B99470]/60 mx-auto my-5" />
-        <p className="text-sm sm:text-base text-stone-600 font-light max-w-xl mx-auto leading-relaxed">
+        <p className="editorial-copy text-stone-600 mx-auto">
           {lang === 'it'
             ? 'Scegli la tua dimora e scopri la Puglia'
             : 'Choose your residence and explore Puglia'}
@@ -36,7 +36,7 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
       <div className="w-full flex flex-col">
         {/* Full-Screen Photo 1: I Trulli in pietra viva */}
         <SiteLink route="suites" lang={lang} onNavigate={onNavigate}
-          className="group relative w-full h-[85vh] sm:h-screen min-h-[400px] sm:min-h-[580px] mobile-landscape-full-photo overflow-hidden bg-stone-950 cursor-pointer"
+          className="home-panorama group relative w-full h-[85vh] sm:h-screen min-h-[400px] sm:min-h-[580px] mobile-landscape-full-photo overflow-hidden bg-stone-950 cursor-pointer"
         >
           <SmartImage sizes="100vw"
             src="./images/quercia/IMG_3145.JPG"
@@ -49,15 +49,15 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
 
           {/* Full-Screen Caption Overlay */}
           <div className="absolute inset-0 flex items-end">
-            <div className="w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 pb-16 sm:pb-20 lg:pb-24 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+            <div className="w-full max-w-7xl mx-auto editorial-caption flex flex-col sm:flex-row sm:items-end justify-between gap-6">
               <div className="max-w-2xl text-white">
                 <span className="text-xs uppercase tracking-[0.25em] text-[#EAD8C0] font-medium block mb-2">
                   {lang === 'it' ? 'Architettura Rurale' : 'Rural Architecture'}
                 </span>
-                <h3 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal text-white leading-tight mb-3">
+                <h3 className="editorial-title text-white mb-4">
                   {lang === 'it' ? 'I coni in pietra viva' : 'The ancient stone cones'}
                 </h3>
-                <p className="text-white/85 text-sm sm:text-base md:text-lg font-light leading-relaxed max-w-xl">
+                <p className="editorial-copy text-white/85">
                   {lang === 'it'
                     ? 'Tre dimore indipendenti custodite da spesse mura in calce e pietra locale, per un riposo fresco e protetto.'
                     : 'Three independent suites embraced by thick stone walls and white lime, for cool, authentic quiet.'}
@@ -75,11 +75,11 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
         </SiteLink>
 
         {/* Piccolo spazio bianco tra le foto */}
-        <div className="w-full h-12 sm:h-20 bg-white" />
+        <div className="editorial-gap w-full bg-white" />
 
         {/* Full-Screen Photo 2: La Piscina tra gli ulivi */}
         <SiteLink route="piscina" lang={lang} onNavigate={onNavigate}
-          className="group relative w-full h-[85vh] sm:h-screen min-h-[400px] sm:min-h-[580px] mobile-landscape-full-photo overflow-hidden bg-stone-950 cursor-pointer"
+          className="home-panorama group relative w-full h-[85vh] sm:h-screen min-h-[400px] sm:min-h-[580px] mobile-landscape-full-photo overflow-hidden bg-stone-950 cursor-pointer"
         >
           <SmartImage sizes="100vw"
             src="./images/piscina/106724803.jpg"
@@ -92,15 +92,15 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
 
           {/* Full-Screen Caption Overlay */}
           <div className="absolute inset-0 flex items-end">
-            <div className="w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 pb-16 sm:pb-20 lg:pb-24 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+            <div className="w-full max-w-7xl mx-auto editorial-caption flex flex-col sm:flex-row sm:items-end justify-between gap-6">
               <div className="max-w-2xl text-white">
                 <span className="text-xs uppercase tracking-[0.25em] text-[#EAD8C0] font-medium block mb-2">
                   {lang === 'it' ? 'Acqua & Silenzio' : 'Water & Silence'}
                 </span>
-                <h3 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal text-white leading-tight mb-3">
+                <h3 className="editorial-title text-white mb-4">
                   {lang === 'it' ? 'Uno specchio d’acqua tra ulivi e piante mediterranee' : 'A mirror of water among olive trees and Mediterranean plants'}
                 </h3>
-                <p className="text-white/85 text-sm sm:text-base md:text-lg font-light leading-relaxed max-w-xl">
+                <p className="editorial-copy text-white/85">
                   {lang === 'it'
                     ? 'Un’oasi di puro benessere con idromassaggio e spazi dedicati in esclusiva agli ospiti delle dimore.'
                     : 'An oasis of pure wellbeing, with hydromassage and spaces reserved exclusively for guests of the residences.'}

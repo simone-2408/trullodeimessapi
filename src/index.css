@@ -168,3 +168,35 @@ footer .text-\[\#B99470\], #trullo-3d .text-\[\#B99470\], header .bg-\[\#1C1C1C\
   .stay-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .stay-facts > * + * { border-left: 1px solid #DDD7CC; }
 }
+
+/* A shared scale for the homepage's editorial sections. */
+.editorial-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 1.25rem + 2.3vw, 3rem);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+.editorial-copy {
+  max-width: 38rem;
+  font-size: clamp(0.9375rem, 0.875rem + 0.25vw, 1rem);
+  font-weight: 400;
+  line-height: 1.8;
+  text-wrap: pretty;
+}
+.editorial-space { padding-block: clamp(3.5rem, 7vw, 6rem); }
+.editorial-gap { height: clamp(2.5rem, 5vw, 4rem); }
+.editorial-inset {
+  padding-block: clamp(3.5rem, 7vw, 6rem);
+  padding-inline: clamp(1.5rem, 5vw, 5rem);
+}
+.editorial-caption {
+  padding-inline: clamp(1.5rem, 5vw, 4rem);
+  padding-bottom: clamp(3rem, 5vw, 4rem);
+}
+
+@media (orientation: landscape) and (max-height: 550px) {
+  .home-panorama { min-height: 360px !important; }
+  .home-panorama .editorial-caption { padding-block: 2rem; }
+}

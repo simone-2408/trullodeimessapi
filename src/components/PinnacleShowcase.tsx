@@ -113,8 +113,8 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
     <section id="trullo-3d" className="w-full bg-[#161514] text-white border-b border-[#2A2826] overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-12 w-full min-h-[640px] lg:min-h-[760px]">
         {/* LEFT COLUMN: Haute Editorial & Architectural Narrative */}
-        <div className="lg:col-span-6 p-8 sm:p-14 lg:p-16 xl:p-24 flex flex-col justify-center">
-          <div className="max-w-xl">
+        <div className="editorial-inset lg:col-span-6 flex flex-col justify-center">
+          <div className="max-w-[38rem]">
             {/* Tag Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#B99470]/15 border border-[#B99470]/30 text-[#EAD8C0] text-xs font-semibold tracking-[0.2em] uppercase mb-4 shadow-sm">
               <Sparkles size={13} className="text-[#B99470]" />
@@ -122,7 +122,7 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
             </div>
 
             {/* Editorial Headline */}
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-normal tracking-wide text-white leading-tight">
+            <h2 className="editorial-title text-white">
               {narrative.title}
             </h2>
 
@@ -130,7 +130,7 @@ export const PinnacleShowcase: React.FC<PinnacleShowcaseProps> = ({
             <div className="w-16 h-[2px] bg-[#B99470] my-6" />
 
             {/* Paragraphs */}
-            <div className="space-y-4 text-white/80 font-light text-sm sm:text-base leading-relaxed mb-8">
+            <div className="editorial-copy space-y-5 text-white/80 mb-8">
               <p>{narrative.desc1}</p>
               <p>{narrative.desc2}</p>
             </div>
