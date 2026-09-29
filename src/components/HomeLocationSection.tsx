@@ -52,7 +52,7 @@ export const HomeLocationSection: React.FC<HomeLocationSectionProps> = ({
               {lang === 'it' ? 'La Terra e i Trulli' : 'Earth & Trulli'}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-wide text-white leading-tight">
-              {lang === 'it' ? 'Un rifugio antico nella natura' : 'An ancient sanctuary in nature'}
+              {lang === 'it' ? 'Nel paesaggio di Ceglie Messapica' : 'In the countryside of Ceglie Messapica'}
             </h2>
 
             {/* Warm Gold Accent Divider Line */}

@@ -19,16 +19,16 @@ export const HomeDualPhotoSection: React.FC<HomeDualPhotoSectionProps> = ({
       {/* 1. Minimal Editorial Intro Header */}
       <div className="py-20 sm:py-28 text-center px-4 max-w-3xl mx-auto">
         <span className="text-xs uppercase tracking-[0.25em] text-[#B99470] font-semibold block mb-3">
-          {lang === 'it' ? 'Pietra & Natura' : 'Stone & Nature'}
+          {lang === 'it' ? 'Benvenuti in Valle d’Itria' : 'Welcome to the Itria Valley'}
         </span>
         <h2 className="font-serif text-3xl sm:text-5xl font-normal text-stone-900 leading-tight">
-          {lang === 'it' ? 'La quiete essenziale' : 'Essential quiet'}
+          {lang === 'it' ? 'Una vacanza tra trulli e ulivi' : 'A holiday among trulli and olive trees'}
         </h2>
         <div className="w-12 h-[1.5px] bg-[#B99470]/60 mx-auto my-5" />
         <p className="text-sm sm:text-base text-stone-600 font-light max-w-xl mx-auto leading-relaxed">
           {lang === 'it'
-            ? 'Antica pietra viva, la trasparenza dell’acqua e il respiro degli ulivi secolari.'
-            : 'Ancient living stone, clear waters, and the quiet breath of olive trees.'}
+            ? 'Scegli la tua dimora e scopri la Puglia, con uno spazio tutto tuo a cui tornare.'
+            : 'Choose your residence and explore Puglia, with a place of your own to return to.'}
         </p>
       </div>
 

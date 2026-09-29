@@ -170,7 +170,7 @@ export const TRANSLATIONS = {
     },
     reviews: {
       sectionTag: 'Ospiti & Ricordi',
-      title: 'Parole di chi ha vissuto la quiete del Trullo',
+      title: 'I ricordi dei nostri ospiti',
       ratingText: '5 su 5 nelle quattro testimonianze riportate',
     },
     contact: {
@@ -364,7 +364,7 @@ export const TRANSLATIONS = {
     },
     reviews: {
       sectionTag: 'Testimonials',
-      title: 'Reviews from our guests',
+      title: 'Memories from our guests',
       ratingText: '5 out of 5 in the four testimonials shown',
     },
     contact: {
