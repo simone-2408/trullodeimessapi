@@ -1,3 +1,4 @@
+import { GalleryImageButton } from './GalleryImageButton';
 import { SmartImage } from './SmartImage';
 import React, { useState, useRef, useEffect } from 'react';
 import { Accommodation, Language } from '../types';
@@ -96,13 +97,7 @@ export const AccommodationModal: React.FC<AccommodationModalProps> = ({
               className="w-full h-full object-cover transition-all duration-300 group-hover:scale-[1.02]"
             />
 
-            {/* Center Hover Fullscreen Cue */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-              <div className="bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border border-white/20 shadow-xl scale-95 group-hover:scale-100 transition-transform">
-                <Maximize2 size={14} className="text-[#B99470]" />
-                <span>{lang === 'it' ? 'Clicca per schermo intero' : 'Click for fullscreen'}</span>
-              </div>
-            </div>
+            <GalleryImageButton lang={lang} subject={accommodation.name} photoIndex={currentImageIndex} onOpen={() => setIsLightboxOpen(true)} />
 
             {/* Top-Right Fullscreen Button */}
             <div className="absolute top-3 right-3 z-10 pointer-events-auto">

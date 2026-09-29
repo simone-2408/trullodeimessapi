@@ -1,3 +1,4 @@
+import { GalleryImageButton } from './GalleryImageButton';
 import { SiteLink } from './SiteLink';
 import { SmartImage } from './SmartImage';
 import React, { useState } from 'react';
@@ -101,13 +102,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
           {/* Subtle Vignette Gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
 
-          {/* Center Hover Fullscreen Cue */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-            <div className="bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 border border-white/20 shadow-xl scale-95 group-hover:scale-100 transition-transform">
-              <Maximize2 size={14} className="text-[#B99470]" />
-              <span>{lang === 'it' ? 'Clicca per schermo intero' : 'Click for fullscreen'}</span>
-            </div>
-          </div>
+          <GalleryImageButton lang={lang} subject={accommodation.name} photoIndex={activePhotoIndex} onOpen={() => setIsLightboxOpen(true)} />
 
           {/* Top Gallery Button with Fullscreen Cue */}
           <div className="absolute top-4 sm:top-6 left-4 sm:left-6 right-4 sm:right-6 flex items-center justify-end pointer-events-auto">
@@ -158,6 +153,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       if (isLastThumbnail) {
+                        setActivePhotoIndex(pIdx);
                         setIsLightboxOpen(true);
                       } else {
                         setActivePhotoIndex(pIdx);
