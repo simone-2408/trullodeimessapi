@@ -119,10 +119,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
           {/* Left Column: Host & Direct Contact Card (5 cols) */}
           <div className="lg:col-span-5 flex flex-col">
             {/* Antonella Host Card */}
-            <div className="h-full bg-[#FAF7F2] p-8 sm:p-10 rounded-xl border border-[#E8E1D5] shadow-none flex flex-col justify-between">
+            <div className="h-full bg-[#FAF7F2] p-8 sm:p-10 rounded-none border border-[#E8E1D5] shadow-none flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-4 mb-5">
-                  <div className="w-14 h-14 rounded-2xl bg-[#B99470] text-white flex items-center justify-center shadow-md shrink-0">
+                  <div className="w-14 h-14 rounded-none bg-[#B99470] text-white flex items-center justify-center shadow-md shrink-0">
                     <Sparkles size={24} />
                   </div>
                   <div>
@@ -220,7 +220,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
           </div>
 
           {/* Right Column: Direct Message Form (7 cols) */}
-          <div className="lg:col-span-7 bg-[#FAF7F2] p-8 sm:p-10 rounded-xl border border-[#E8E1D5] shadow-none flex flex-col justify-between">
+          <div className="lg:col-span-7 bg-[#FAF7F2] p-8 sm:p-10 rounded-none border border-[#E8E1D5] shadow-none flex flex-col justify-between">
             <div>
               <h3 className="font-serif text-2xl sm:text-3xl font-semibold text-stone-900 mb-1.5">
                 {lang === 'it' ? 'Inviaci un Messaggio Diretto' : 'Send Us a Direct Message'}
@@ -232,7 +232,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
               </p>
 
             {isSent ? (
-              <div className="bg-emerald-50 border border-emerald-200 p-8 rounded-2xl text-center space-y-2.5">
+              <div className="bg-emerald-50 border border-emerald-200 p-8 rounded-none text-center space-y-2.5">
                 <CheckCircle2 size={36} className="text-emerald-600 mx-auto" />
                 <h4 className="font-serif text-xl font-bold text-emerald-900">
                   {lang === 'it'
@@ -266,7 +266,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder={lang === 'it' ? 'es. Mario Rossi' : 'e.g. Alex Smith'}
-                      className="w-full bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
+                      className="w-full bg-white border border-[#DDD7CC] rounded-none px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
                     />
                   </div>
                   <div>
@@ -280,7 +280,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@example.com"
-                      className="w-full bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
+                      className="w-full bg-white border border-[#DDD7CC] rounded-none px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -295,7 +295,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                       value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="es. +39 340 1234567"
-                    className="w-full bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
+                    className="w-full bg-white border border-[#DDD7CC] rounded-none px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
                   />
                 </div>
 
@@ -314,7 +314,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                         ? 'Scrivi qui le tue richieste, periodi di interesse o necessità particolari...'
                         : 'Write your questions, dates of interest, or specific requirements here...'
                     }
-                    className="w-full bg-white border border-[#DDD7CC] rounded-xl px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
+                    className="w-full bg-white border border-[#DDD7CC] rounded-none px-4 py-3 text-sm text-stone-800 focus:ring-2 focus:ring-[#B99470] focus:outline-none"
                   />
                 </div>
 
@@ -340,7 +340,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
       {/* ==================================================== */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#B99470]/15 text-[#8A6743] text-xs font-bold uppercase tracking-widest mb-2.5">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-none bg-[#B99470]/15 text-[#8A6743] text-xs font-bold uppercase tracking-widest mb-2.5">
             <Compass size={13} />
             <span>{t.location.sectionTag}</span>
           </div>
@@ -403,7 +403,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
       {/* 4. MAPPA & NAVIGAZIONE (FULL-WIDTH LUXURY STRIP) */}
       {/* ==================================================== */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
-        <div className="bg-[#FAF7F2] border border-[#E8E1D5] rounded-md overflow-hidden shadow-none grid grid-cols-1 lg:grid-cols-12">
+        <div className="bg-[#FAF7F2] border border-[#E8E1D5] rounded-none overflow-hidden shadow-none grid grid-cols-1 lg:grid-cols-12">
           {/* Map Info & Address (5 cols) */}
           <div className="lg:col-span-5 p-8 sm:p-12 flex flex-col justify-between">
             <div>
