@@ -154,6 +154,7 @@ footer .text-\[\#B99470\], #trullo-3d .text-\[\#B99470\], header .bg-\[\#1C1C1C\
 }
 .stay-action:hover { box-shadow: none; }
 .stay-action svg { flex-shrink: 0; }
+#preventivo .stay-action { border-radius: 0; }
 .stay-facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
