@@ -76,8 +76,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
     {
       title: t.location.airports,
       desc: t.location.airportsDesc,
-      km: 'BDS / BRI',
-      time: '35-70 min',
+      km: '',
+      time: '45–90 min',
+      airportDistances: [
+        { name: 'Brindisi (BDS)', km: '55 km' },
+        { name: 'Bari (BRI)', km: '110 km' },
+      ],
     },
   ];
 
@@ -369,9 +373,23 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-[#EAE3D7] flex items-center justify-between text-xs text-stone-500 font-mono">
-                <span>Distanza:</span>
-                <span className="font-semibold text-stone-800">{d.km}</span>
+              <div className="mt-4 pt-3 border-t border-[#EAE3D7] text-xs text-stone-500 font-mono">
+                {d.airportDistances ? (
+                  <div className="space-y-2">
+                    <span>{lang === 'it' ? 'Distanze in auto (circa):' : 'Driving distances (approx.):'}</span>
+                    {d.airportDistances.map((airport) => (
+                      <div key={airport.name} className="flex items-center justify-between gap-3">
+                        <span>{airport.name}</span>
+                        <span className="font-semibold text-stone-800">{airport.km}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-3">
+                    <span>{lang === 'it' ? 'Distanza:' : 'Distance:'}</span>
+                    <span className="font-semibold text-stone-800">{d.km}</span>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -408,7 +426,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ lang }) => {
                 </p>
                 <p className="flex items-center gap-2">
                   <Plane size={15} className="text-[#B99470] shrink-0" />
-                  <span>Aeroporto Brindisi (BDS): 35 min • Bari (BRI): 70 min</span>
+                  <span>{lang === 'it' ? 'In auto, circa: Brindisi (BDS) 45 min • Bari (BRI) 1 h 30 min' : 'By car, approx.: Brindisi (BDS) 45 min • Bari (BRI) 1 h 30 min'}</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <Clock size={15} className="text-[#B99470] shrink-0" />
