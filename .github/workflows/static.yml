@@ -36,14 +36,18 @@ jobs:
       - name: Check types, lint and booking rules
         run: npm run typecheck && npm run lint && npm test
 
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
       - name: Build production site
+        env:
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+          VITE_SITE_URL: ${{ steps.pages.outputs.base_url }}/
         run: npm run build
 
       - name: Verify static pages and assets
         run: npm run check:site
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
