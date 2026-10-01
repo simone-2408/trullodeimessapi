@@ -158,16 +158,16 @@ export const FullscreenLightbox: React.FC<FullscreenLightboxProps> = ({
 
       {/* 3. Top Header Bar: Title & Counter (Padded for notch and buttons) */}
       <div
-        className="lightbox-header-landscape w-full flex items-center justify-center px-24 sm:px-32 z-20 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none text-center"
+        className="lightbox-header-landscape w-full flex items-center justify-center pl-16 pr-32 sm:px-40 z-20 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none text-center"
         style={{
           paddingTop: 'max(12px, calc(env(safe-area-inset-top, 0px) + 12px))',
           paddingBottom: '12px',
         }}
       >
-        <div className="flex flex-col items-center max-w-md pointer-events-auto">
+        <div className="flex flex-col items-center w-full min-w-0 max-w-md pointer-events-auto">
           {title && (
-            <h3 className="font-serif text-white text-sm sm:text-lg font-normal tracking-wide truncate max-w-full flex items-center gap-2">
-              <span>{title}</span>
+            <h3 className="font-serif text-white text-sm sm:text-lg font-normal tracking-wide min-w-0 max-w-full flex items-center gap-2">
+              <span className="min-w-0 truncate">{title}</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#B99470] shrink-0" />
               <span className="text-xs font-sans text-stone-300 font-light shrink-0">
                 {currentIndex + 1} / {images.length}

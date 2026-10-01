@@ -118,6 +118,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
   };
 
   const canRequest = !isOverCapacity && quote.isValid && quote.meetsMinNights && !isCheckInPast;
+  const nightsLabel = quote.totalNights === 1 ? (lang === 'it' ? 'notte' : 'night') : t.calculator.nights;
   const handleWhatsAppInquiry = () => {
     if (!canRequest) return;
     window.open(getWhatsAppUrl(inquiryText(inquiryState, quote.totalEstimated, quote.totalNights, lang)), '_blank', 'noopener,noreferrer');
@@ -230,7 +231,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 </p>
                 {quote.isValid && !isCheckInPast && (
                   <span className="text-xs font-semibold text-[#B99470] bg-[#B99470]/10 px-2.5 py-0.5 rounded-none">
-                    {quote.totalNights} {quote.totalNights === 1 ? (lang === 'it' ? 'notte' : 'night') : (lang === 'it' ? 'notti' : 'nights')}
+                    {quote.totalNights} {nightsLabel}
                   </span>
                 )}
               </div>
@@ -430,7 +431,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 <div className="mt-3.5 p-3 bg-amber-50 rounded-none border border-amber-200/60 text-xs text-amber-900 flex items-center gap-2">
                   <Info size={16} className="text-amber-700 shrink-0" />
                   <span>
-                    {lang === 'it' ? `Tariffa base per ${selectedAccommodation.capacityStandard} ospiti. ${extraBeds} letti aggiunti nella stima (+${extraBeds * 35} € a notte).` : `Base rate for ${selectedAccommodation.capacityStandard} guests. ${extraBeds} extra beds in the estimate (+€${extraBeds * 35}/night).`}
+                    {lang === 'it' ? `Tariffa base per ${selectedAccommodation.capacityStandard} ospiti. ${extraBeds} ${extraBeds === 1 ? 'letto aggiunto' : 'letti aggiunti'} nella stima (+${extraBeds * 35} € a notte).` : `Base rate for ${selectedAccommodation.capacityStandard} guests. ${extraBeds} extra ${extraBeds === 1 ? 'bed' : 'beds'} in the estimate (+€${extraBeds * 35}/night).`}
 
                   </span>
                 </div>
@@ -636,7 +637,7 @@ export const QuoteCalculator: React.FC<QuoteCalculatorProps> = ({
                 <div className="flex justify-between items-center text-xs text-white/80 bg-white/5 p-3 rounded-none border border-white/10">
                   <span className="font-mono text-xs">{formatDateDisplay(formState.checkIn)} → {formatDateDisplay(formState.checkOut)}</span>
                   <span className="font-semibold text-[#DFD0B8]">
-                    {quote.totalNights} {t.calculator.nights} • {totalGuests} {lang === 'it' ? 'ospiti' : 'guests'}
+                    {quote.totalNights} {nightsLabel} • {totalGuests} {lang === 'it' ? 'ospiti' : 'guests'}
                   </span>
                 </div>
 
